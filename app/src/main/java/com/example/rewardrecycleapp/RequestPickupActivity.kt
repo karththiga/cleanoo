@@ -1,0 +1,161 @@
+package com.example.rewardrecycleapp
+
+import android.app.Activity.RESULT_OK
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity   // <<< MISSING IMPORT (FIXED)
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import java.util.Calendar
+
+
+class RequestPickupActivity : AppCompatActivity() {
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+    private lateinit var storage: FirebaseStorage
+
+    private var imageUri: Uri? = null
+    private var selectedCategory = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_request_pickup)
+
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+        storage = FirebaseStorage.getInstance()
+
+        val imgUpload = findViewById<ImageView>(R.id.imgUpload)
+        val edtWeight = findViewById<EditText>(R.id.edtWeight)
+        val edtLocation = findViewById<EditText>(R.id.edtLocation)
+        val edtDate = findViewById<EditText>(R.id.edtDate)
+        val edtTime = findViewById<EditText>(R.id.edtTime)
+        val btnSubmit = findViewById<Button>(R.id.btnSubmitPickup)
+
+        // Category buttons
+        val categories = mapOf(
+            R.id.catPlastic to "Plastic",
+            R.id.catPaper to "Paper",
+            R.id.catGlass to "Glass",
+            R.id.catMetal to "Metal",
+            R.id.catEwaste to "E-Waste"
+        )
+
+        categories.forEach { (id, type) ->
+            findViewById<TextView>(id).setOnClickListener {
+                selectedCategory = type
+                highlightCategory(id, categories.keys)
+            }
+        }
+
+        imgUpload.setOnClickListener { pickImage() }
+        edtDate.setOnClickListener { pickDate(edtDate) }
+        edtTime.setOnClickListener { pickTime(edtTime) }
+
+        btnSubmit.setOnClickListener {
+            uploadPickupRequest(
+                selectedCategory,
+                edtWeight.text.toString(),
+                edtLocation.text.toString(),
+                edtDate.text.toString(),
+                edtTime.text.toString()
+            )
+        }
+    }
+
+    private fun highlightCategory(selectedId: Int, allIds: Set<Int>) {
+        allIds.forEach {
+            findViewById<TextView>(it).setBackgroundResource(R.drawable.bg_card_white)
+        }
+        findViewById<TextView>(selectedId).setBackgroundResource(R.drawable.bg_card_green)
+    }
+
+    private fun pickImage() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, 101)
+    }
+
+    override fun onActivityResult(req: Int, res: Int, data: Intent?) {
+        super.onActivityResult(req, res, data)
+
+        if (req == 101 && res == RESULT_OK) {
+            imageUri = data?.data
+            findViewById<ImageView>(R.id.imgUpload).setImageURI(imageUri)
+        }
+    }
+
+    private fun pickDate(editText: EditText) {
+        val c = Calendar.getInstance()
+        DatePickerDialog(this, { _, y, m, d ->
+            editText.setText("$d-${m+1}-$y")
+        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
+    }
+
+    private fun pickTime(editText: EditText) {
+        val c = Calendar.getInstance()
+        TimePickerDialog(this, { _, h, m ->
+            editText.setText("$h:$m")
+        }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show()
+    }
+
+    private fun uploadPickupRequest(category: String, weight: String, location: String, date: String, time: String) {
+        if (category.isEmpty()) {
+            Toast.makeText(this, "Select category", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val user = auth.currentUser ?: return
+        val id = System.currentTimeMillis().toString()
+
+        val data = hashMapOf(
+            "pickupId" to id,
+            "userId" to user.uid,
+            "category" to category,
+            "weight" to weight,
+            "location" to location,
+            "date" to date,
+            "time" to time,
+            "status" to "Pending",
+            "timestamp" to FieldValue.serverTimestamp()
+        )
+
+        if (imageUri == null) {
+            saveToFirestore(id, data)
+        } else {
+            uploadImage(id, data)
+        }
+    }
+
+    private fun uploadImage(id: String, data: HashMap<String, Any>) {
+        imageUri?.let { uri ->
+            val ref = storage.reference.child("pickupImages/$id.jpg")
+            ref.putFile(uri)
+                .addOnSuccessListener {
+                    ref.downloadUrl.addOnSuccessListener { url ->
+                        data["imageUrl"] = url.toString()
+                        saveToFirestore(id, data)
+                    }
+                }
+        }
+    }
+
+    private fun saveToFirestore(id: String, data: HashMap<String, Any>) {
+        db.collection("pickups").document(id).set(data)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Pickup request submitted", Toast.LENGTH_LONG).show()
+                finish()
+            }
+    }
+}

@@ -1,0 +1,78 @@
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.example.rewardrecycleapp.R
+import com.example.rewardrecycleapp.RequestPickupActivity
+import com.example.rewardrecycleapp.databinding.FragmentHomeBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+
+class HomeFragment : Fragment() {
+
+
+
+        private var _binding: FragmentHomeBinding? = null
+        private val binding get() = _binding!!
+        private val auth = FirebaseAuth.getInstance()
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            _binding = FragmentHomeBinding.inflate(inflater, container, false)
+            return binding.root
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            loadUserName()
+            setupClicks()
+        }
+
+        private fun loadUserName() {
+            val user = auth.currentUser ?: return
+            val db = FirebaseFirestore.getInstance()
+
+            db.collection("users").document(user.uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        val name = doc.getString("name") ?: "User"
+                        binding.tvGreeting.text = "Hello, $name 👋"
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to load name", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        private fun setupClicks() {
+
+            // Navigate to Request Pickup
+            binding.layoutRequestPickup.setOnClickListener {
+                val intent = Intent(requireContext(), RequestPickupActivity::class.java)
+                startActivity(intent)
+            }
+
+            binding.layoutHistory.setOnClickListener {
+                Toast.makeText(requireContext(), "History clicked", Toast.LENGTH_SHORT).show()
+            }
+
+            binding.layoutRewards.setOnClickListener {
+                Toast.makeText(requireContext(), "Rewards clicked", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
+        }
+    }
+

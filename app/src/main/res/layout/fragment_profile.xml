@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_profile_page"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ================= PROFILE HEADER CARD ================= -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/imgProfile"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/default_profile"
+                    android:layout_marginEnd="10dp"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="#0F4C81"/>
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="16dp">
+
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="User Name"
+                        android:textColor="#0F4C81"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="user@gmail.com"
+                        android:textColor="#6D6D6D"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <!-- ================= MENU CARD ================= -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Edit Profile -->
+                <LinearLayout
+                    android:id="@+id/btnEditProfile"
+                    style="@style/ProfileRowStyle">
+
+                    <ImageView
+                        android:src="@drawable/baseline_person_24"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:tint="#0F4C81" />
+
+                    <TextView
+                        android:text="Edit Profile"
+                        style="@style/ProfileRowText" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider_color" />
+
+                <!-- Phone -->
+                <LinearLayout
+                    android:id="@+id/btnPhone"
+                    style="@style/ProfileRowStyle">
+
+                    <ImageView
+                        android:src="@drawable/baseline_contact_phone_24"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:tint="#0F4C81" />
+
+                    <TextView
+                        android:text="Phone Number"
+                        style="@style/ProfileRowText" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider_color" />
+
+                <!-- Change Password -->
+                <LinearLayout
+                    android:id="@+id/btnChangePassword"
+                    style="@style/ProfileRowStyle">
+
+                    <ImageView
+                        android:src="@drawable/baseline_lock_24"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:tint="#0F4C81" />
+
+                    <TextView
+                        android:text="Change Password"
+                        style="@style/ProfileRowText" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider_color" />
+
+                <!-- Inbox -->
+                <LinearLayout
+                    android:id="@+id/btnInbox"
+                    style="@style/ProfileRowStyle">
+
+                    <ImageView
+                        android:src="@drawable/baseline_circle_notifications_24"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:tint="#0F4C81" />
+
+                    <TextView
+                        android:text="Inbox"
+                        style="@style/ProfileRowText" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider_color" />
+
+                <!-- Logout -->
+                <LinearLayout
+                    android:id="@+id/btnLogout"
+                    style="@style/ProfileRowStyle">
+
+                    <ImageView
+                        android:src="@drawable/baseline_logout_24"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:tint="#D9534F" />
+
+                    <TextView
+                        android:text="Logout"
+                        android:textColor="#D9534F"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="12dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <!-- ======================= EXPANDABLE SECTIONS ======================= -->
+
+        <!-- Edit Profile -->
+        <LinearLayout
+            android:id="@+id/sectionEditProfile"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <EditText
+                android:id="@+id/edtName"
+                android:hint="Full Name"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnSaveProfile"
+                android:text="Save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+
+        <!-- Phone -->
+        <LinearLayout
+            android:id="@+id/sectionPhone"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <EditText
+                android:id="@+id/edtPhone"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnSavePhone"
+                android:text="Save Number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+
+        <!-- Password -->
+        <LinearLayout
+            android:id="@+id/sectionPassword"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <EditText
+                android:id="@+id/edtPassword"
+                android:hint="New Password"
+                android:inputType="textPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnSavePassword"
+                android:text="Update Password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+
+        <!-- Inbox -->
+        <LinearLayout
+            android:id="@+id/sectionInbox"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <TextView
+                android:text="You have no new messages."
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

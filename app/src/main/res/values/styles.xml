@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ROW STYLE FOR PROFILE OPTIONS -->
+    <style name="ProfileRowStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:layout_marginBottom">8dp</item>   <!-- ADD THIS -->
+    </style>
+
+
+    <!-- TEXT STYLE FOR PROFILE ROW ITEMS -->
+    <style name="ProfileRowText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#0F4C81</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginStart">12dp</item>
+    </style>
+
+    <style name="ProfileDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@drawable/divider</item>
+    </style>
+
+    <style name="CategoryCard">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:background">@drawable/bg_card_white</item>
+        <item name="android:textColor">#0F4C81</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
+</resources>
