@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1049543524070",
-    "project_id": "rewardrecycleapp-558a5",
-    "storage_bucket": "rewardrecycleapp-558a5.firebasestorage.app"
+    "project_number": "523257367116",
+    "project_id": "wastemanagementadmin",
+    "storage_bucket": "wastemanagementadmin.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1049543524070:android:78a2db02f7dab3eae30527",
+        "mobilesdk_app_id": "1:523257367116:android:324ef52d88609fcecb42e9",
         "android_client_info": {
           "package_name": "com.example.rewardrecycleapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCIXV5Ud9fLNlM0UUgtJvluRLM8terKHxs"
+          "current_key": "AIzaSyA6nPpNKJq0ShWPf7ObGVjXilYMpzX9kbQ"
         }
       ],
       "services": {
