@@ -44,7 +44,7 @@ class SignupActivity : AppCompatActivity() {
             }
 
             if (pwd != confirmPwd) {
-                binding.etConfirmPassword.error = "Passwords do not match"
+                binding.etConfirmPassword.error = "Passwords do not match.please enter correct password"
                 return@setOnClickListener
             }
 
