@@ -15,11 +15,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,6 +35,9 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
     private lateinit var map: GoogleMap
+    private val fusedLocationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
 
     private var imageUri: Uri? = null
     private var selectedCategory = ""
@@ -89,6 +94,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.uiSettings.isMyLocationButtonEnabled = true
         enableMyLocation()
     }
 
@@ -105,15 +111,38 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         map.isMyLocationEnabled = true
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            val target = if (location != null) {
-                LatLng(location.latitude, location.longitude)
-            } else {
-                LatLng(0.0, 0.0)
+        fetchCurrentLocation()
+    }
+
+    private fun fetchCurrentLocation() {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { location ->
+                if (location != null) {
+                    val target = LatLng(location.latitude, location.longitude)
+                    map.clear()
+                    map.addMarker(
+                        MarkerOptions()
+                            .position(target)
+                            .title("Current Location")
+                    )
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 16f))
+                } else {
+                    fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
+                        if (lastLocation != null) {
+                            val target = LatLng(lastLocation.latitude, lastLocation.longitude)
+                            map.clear()
+                            map.addMarker(
+                                MarkerOptions()
+                                    .position(target)
+                                    .title("Current Location")
+                            )
+                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
+                        } else {
+                            Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
-        }
     }
 
     override fun onRequestPermissionsResult(
