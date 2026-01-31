@@ -98,93 +98,6 @@
         </androidx.cardview.widget.CardView>
 
 
-        <!-- Quick Actions Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quick Actions"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp"
-            android:textColor="#1E1E1E"/>
-
-        <!-- Quick Actions Grid -->
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:alignmentMode="alignMargins"
-            android:rowOrderPreserved="false">
-
-            <!-- History Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/layoutHistory"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_margin="8dp"
-                android:layout_columnWeight="1"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="3dp"
-                android:backgroundTint="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/baseline_home_24"
-                        app:tint="#5C6BC0"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="History"
-                        android:textColor="#5C6BC0"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Rewards Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/layoutRewards"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_margin="8dp"
-                android:layout_columnWeight="1"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="3dp"
-                android:backgroundTint="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/baseline_attach_money_24"
-                        app:tint="#5C6BC0"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rewards"
-                        android:textColor="#5C6BC0"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"/>
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-        </GridLayout>
-
         <!-- Recent Requests -->
         <TextView
             android:layout_width="wrap_content"
@@ -192,7 +105,7 @@
             android:text="Recent Requests"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="12dp"
             android:textColor="#1E1E1E"/>
 
@@ -374,6 +287,26 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
+
+        <!-- Announcements -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Announcements"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="12dp"
+            android:textColor="#1E1E1E"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerAnnouncements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:paddingBottom="12dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:orientation="horizontal" />
 
         </LinearLayout>
     </ScrollView>

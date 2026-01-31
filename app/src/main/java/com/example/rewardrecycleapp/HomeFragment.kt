@@ -61,13 +61,7 @@ class HomeFragment : Fragment() {
                 startActivity(intent)
             }
 
-            binding.layoutHistory.setOnClickListener {
-                Toast.makeText(requireContext(), "History clicked", Toast.LENGTH_SHORT).show()
-            }
-
-            binding.layoutRewards.setOnClickListener {
-                Toast.makeText(requireContext(), "Rewards clicked", Toast.LENGTH_SHORT).show()
-            }
+            // Placeholder for future dashboard actions
         }
 
         override fun onDestroyView() {
