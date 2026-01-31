@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F3F7FF">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:paddingBottom="96dp">
 
         <!-- Greeting -->
         <TextView
@@ -91,39 +97,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-
-        <!-- MAIN ACTION: Request Pickup -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/layoutRequestPickup"
-            android:layout_width="match_parent"
-            android:layout_height="130dp"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            android:backgroundTint="#FFFFFF">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:src="@drawable/baseline_home_24"
-                    app:tint="#1A73E8"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Request Pickup"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="#1A73E8"
-                    android:layout_marginTop="10dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
         <!-- Quick Actions Title -->
         <TextView
@@ -402,5 +375,17 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabRequestPickup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:contentDescription="Request pickup"
+        android:src="@drawable/baseline_home_24"
+        app:backgroundTint="#1A73E8"
+        app:tint="#FFFFFF" />
+</FrameLayout>
