@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -14,6 +15,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,6 +31,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Calendar
+import android.location.LocationManager
+import android.content.Context
 
 
 class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -37,6 +43,14 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private val fusedLocationClient by lazy {
         LocationServices.getFusedLocationProviderClient(this)
+    }
+    private var hasCenteredMap = false
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            val location = result.lastLocation ?: return
+            val target = LatLng(location.latitude, location.longitude)
+            updateMapLocation(target, 16f)
+        }
     }
 
     private var imageUri: Uri? = null
@@ -111,38 +125,55 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         map.isMyLocationEnabled = true
-        fetchCurrentLocation()
+        if (!isLocationEnabled()) {
+            Toast.makeText(this, "Enable location services to show your position", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            return
+        }
+
+        fetchLastKnownLocation()
+        startLocationUpdates()
     }
 
-    private fun fetchCurrentLocation() {
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-            .addOnSuccessListener { location ->
-                if (location != null) {
-                    val target = LatLng(location.latitude, location.longitude)
-                    map.clear()
-                    map.addMarker(
-                        MarkerOptions()
-                            .position(target)
-                            .title("Current Location")
-                    )
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 16f))
-                } else {
-                    fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
-                        if (lastLocation != null) {
-                            val target = LatLng(lastLocation.latitude, lastLocation.longitude)
-                            map.clear()
-                            map.addMarker(
-                                MarkerOptions()
-                                    .position(target)
-                                    .title("Current Location")
-                            )
-                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
-                        } else {
-                            Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
+    private fun startLocationUpdates() {
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, LOCATION_UPDATE_INTERVAL)
+            .setMinUpdateIntervalMillis(LOCATION_UPDATE_MIN_INTERVAL)
+            .setMaxUpdateDelayMillis(LOCATION_UPDATE_MAX_DELAY)
+            .build()
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        fusedLocationClient.requestLocationUpdates(request, locationCallback, mainLooper)
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun fetchLastKnownLocation() {
+        fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
+            if (lastLocation != null) {
+                val target = LatLng(lastLocation.latitude, lastLocation.longitude)
+                updateMapLocation(target, 15f)
             }
+        }
+    }
+
+    private fun updateMapLocation(target: LatLng, zoom: Float) {
+        map.clear()
+        map.addMarker(
+            MarkerOptions()
+                .position(target)
+                .title("Current Location")
+        )
+        if (!hasCenteredMap) {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
+            hasCenteredMap = true
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -157,6 +188,24 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         ) {
             enableMyLocation()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (::map.isInitialized) {
+            enableMyLocation()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopLocationUpdates()
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun highlightCategory(selectedId: Int, allIds: Set<Int>) {
@@ -246,5 +295,8 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST = 1201
+        private const val LOCATION_UPDATE_INTERVAL = 2000L
+        private const val LOCATION_UPDATE_MIN_INTERVAL = 1000L
+        private const val LOCATION_UPDATE_MAX_DELAY = 2000L
     }
 }
