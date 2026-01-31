@@ -67,8 +67,26 @@ class HomeFragment : Fragment() {
         }
 
         private fun setupAnnouncements() {
+            val announcements = listOf(
+                Announcement(
+                    title = "Pickup Schedule Update",
+                    description = "Saturday pickups move to 10 AM this week.",
+                    imageUrl = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600"
+                ),
+                Announcement(
+                    title = "Bonus Points Week",
+                    description = "Earn 2x points on glass and metal recycling.",
+                    imageUrl = "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=600"
+                ),
+                Announcement(
+                    title = "Neighborhood Cleanup",
+                    description = "Join the cleanup drive and get rewarded.",
+                    imageUrl = "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600"
+                )
+            )
             binding.recyclerAnnouncements.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerAnnouncements.adapter = AnnouncementsAdapter(announcements)
         }
 
         override fun onDestroyView() {
