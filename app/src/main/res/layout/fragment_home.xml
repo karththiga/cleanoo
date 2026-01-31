@@ -378,14 +378,16 @@
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabRequestPickup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
-        android:contentDescription="Request pickup"
-        android:src="@drawable/baseline_home_24"
-        app:backgroundTint="#1A73E8"
-        app:tint="#FFFFFF" />
+        android:contentDescription="Pickup request"
+        android:text="Pickup request"
+        android:textColor="#FFFFFF"
+        app:icon="@drawable/baseline_local_shipping_24"
+        app:iconTint="#FFFFFF"
+        app:backgroundTint="#1A73E8" />
 </FrameLayout>
