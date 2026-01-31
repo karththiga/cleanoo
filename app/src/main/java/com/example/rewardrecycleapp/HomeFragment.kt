@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rewardrecycleapp.R
 import com.example.rewardrecycleapp.RequestPickupActivity
 import com.example.rewardrecycleapp.databinding.FragmentHomeBinding
@@ -33,6 +34,7 @@ class HomeFragment : Fragment() {
             super.onViewCreated(view, savedInstanceState)
 
             loadUserName()
+            setupAnnouncements()
             setupClicks()
         }
 
@@ -56,18 +58,17 @@ class HomeFragment : Fragment() {
         private fun setupClicks() {
 
             // Navigate to Request Pickup
-            binding.layoutRequestPickup.setOnClickListener {
+            binding.fabRequestPickup.setOnClickListener {
                 val intent = Intent(requireContext(), RequestPickupActivity::class.java)
                 startActivity(intent)
             }
 
-            binding.layoutHistory.setOnClickListener {
-                Toast.makeText(requireContext(), "History clicked", Toast.LENGTH_SHORT).show()
-            }
+            // Placeholder for future dashboard actions
+        }
 
-            binding.layoutRewards.setOnClickListener {
-                Toast.makeText(requireContext(), "Rewards clicked", Toast.LENGTH_SHORT).show()
-            }
+        private fun setupAnnouncements() {
+            binding.recyclerAnnouncements.layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
 
         override fun onDestroyView() {
@@ -75,4 +76,3 @@ class HomeFragment : Fragment() {
             _binding = null
         }
     }
-
