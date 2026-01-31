@@ -305,8 +305,7 @@
             android:layout_height="wrap_content"
             android:overScrollMode="never"
             android:paddingBottom="12dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:orientation="horizontal" />
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         </LinearLayout>
     </ScrollView>
