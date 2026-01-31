@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
         private fun setupClicks() {
 
             // Navigate to Request Pickup
-            binding.layoutRequestPickup.setOnClickListener {
+            binding.fabRequestPickup.setOnClickListener {
                 val intent = Intent(requireContext(), RequestPickupActivity::class.java)
                 startActivity(intent)
             }
@@ -75,4 +75,3 @@ class HomeFragment : Fragment() {
             _binding = null
         }
     }
-
