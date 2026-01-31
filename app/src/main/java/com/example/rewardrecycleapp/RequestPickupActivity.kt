@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -11,7 +12,16 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity   // <<< MISSING IMPORT (FIXED)
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,11 +29,15 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.Calendar
 
 
-class RequestPickupActivity : AppCompatActivity() {
+class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
+    private lateinit var map: GoogleMap
+    private val fusedLocationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
 
     private var imageUri: Uri? = null
     private var selectedCategory = ""
@@ -35,6 +49,10 @@ class RequestPickupActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
+
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.mapPickup) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         val imgUpload = findViewById<ImageView>(R.id.imgUpload)
         val edtWeight = findViewById<EditText>(R.id.edtWeight)
@@ -71,6 +89,73 @@ class RequestPickupActivity : AppCompatActivity() {
                 edtDate.text.toString(),
                 edtTime.text.toString()
             )
+        }
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        map.uiSettings.isMyLocationButtonEnabled = true
+        enableMyLocation()
+    }
+
+    private fun enableMyLocation() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST
+            )
+            return
+        }
+
+        map.isMyLocationEnabled = true
+        fetchCurrentLocation()
+    }
+
+    private fun fetchCurrentLocation() {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { location ->
+                if (location != null) {
+                    val target = LatLng(location.latitude, location.longitude)
+                    map.clear()
+                    map.addMarker(
+                        MarkerOptions()
+                            .position(target)
+                            .title("Current Location")
+                    )
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 16f))
+                } else {
+                    fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
+                        if (lastLocation != null) {
+                            val target = LatLng(lastLocation.latitude, lastLocation.longitude)
+                            map.clear()
+                            map.addMarker(
+                                MarkerOptions()
+                                    .position(target)
+                                    .title("Current Location")
+                            )
+                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
+                        } else {
+                            Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            enableMyLocation()
         }
     }
 
@@ -157,5 +242,9 @@ class RequestPickupActivity : AppCompatActivity() {
                 Toast.makeText(this, "Pickup request submitted", Toast.LENGTH_LONG).show()
                 finish()
             }
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST = 1201
     }
 }

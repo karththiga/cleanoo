@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rewardrecycleapp.R
 import com.example.rewardrecycleapp.RequestPickupActivity
 import com.example.rewardrecycleapp.databinding.FragmentHomeBinding
@@ -33,6 +34,7 @@ class HomeFragment : Fragment() {
             super.onViewCreated(view, savedInstanceState)
 
             loadUserName()
+            setupAnnouncements()
             setupClicks()
         }
 
@@ -56,18 +58,35 @@ class HomeFragment : Fragment() {
         private fun setupClicks() {
 
             // Navigate to Request Pickup
-            binding.layoutRequestPickup.setOnClickListener {
+            binding.fabRequestPickup.setOnClickListener {
                 val intent = Intent(requireContext(), RequestPickupActivity::class.java)
                 startActivity(intent)
             }
 
-            binding.layoutHistory.setOnClickListener {
-                Toast.makeText(requireContext(), "History clicked", Toast.LENGTH_SHORT).show()
-            }
+            // Placeholder for future dashboard actions
+        }
 
-            binding.layoutRewards.setOnClickListener {
-                Toast.makeText(requireContext(), "Rewards clicked", Toast.LENGTH_SHORT).show()
-            }
+        private fun setupAnnouncements() {
+            val announcements = listOf(
+                Announcement(
+                    title = "Pickup Schedule Update",
+                    description = "Saturday pickups move to 10 AM this week.",
+                    imageUrl = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600"
+                ),
+                Announcement(
+                    title = "Bonus Points Week",
+                    description = "Earn 2x points on glass and metal recycling.",
+                    imageUrl = "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=600"
+                ),
+                Announcement(
+                    title = "Neighborhood Cleanup",
+                    description = "Join the cleanup drive and get rewarded.",
+                    imageUrl = "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600"
+                )
+            )
+            binding.recyclerAnnouncements.layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            binding.recyclerAnnouncements.adapter = AnnouncementsAdapter(announcements)
         }
 
         override fun onDestroyView() {
@@ -75,4 +94,3 @@ class HomeFragment : Fragment() {
             _binding = null
         }
     }
-
