@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp"
-    android:background="#EEF4FF"
+    android:background="#ECF2FF"
     android:fillViewport="true">
 
     <LinearLayout
@@ -27,12 +27,18 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_signup_header_gradient"
+                    android:layout_marginBottom="16dp" />
+
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Create Account"
-                    android:textColor="#1D4ED8"
+                    android:textColor="#1E3A8A"
                     android:textStyle="bold"
                     android:textSize="24sp" />
 
@@ -132,7 +138,7 @@
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
-                    android:backgroundTint="#1D4ED8" />
+                    android:backgroundTint="#2563EB" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -143,7 +149,7 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
             app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="#EFF6FF">
+            app:cardBackgroundColor="#F8FAFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -157,14 +163,14 @@
                     android:text="Why create an account?"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#1E3A8A" />
+                    android:textColor="#1E40AF" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="• Track pickups and rewards\n• Redeem points instantly\n• Get real-time updates"
                     android:textSize="12sp"
-                    android:textColor="#1E40AF"
+                    android:textColor="#3B82F6"
                     android:layout_marginTop="8dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -174,7 +180,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Already have an account? Login"
-            android:textColor="#1D4ED8"
+            android:textColor="#1E40AF"
             android:textStyle="bold"
             android:layout_marginTop="20dp" />
 
