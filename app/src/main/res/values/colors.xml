@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="profile_primary">#0F4C81</color>
+    <color name="profile_secondary">#6D6D6D</color>
+    <color name="profile_divider">#E0E6EF</color>
+    <color name="profile_danger">#D9534F</color>
 </resources>
