@@ -23,7 +23,7 @@ class DashboardActivity : AppCompatActivity() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> loadFragment(HomeFragment())
-                R.id.nav_reward -> loadFragment(RewardFragment())
+                R.id.nav_pickups -> loadFragment(RewardFragment())
                 R.id.nav_notification -> loadFragment(NotificationFragment())
                 R.id.nav_profile -> loadFragment(ProfileFragment())
             }
