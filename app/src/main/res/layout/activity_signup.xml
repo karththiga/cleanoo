@@ -19,7 +19,7 @@
             app:cardCornerRadius="18dp"
             app:cardElevation="4dp"
             app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="@color/white">
+            app:cardBackgroundColor="#FDFEFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -149,7 +149,7 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
             app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="#F8FAFF">
+            app:cardBackgroundColor="#EAF2FF">
 
             <LinearLayout
                 android:layout_width="match_parent"
