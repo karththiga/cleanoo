@@ -53,5 +53,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="BottomNavTextAppearance" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+    </style>
+
 
 </resources>
