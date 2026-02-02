@@ -224,31 +224,13 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Raise complaint"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        style="?attr/materialButtonOutlinedStyle" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="Review household"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        style="?attr/materialButtonOutlinedStyle" />
-                </LinearLayout>
+                    android:text="Complete pickup to unlock review and complaint actions."
+                    android:textSize="12sp"
+                    android:textColor="#9CA3AF"
+                    android:layout_marginTop="10dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -339,31 +321,13 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Raise complaint"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        style="?attr/materialButtonOutlinedStyle" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="Review household"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        style="?attr/materialButtonOutlinedStyle" />
-                </LinearLayout>
+                    android:text="Complete pickup to unlock review and complaint actions."
+                    android:textSize="12sp"
+                    android:textColor="#9CA3AF"
+                    android:layout_marginTop="10dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
