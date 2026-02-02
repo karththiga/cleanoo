@@ -2,6 +2,7 @@ package com.example.rewardrecycleapp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.rewardrecycleapp.databinding.ActivityCollectorDashboardBinding
 
 class CollectorDashboardActivity : AppCompatActivity() {
@@ -15,9 +16,23 @@ class CollectorDashboardActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorDashboardFragment())
-                .commit()
+            loadFragment(HomeFragment())
         }
+
+        binding.collectorBottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> loadFragment(HomeFragment())
+                R.id.nav_collections -> loadFragment(CollectorDashboardFragment())
+                R.id.nav_notification -> loadFragment(NotificationFragment())
+                R.id.nav_profile -> loadFragment(ProfileFragment())
+            }
+            true
+        }
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.collectorDashboardContainer, fragment)
+            .commit()
     }
 }
