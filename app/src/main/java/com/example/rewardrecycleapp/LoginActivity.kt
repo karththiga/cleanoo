@@ -2,8 +2,10 @@ package com.example.rewardrecycleapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import com.example.rewardrecycleapp.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -25,6 +27,11 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, SignupActivity::class.java))
         }
 
+        binding.etEmail.addTextChangedListener { editable ->
+            val isCollector = editable?.toString()?.trim() == "abcd"
+            binding.tvSignup.visibility = if (isCollector) View.GONE else View.VISIBLE
+        }
+
         // Forgot password
         binding.tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
@@ -44,7 +51,13 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            loginUser(email, pwd)
+            if (email == "abcd" && pwd == "123") {
+                Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, CollectorDashboardActivity::class.java))
+                finish()
+            } else {
+                loginUser(email, pwd)
+            }
         }
     }
 
