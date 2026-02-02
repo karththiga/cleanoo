@@ -36,6 +36,7 @@
 
         <!-- DASHBOARD SCREEN -->
         <activity android:name=".DashboardActivity" />
+        <activity android:name=".CollectorDashboardActivity" />
         <activity
             android:name=".RequestPickupActivity"
             android:exported="false" />
