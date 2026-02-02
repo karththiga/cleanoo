@@ -16,13 +16,13 @@ class CollectorDashboardActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         if (savedInstanceState == null) {
-            loadFragment(CollectorHomeFragment())
+            loadFragment(CollectorDashboardFragment())
         }
 
         binding.collectorBottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> loadFragment(CollectorHomeFragment())
-                R.id.nav_collections -> loadFragment(CollectorDashboardFragment())
+                R.id.nav_home -> loadFragment(CollectorDashboardFragment())
+                R.id.nav_history -> loadFragment(CollectorHistoryFragment())
                 R.id.nav_notification -> loadFragment(NotificationFragment())
                 R.id.nav_profile -> loadFragment(ProfileFragment())
             }
