@@ -9,7 +9,7 @@
     <item
         android:id="@+id/nav_history"
         android:icon="@drawable/baseline_local_shipping_24"
-        android:title="History" />
+        android:title="My Jobs" />
 
     <item
         android:id="@+id/nav_notification"
