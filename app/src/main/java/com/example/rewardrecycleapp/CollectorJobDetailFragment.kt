@@ -15,4 +15,15 @@ class CollectorJobDetailFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_collector_job_detail, container, false)
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        view.findViewById<View>(R.id.btnAddEvidence)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorEvidenceFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
 }

@@ -207,6 +207,7 @@
                     android:layout_marginTop="12dp">
 
                     <Button
+                        android:id="@+id/btnReportDelay"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -220,6 +221,7 @@
                         android:layout_height="1dp" />
 
                     <Button
+                        android:id="@+id/btnRaiseComplaintTop"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -242,6 +244,7 @@
             android:layout_marginBottom="10dp" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardCompletedJob"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -348,6 +351,7 @@
                 </LinearLayout>
 
                 <Button
+                    android:id="@+id/btnHouseholdReview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Leave a review"
@@ -388,6 +392,7 @@
                     android:layout_marginTop="6dp" />
 
                 <Button
+                    android:id="@+id/btnHouseholdComplaint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Submit complaint"

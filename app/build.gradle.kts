@@ -55,12 +55,16 @@ dependencies {
     // Google Maps + Location
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-recaptcha:18.5.1")
 
     // --- Firebase (using BOM: required) ---
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx") // 🔥 FIXES RED COLOR
+    implementation("com.google.firebase:firebase-appcheck-ktx")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation("com.google.firebase:firebase-appcheck-debug")
 
     // ImageView + Glide
     implementation("de.hdodenhof:circleimageview:3.1.0")
