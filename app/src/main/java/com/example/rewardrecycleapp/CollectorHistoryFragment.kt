@@ -42,5 +42,12 @@ class CollectorHistoryFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+
+        view.findViewById<View>(R.id.cardCollectorCompletedJob)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorJobDetailFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }

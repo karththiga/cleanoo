@@ -31,5 +31,26 @@ class RewardFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+
+        view.findViewById<View>(R.id.btnReportDelay)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.btnRaiseComplaintTop)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.cardCompletedJob)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.dashboardContainer, HouseholdJobDetailFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }
