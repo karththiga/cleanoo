@@ -7,6 +7,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.rewardrecycleapp.Announcement
+import com.example.rewardrecycleapp.AnnouncementsAdapter
 import com.example.rewardrecycleapp.R
 import com.example.rewardrecycleapp.RequestPickupActivity
 import com.example.rewardrecycleapp.databinding.FragmentHomeBinding

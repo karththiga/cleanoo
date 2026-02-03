@@ -56,7 +56,9 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(Intent(this, CollectorDashboardActivity::class.java))
                 finish()
             } else {
-                loginUser(email, pwd)
+//                loginUser(email, pwd)
+                startActivity(Intent(this, DashboardActivity::class.java))
+                finish()
             }
         }
     }
