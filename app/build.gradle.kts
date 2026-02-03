@@ -61,6 +61,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx") // 🔥 FIXES RED COLOR
+    implementation("com.google.firebase:firebase-appcheck-ktx")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation("com.google.firebase:firebase-appcheck-debug")
 
     // ImageView + Glide
     implementation("de.hdodenhof:circleimageview:3.1.0")
