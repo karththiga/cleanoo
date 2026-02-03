@@ -231,6 +231,14 @@
                     android:textSize="12sp"
                     android:textColor="#9CA3AF"
                     android:layout_marginTop="10dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pending details: awaiting household confirmation and OTP."
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="6dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -328,6 +336,14 @@
                     android:textSize="12sp"
                     android:textColor="#9CA3AF"
                     android:layout_marginTop="10dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pending details: waiting to collect and verify weight."
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="6dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -404,19 +420,13 @@
                     android:textColor="#6B7280"
                     android:layout_marginTop="6dp" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Completed"
-                        android:textAllCaps="false"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                    android:text="Completed details: household verified and points issued."
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="10dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
