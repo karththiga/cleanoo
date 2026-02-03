@@ -348,6 +348,7 @@
                 </LinearLayout>
 
                 <Button
+                    android:id="@+id/btnHouseholdReview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Leave a review"
@@ -388,6 +389,7 @@
                     android:layout_marginTop="6dp" />
 
                 <Button
+                    android:id="@+id/btnHouseholdComplaint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Submit complaint"
