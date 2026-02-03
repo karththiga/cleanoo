@@ -55,6 +55,7 @@ dependencies {
     // Google Maps + Location
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-recaptcha:18.5.1")
 
     // --- Firebase (using BOM: required) ---
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
