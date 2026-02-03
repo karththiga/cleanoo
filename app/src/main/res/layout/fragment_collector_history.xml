@@ -217,6 +217,7 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickedUpGreenview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Picked up"
@@ -322,6 +323,7 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickedUpLakeside"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Picked up"
@@ -441,9 +443,11 @@
                         android:text="Raise complaint"
                         android:textAllCaps="false"
                         android:textSize="12sp"
+                        android:id="@+id/btnCollectorComplaint"
                         style="?attr/materialButtonOutlinedStyle" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCollectorReviewHousehold"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
