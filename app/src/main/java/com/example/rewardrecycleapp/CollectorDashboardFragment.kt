@@ -14,4 +14,15 @@ class CollectorDashboardFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_collector_dashboard, container, false)
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        view.findViewById<View>(R.id.btnStartRoute)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorRouteFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
 }
