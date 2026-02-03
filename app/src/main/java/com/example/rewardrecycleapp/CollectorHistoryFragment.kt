@@ -28,5 +28,19 @@ class CollectorHistoryFragment : Fragment() {
 
         view.findViewById<View>(R.id.btnPickedUpGreenview)?.setOnClickListener(navigateToDetails)
         view.findViewById<View>(R.id.btnPickedUpLakeside)?.setOnClickListener(navigateToDetails)
+
+        view.findViewById<View>(R.id.btnCollectorComplaint)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorComplaintFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<View>(R.id.btnCollectorReviewHousehold)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorReviewFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }
