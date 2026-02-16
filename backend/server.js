@@ -74,7 +74,7 @@ app.use((err, req, res, next) => {
 // Start Cron Job
 expirationJob.start();
 
-const PORT = process.env.PORT || 5555;
+const PORT = process.env.PORT || 7777;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
