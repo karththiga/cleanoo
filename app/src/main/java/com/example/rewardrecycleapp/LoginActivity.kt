@@ -91,6 +91,8 @@ class LoginActivity : AppCompatActivity() {
                                     .putString("HOUSEHOLD_EMAIL", profile.optString("email"))
                                     .putString("HOUSEHOLD_PHONE", profile.optString("phone"))
                                     .putString("HOUSEHOLD_ADDRESS", profile.optString("address"))
+                                    .putString("HOUSEHOLD_ZONE", profile.optString("zone"))
+                                    .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
                                     .apply()
 
                                 Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()

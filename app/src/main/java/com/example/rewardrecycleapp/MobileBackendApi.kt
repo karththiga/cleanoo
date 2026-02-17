@@ -34,9 +34,7 @@ object MobileBackendApi {
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                onResult(false, e.message)
-            }
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 response.use {
@@ -44,12 +42,7 @@ object MobileBackendApi {
                     if (it.isSuccessful) {
                         onResult(true, null)
                     } else {
-                        val message = try {
-                            JSONObject(body ?: "{}").optString("message", "Signup profile failed")
-                        } catch (_: Exception) {
-                            "Signup profile failed"
-                        }
-                        onResult(false, message)
+                        onResult(false, extractMessage(body, "Signup profile failed"))
                     }
                 }
             }
@@ -64,9 +57,7 @@ object MobileBackendApi {
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                onResult(false, null, e.message)
-            }
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 response.use {
@@ -75,15 +66,56 @@ object MobileBackendApi {
                         val root = JSONObject(body ?: "{}")
                         onResult(true, root.optJSONObject("data"), null)
                     } else {
-                        val message = try {
-                            JSONObject(body ?: "{}").optString("message", "Profile fetch failed")
-                        } catch (_: Exception) {
-                            "Profile fetch failed"
-                        }
-                        onResult(false, null, message)
+                        onResult(false, null, extractMessage(body, "Profile fetch failed"))
                     }
                 }
             }
         })
+    }
+
+    fun updateMyHouseholdProfile(
+        idToken: String,
+        name: String,
+        phone: String,
+        address: String,
+        zone: String,
+        onResult: (Boolean, JSONObject?, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("name", name)
+            put("phone", phone)
+            put("address", address)
+            put("zone", zone)
+        }
+
+        val request = Request.Builder()
+            .url("$BASE_URL/me")
+            .addHeader("Authorization", "Bearer $idToken")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONObject("data"), null)
+                    } else {
+                        onResult(false, null, extractMessage(body, "Profile update failed"))
+                    }
+                }
+            }
+        })
+    }
+
+    private fun extractMessage(rawBody: String?, fallback: String): String {
+        return try {
+            JSONObject(rawBody ?: "{}").optString("message", fallback)
+        } catch (_: Exception) {
+            fallback
+        }
     }
 }

@@ -50,6 +50,8 @@ class DashboardActivity : AppCompatActivity() {
                         .putString("HOUSEHOLD_EMAIL", profile.optString("email"))
                         .putString("HOUSEHOLD_PHONE", profile.optString("phone"))
                         .putString("HOUSEHOLD_ADDRESS", profile.optString("address"))
+                        .putString("HOUSEHOLD_ZONE", profile.optString("zone"))
+                        .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
                         .apply()
                 } else {
                     Toast.makeText(this, message ?: "Failed to load profile", Toast.LENGTH_LONG).show()

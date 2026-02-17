@@ -72,6 +72,7 @@ const getMyHouseholdProfile = async (req, res) => {
 };
 
 /* ==================================================
+   MOBILE PROFILE UPDATE: UPDATE HOUSEHOLD BY FIREBASE UID
    GET ALL HOUSEHOLDS (ADMIN)
 ================================================== */
 const getHouseholds = async (req, res) => {
@@ -241,6 +242,7 @@ const deleteHousehold = async (req, res) => {
 module.exports = {
   createHouseholdProfile,
   getMyHouseholdProfile,
+  updateMyHouseholdProfile,
   getHouseholds,
   deleteHousehold,
   updateHousehold,
