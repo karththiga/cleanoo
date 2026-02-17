@@ -73,7 +73,7 @@ const getMyHouseholdProfile = async (req, res) => {
 
 /* ==================================================
    MOBILE PROFILE UPDATE: UPDATE HOUSEHOLD BY FIREBASE UID
-================================================== */
+   ================================================== */
 async function updateMyHouseholdProfile(req, res) {
   try {
     const firebaseUid = req.user?.uid;
