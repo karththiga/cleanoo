@@ -73,51 +73,6 @@ const getMyHouseholdProfile = async (req, res) => {
 
 /* ==================================================
    MOBILE PROFILE UPDATE: UPDATE HOUSEHOLD BY FIREBASE UID
-================================================== */
-const updateMyHouseholdProfile = async (req, res) => {
-  try {
-    const firebaseUid = req.user?.uid;
-    if (!firebaseUid) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    const allowedUpdates = ["name", "phone", "address", "zone"];
-    const payload = {};
-
-    allowedUpdates.forEach((key) => {
-      if (typeof req.body[key] === "string") {
-        payload[key] = req.body[key].trim();
-      }
-    });
-
-    if (!Object.keys(payload).length) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid fields provided"
-      });
-    }
-
-    const updated = await Household.findOneAndUpdate(
-      { firebaseUid },
-      payload,
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({
-        success: false,
-        message: "Household profile not found for this account"
-      });
-    }
-
-    return res.json({ success: true, message: "Profile updated", data: updated });
-  } catch (err) {
-    console.error("Update household profile error:", err);
-    return res.status(500).json({ success: false, message: "Failed to update profile" });
-  }
-};
-
-/* ==================================================
    GET ALL HOUSEHOLDS (ADMIN)
 ================================================== */
 const getHouseholds = async (req, res) => {
