@@ -77,40 +77,76 @@
                     android:textSize="16sp"
                     android:textColor="#1E3A8A" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Full name"
+                    android:textColor="#374151"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
                 <EditText
                     android:id="@+id/edtName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="6dp"
                     android:hint="Full name"
                     android:background="@drawable/bg_input_blue"
                     android:padding="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Phone number"
+                    android:textColor="#374151"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/edtPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="6dp"
                     android:hint="Phone number"
                     android:inputType="phone"
                     android:background="@drawable/bg_input_blue"
                     android:padding="12dp" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Address"
+                    android:textColor="#374151"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
                 <EditText
                     android:id="@+id/edtAddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="6dp"
                     android:hint="Address"
                     android:inputType="textPostalAddress"
                     android:background="@drawable/bg_input_blue"
                     android:padding="12dp" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Zone"
+                    android:textColor="#374151"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
                 <EditText
                     android:id="@+id/edtZone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="6dp"
                     android:hint="Zone"
                     android:background="@drawable/bg_input_blue"
                     android:padding="12dp" />
