@@ -43,6 +43,9 @@ app.use("/api/admin", adminRoutes);
 //  HOUSEHOLDS
 app.use("/api/admin/households", require("./src/routes/householdRoutes"));
 
+//  MOBILE HOUSEHOLDS (FIREBASE UID BASED)
+app.use("/api/households", require("./src/routes/mobileHouseholdRoutes"));
+
 
 //  NOTIFICATIONS
 app.use("/api/admin/notifications", require("./src/routes/notificationRoutes"));

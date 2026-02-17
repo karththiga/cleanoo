@@ -1,196 +1,166 @@
 package com.example.rewardrecycleapp
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
 
 class ProfileFragment : Fragment() {
 
-    private val PICK_IMAGE = 100
-    private var imageUri: Uri? = null
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var imgProfile: CircleImageView
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-    private lateinit var storage: FirebaseStorage
-
-    // Menu buttons
-    private lateinit var btnEditProfile: LinearLayout
-    private lateinit var btnPhone: LinearLayout
-    private lateinit var btnChangePassword: LinearLayout
-    private lateinit var btnInbox: LinearLayout
-    private lateinit var btnLogout: LinearLayout
-
-    // Sections
-    private lateinit var sectionEditProfile: LinearLayout
-    private lateinit var sectionPhone: LinearLayout
-    private lateinit var sectionPassword: LinearLayout
-    private lateinit var sectionInbox: LinearLayout
-
-    // Fields
-    private lateinit var edtName: EditText
-    private lateinit var btnSaveProfile: Button
-
-    private lateinit var edtPhone: EditText
-    private lateinit var btnSavePhone: Button
-
-    private lateinit var edtPassword: EditText
-    private lateinit var btnSavePassword: Button
-
-    // Header Info
     private lateinit var tvName: TextView
     private lateinit var tvEmail: TextView
 
+    private lateinit var edtName: EditText
+    private lateinit var edtPhone: EditText
+    private lateinit var edtAddress: EditText
+    private lateinit var edtZone: EditText
+    private lateinit var btnSaveProfile: Button
+
+    private lateinit var edtPassword: EditText
+    private lateinit var btnSavePassword: Button
+    private lateinit var btnLogout: Button
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
-
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
 
-        assignViews(view)
-        loadUserDetails()
-        setupClickListeners()
+        bindViews(view)
+        loadProfileFromPrefs()
+        refreshProfileFromApi()
+        bindActions()
 
         return view
     }
 
-
-    private fun assignViews(view: View) {
+    private fun bindViews(view: View) {
+        imgProfile = view.findViewById(R.id.imgProfile)
         tvName = view.findViewById(R.id.tvName)
         tvEmail = view.findViewById(R.id.tvEmail)
 
-        imgProfile = view.findViewById(R.id.imgProfile)
-        imgProfile.setOnClickListener { chooseImageFromGallery() }
-
-        btnEditProfile = view.findViewById(R.id.btnEditProfile)
-        btnPhone = view.findViewById(R.id.btnPhone)
-        btnChangePassword = view.findViewById(R.id.btnChangePassword)
-        btnInbox = view.findViewById(R.id.btnInbox)
-        btnLogout = view.findViewById(R.id.btnLogout)
-
-        sectionEditProfile = view.findViewById(R.id.sectionEditProfile)
-        sectionPhone = view.findViewById(R.id.sectionPhone)
-        sectionPassword = view.findViewById(R.id.sectionPassword)
-        sectionInbox = view.findViewById(R.id.sectionInbox)
-
         edtName = view.findViewById(R.id.edtName)
-        btnSaveProfile = view.findViewById(R.id.btnSaveProfile)
-
         edtPhone = view.findViewById(R.id.edtPhone)
-        btnSavePhone = view.findViewById(R.id.btnSavePhone)
+        edtAddress = view.findViewById(R.id.edtAddress)
+        edtZone = view.findViewById(R.id.edtZone)
+        btnSaveProfile = view.findViewById(R.id.btnSaveProfile)
 
         edtPassword = view.findViewById(R.id.edtPassword)
         btnSavePassword = view.findViewById(R.id.btnSavePassword)
+        btnLogout = view.findViewById(R.id.btnLogout)
     }
 
+    private fun bindActions() {
+        btnSaveProfile.setOnClickListener { updateProfile() }
+        btnSavePassword.setOnClickListener { updatePassword() }
+        btnLogout.setOnClickListener { logoutUser() }
+    }
 
-    // Load user info + profile picture
-    private fun loadUserDetails() {
-        val user = auth.currentUser ?: return
+    private fun loadProfileFromPrefs() {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val name = prefs.getString("HOUSEHOLD_NAME", "User") ?: "User"
+        val email = prefs.getString("HOUSEHOLD_EMAIL", auth.currentUser?.email ?: "") ?: ""
+        val phone = prefs.getString("HOUSEHOLD_PHONE", "") ?: ""
+        val address = prefs.getString("HOUSEHOLD_ADDRESS", "") ?: ""
+        val zone = prefs.getString("HOUSEHOLD_ZONE", "") ?: ""
 
-        tvEmail.text = user.email
+        tvName.text = name
+        tvEmail.text = email
 
-        db.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                if (doc.exists()) {
+        edtName.setText(name)
+        edtPhone.setText(phone)
+        edtAddress.setText(address)
+        edtZone.setText(zone)
+    }
 
-                    val name = doc.getString("name")
-                    val phone = doc.getString("phone")
-                    val imageUrl = doc.getString("profileImage")
+    private fun refreshProfileFromApi() {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val token = prefs.getString("ID_TOKEN", null)
 
-                    tvName.text = name ?: "User"
-                    edtName.setText(name ?: "")
-                    edtPhone.setText(phone ?: "")
+        if (token.isNullOrEmpty()) return
 
-                    // Load profile picture
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(requireContext())
-                            .load(imageUrl)
-                            .placeholder(R.drawable.default_profile)
-                            .into(imgProfile)
-                    }
+        MobileBackendApi.getMyHouseholdProfile(token) { success, profile, message ->
+            activity?.runOnUiThread {
+                if (success && profile != null) {
+                    applyProfile(profile)
+                } else if (!message.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
-    }
-
-
-    private fun setupClickListeners() {
-        btnEditProfile.setOnClickListener { toggleSection(sectionEditProfile) }
-        btnPhone.setOnClickListener { toggleSection(sectionPhone) }
-        btnChangePassword.setOnClickListener { toggleSection(sectionPassword) }
-        btnInbox.setOnClickListener { toggleSection(sectionInbox) }
-
-        btnLogout.setOnClickListener { logoutUser() }
-
-        btnSaveProfile.setOnClickListener { saveProfile() }
-        btnSavePhone.setOnClickListener { savePhone() }
-        btnSavePassword.setOnClickListener { updatePassword() }
-    }
-
-    private fun toggleSection(selected: LinearLayout) {
-        val all = listOf(sectionEditProfile, sectionPhone, sectionPassword, sectionInbox)
-
-        all.forEach { section ->
-            section.visibility =
-                if (section == selected && section.visibility == View.GONE)
-                    View.VISIBLE else View.GONE
         }
     }
 
+    private fun applyProfile(profile: org.json.JSONObject) {
+        val name = profile.optString("name", "User")
+        val email = profile.optString("email", auth.currentUser?.email ?: "")
+        val phone = profile.optString("phone", "")
+        val address = profile.optString("address", "")
+        val zone = profile.optString("zone", "")
 
-    private fun saveProfile() {
+        tvName.text = name
+        tvEmail.text = email
+
+        edtName.setText(name)
+        edtPhone.setText(phone)
+        edtAddress.setText(address)
+        edtZone.setText(zone)
+
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putString("HOUSEHOLD_ID", profile.optString("_id"))
+            .putString("HOUSEHOLD_NAME", name)
+            .putString("HOUSEHOLD_EMAIL", email)
+            .putString("HOUSEHOLD_PHONE", phone)
+            .putString("HOUSEHOLD_ADDRESS", address)
+            .putString("HOUSEHOLD_ZONE", zone)
+            .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
+            .apply()
+    }
+
+    private fun updateProfile() {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val token = prefs.getString("ID_TOKEN", null)
+
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Login token missing", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val name = edtName.text.toString().trim()
-        val user = auth.currentUser ?: return
-
-        if (name.isEmpty()) {
-            Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        db.collection("users").document(user.uid)
-            .update("name", name)
-            .addOnSuccessListener {
-                tvName.text = name
-                Toast.makeText(requireContext(), "Profile Updated", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-
-    private fun savePhone() {
         val phone = edtPhone.text.toString().trim()
-        val user = auth.currentUser ?: return
+        val address = edtAddress.text.toString().trim()
+        val zone = edtZone.text.toString().trim()
 
-        if (phone.isEmpty()) {
-            Toast.makeText(requireContext(), "Phone cannot be empty", Toast.LENGTH_SHORT).show()
+        if (name.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+            Toast.makeText(requireContext(), "Name, phone and address are required", Toast.LENGTH_SHORT).show()
             return
         }
 
-        db.collection("users").document(user.uid)
-            .update("phone", phone)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Phone Updated", Toast.LENGTH_SHORT).show()
+        MobileBackendApi.updateMyHouseholdProfile(token, name, phone, address, zone) { success, profile, message ->
+            activity?.runOnUiThread {
+                if (success && profile != null) {
+                    applyProfile(profile)
+                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), message ?: "Profile update failed", Toast.LENGTH_LONG).show()
+                }
             }
+        }
     }
-
 
     private fun updatePassword() {
         val newPass = edtPassword.text.toString().trim()
@@ -203,68 +173,23 @@ class ProfileFragment : Fragment() {
 
         user.updatePassword(newPass)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Password Updated", Toast.LENGTH_SHORT).show()
+                edtPassword.setText("")
+                Toast.makeText(requireContext(), "Password updated", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
-
     private fun logoutUser() {
         auth.signOut()
+        requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
+
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-    }
-
-    // ========= IMAGE PICKER ==============
-    private fun chooseImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, PICK_IMAGE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
-            imageUri = data?.data
-
-            if (imageUri != null) {
-                imgProfile.setImageURI(imageUri)
-                uploadProfileImage(imageUri!!)   // FIXED
-            }
-        }
-    }
-
-    // ========== UPLOAD IMAGE TO FIREBASE STORAGE ==========
-    private fun uploadProfileImage(uri: Uri) {
-        val user = auth.currentUser ?: return
-
-        val ref = storage.reference.child("profileImages/${user.uid}.jpg")
-
-        ref.putFile(uri)
-            .addOnSuccessListener {
-
-                ref.downloadUrl.addOnSuccessListener { downloadUri: Uri ->   // FIXED TYPE
-                    val url = downloadUri.toString()
-
-                    db.collection("users").document(user.uid)
-                        .update("profileImage", url)
-                        .addOnSuccessListener {
-
-                            Glide.with(requireContext())
-                                .load(url)
-                                .placeholder(R.drawable.default_profile)
-                                .into(imgProfile)
-
-                            Toast.makeText(requireContext(), "Profile photo updated", Toast.LENGTH_SHORT).show()
-                        }
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
     }
 }

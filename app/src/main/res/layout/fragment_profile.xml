@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_profile_page"
+    android:fillViewport="true"
+    android:background="#F3F7FF"
     android:padding="16dp">
 
     <LinearLayout
@@ -11,322 +12,170 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ================= PROFILE HEADER CARD ================= -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="18dp"
             app:cardUseCompatPadding="true"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imgProfile"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:src="@drawable/default_profile"
-                    android:layout_marginEnd="12dp"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="@color/profile_primary"/>
-
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:id="@+id/tvName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="User Name"
-                        android:textColor="@color/profile_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvEmail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="user@gmail.com"
-                        android:textColor="@color/profile_secondary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-
-        <!-- ================= MENU CARD ================= -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="@color/white">
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+                android:padding="18dp">
 
-                <!-- Edit Profile -->
-                <LinearLayout
-                    android:id="@+id/btnEditProfile"
-                    style="@style/ProfileRowStyle">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/imgProfile"
+                    android:layout_width="84dp"
+                    android:layout_height="84dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/default_profile" />
 
-                    <ImageView
-                        android:src="@drawable/baseline_person_24"
-                        style="@style/ProfileRowIcon"
-                        app:tint="@color/profile_primary" />
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:text="User Name"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:textColor="#111827" />
 
-                    <TextView
-                        android:text="Edit Profile"
-                        style="@style/ProfileRowText" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:text="›"
-                        style="@style/ProfileRowChevron" />
-                </LinearLayout>
-
-                <View
-                    style="@style/ProfileDivider" />
-
-                <!-- Phone -->
-                <LinearLayout
-                    android:id="@+id/btnPhone"
-                    style="@style/ProfileRowStyle">
-
-                    <ImageView
-                        android:src="@drawable/baseline_contact_phone_24"
-                        style="@style/ProfileRowIcon"
-                        app:tint="@color/profile_primary" />
-
-                    <TextView
-                        android:text="Phone Number"
-                        style="@style/ProfileRowText" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:text="›"
-                        style="@style/ProfileRowChevron" />
-                </LinearLayout>
-
-                <View
-                    style="@style/ProfileDivider" />
-
-                <!-- Change Password -->
-                <LinearLayout
-                    android:id="@+id/btnChangePassword"
-                    style="@style/ProfileRowStyle">
-
-                    <ImageView
-                        android:src="@drawable/baseline_lock_24"
-                        style="@style/ProfileRowIcon"
-                        app:tint="@color/profile_primary" />
-
-                    <TextView
-                        android:text="Change Password"
-                        style="@style/ProfileRowText" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:text="›"
-                        style="@style/ProfileRowChevron" />
-                </LinearLayout>
-
-                <View
-                    style="@style/ProfileDivider" />
-
-                <!-- Inbox -->
-                <LinearLayout
-                    android:id="@+id/btnInbox"
-                    style="@style/ProfileRowStyle">
-
-                    <ImageView
-                        android:src="@drawable/baseline_circle_notifications_24"
-                        style="@style/ProfileRowIcon"
-                        app:tint="@color/profile_primary" />
-
-                    <TextView
-                        android:text="Inbox"
-                        style="@style/ProfileRowText" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:text="›"
-                        style="@style/ProfileRowChevron" />
-                </LinearLayout>
-
-                <View
-                    style="@style/ProfileDivider" />
-
-                <!-- Logout -->
-                <LinearLayout
-                    android:id="@+id/btnLogout"
-                    style="@style/ProfileRowStyle">
-
-                    <ImageView
-                        android:src="@drawable/baseline_logout_24"
-                        style="@style/ProfileRowIcon"
-                        app:tint="@color/profile_danger" />
-
-                    <TextView
-                        android:text="Logout"
-                        android:textColor="@color/profile_danger"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:layout_marginStart="12dp" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:text="›"
-                        android:textColor="@color/profile_danger"
-                        style="@style/ProfileRowChevron" />
-                </LinearLayout>
-
+                <TextView
+                    android:id="@+id/tvEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="4dp"
+                    android:text="user@email.com"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-
-        <!-- ======================= EXPANDABLE SECTIONS ======================= -->
-
-        <!-- Edit Profile -->
-        <LinearLayout
-            android:id="@+id/sectionEditProfile"
-            android:visibility="gone"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card_white">
+            android:layout_marginTop="14dp"
+            app:cardCornerRadius="16dp"
+            app:cardUseCompatPadding="true"
+            app:cardElevation="2dp">
 
-            <EditText
-                android:id="@+id/edtName"
-                android:hint="Full Name"
-                android:padding="12dp"
-                android:background="@drawable/bg_input_blue"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <Button
-                android:id="@+id/btnSaveProfile"
-                android:text="Save"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Household Details"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="#1E3A8A" />
 
+                <EditText
+                    android:id="@+id/edtName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Full name"
+                    android:background="@drawable/bg_input_blue"
+                    android:padding="12dp" />
 
-        <!-- Phone -->
-        <LinearLayout
-            android:id="@+id/sectionPhone"
-            android:visibility="gone"
+                <EditText
+                    android:id="@+id/edtPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="Phone number"
+                    android:inputType="phone"
+                    android:background="@drawable/bg_input_blue"
+                    android:padding="12dp" />
+
+                <EditText
+                    android:id="@+id/edtAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="Address"
+                    android:inputType="textPostalAddress"
+                    android:background="@drawable/bg_input_blue"
+                    android:padding="12dp" />
+
+                <EditText
+                    android:id="@+id/edtZone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="Zone"
+                    android:background="@drawable/bg_input_blue"
+                    android:padding="12dp" />
+
+                <Button
+                    android:id="@+id/btnSaveProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Save Changes"
+                    android:textAllCaps="false" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card_white">
+            android:layout_marginTop="14dp"
+            app:cardCornerRadius="16dp"
+            app:cardUseCompatPadding="true"
+            app:cardElevation="2dp">
 
-            <EditText
-                android:id="@+id/edtPhone"
-                android:hint="Phone Number"
-                android:inputType="phone"
-                android:background="@drawable/bg_input_blue"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:padding="12dp" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <Button
-                android:id="@+id/btnSavePhone"
-                android:text="Save Number"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Security"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="#1E3A8A" />
 
+                <EditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="New password"
+                    android:inputType="textPassword"
+                    android:background="@drawable/bg_input_blue"
+                    android:padding="12dp" />
 
-        <!-- Password -->
-        <LinearLayout
-            android:id="@+id/sectionPassword"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card_white">
+                <Button
+                    android:id="@+id/btnSavePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Update Password"
+                    android:textAllCaps="false" />
 
-            <EditText
-                android:id="@+id/edtPassword"
-                android:hint="New Password"
-                android:inputType="textPassword"
-                android:background="@drawable/bg_input_blue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:padding="12dp" />
-
-            <Button
-                android:id="@+id/btnSavePassword"
-                android:text="Update Password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-
-        <!-- Inbox -->
-        <LinearLayout
-            android:id="@+id/sectionInbox"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card_white">
-
-            <TextView
-                android:text="You have no new messages."
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/profile_secondary" />
-        </LinearLayout>
+                <Button
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Logout"
+                    android:textAllCaps="false"
+                    android:backgroundTint="#DC2626"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 </ScrollView>
