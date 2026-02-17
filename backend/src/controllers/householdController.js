@@ -3,6 +3,121 @@ const Pickup = require("../models/PickupRequest");
 const Reward = require("../models/Reward");
 
 /* ==================================================
+   MOBILE SIGNUP: CREATE HOUSEHOLD PROFILE
+================================================== */
+const createHouseholdProfile = async (req, res) => {
+  try {
+    const firebaseUid = req.user?.uid;
+    const { name, email, phone, address, zone } = req.body;
+
+    if (!firebaseUid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    if (!name || !email || !phone || !address) {
+      return res.status(400).json({
+        success: false,
+        message: "name, email, phone and address are required"
+      });
+    }
+
+    const existing = await Household.findOne({ firebaseUid });
+    if (existing) {
+      return res.json({ success: true, message: "Profile already exists", data: existing });
+    }
+
+    const household = await Household.create({
+      firebaseUid,
+      name,
+      email,
+      phone,
+      address,
+      zone: zone || "Unassigned"
+    });
+
+    return res.status(201).json({ success: true, message: "Household created", data: household });
+  } catch (err) {
+    console.error("Create household profile error:", err);
+    if (err.code === 11000) {
+      return res.status(409).json({ success: false, message: "Profile already exists" });
+    }
+    return res.status(500).json({ success: false, message: "Failed to create profile" });
+  }
+};
+
+/* ==================================================
+   MOBILE SIGNIN: FETCH HOUSEHOLD PROFILE BY FIREBASE UID
+================================================== */
+const getMyHouseholdProfile = async (req, res) => {
+  try {
+    const firebaseUid = req.user?.uid;
+    if (!firebaseUid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const household = await Household.findOne({ firebaseUid });
+
+    if (!household) {
+      return res.status(404).json({
+        success: false,
+        message: "Household profile not found for this account"
+      });
+    }
+
+    return res.json({ success: true, data: household });
+  } catch (err) {
+    console.error("Get household profile error:", err);
+    return res.status(500).json({ success: false, message: "Failed to fetch profile" });
+  }
+};
+
+/* ==================================================
+   MOBILE PROFILE UPDATE: UPDATE HOUSEHOLD BY FIREBASE UID
+================================================== */
+async function updateMyHouseholdProfile(req, res) {
+  try {
+    const firebaseUid = req.user?.uid;
+    if (!firebaseUid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const allowedUpdates = ["name", "phone", "address", "zone"];
+    const payload = {};
+
+    allowedUpdates.forEach((key) => {
+      if (typeof req.body[key] === "string") {
+        payload[key] = req.body[key].trim();
+      }
+    });
+
+    if (!Object.keys(payload).length) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields provided"
+      });
+    }
+
+    const updated = await Household.findOneAndUpdate(
+      { firebaseUid },
+      payload,
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Household profile not found for this account"
+      });
+    }
+
+    return res.json({ success: true, message: "Profile updated", data: updated });
+  } catch (err) {
+    console.error("Update household profile error:", err);
+    return res.status(500).json({ success: false, message: "Failed to update profile" });
+  }
+}
+
+/* ==================================================
    GET ALL HOUSEHOLDS (ADMIN)
 ================================================== */
 const getHouseholds = async (req, res) => {
@@ -170,6 +285,9 @@ const deleteHousehold = async (req, res) => {
 };
 
 module.exports = {
+  createHouseholdProfile,
+  getMyHouseholdProfile,
+  updateMyHouseholdProfile,
   getHouseholds,
   deleteHousehold,
   updateHousehold,
