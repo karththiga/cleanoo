@@ -50,6 +50,9 @@ class LoginActivity : AppCompatActivity() {
             }
 
             if (email == "abcd" && pwd == "123") {
+                getSharedPreferences("auth_prefs", MODE_PRIVATE).edit()
+                    .putString("COLLECTOR_EMAIL", "collector1@example.com")
+                    .apply()
                 Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, CollectorDashboardActivity::class.java))
                 finish()

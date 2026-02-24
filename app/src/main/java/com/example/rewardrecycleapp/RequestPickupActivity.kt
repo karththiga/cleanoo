@@ -4,8 +4,10 @@ import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -28,29 +30,20 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Calendar
-import android.location.LocationManager
-import android.content.Context
-
 
 class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-    private lateinit var storage: FirebaseStorage
     private lateinit var map: GoogleMap
-    private val fusedLocationClient by lazy {
-        LocationServices.getFusedLocationProviderClient(this)
-    }
+    private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private var hasCenteredMap = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
-            val target = LatLng(location.latitude, location.longitude)
-            updateMapLocation(target, 16f)
+            updateMapLocation(LatLng(location.latitude, location.longitude), 16f)
         }
     }
 
@@ -62,21 +55,16 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_request_pickup)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
 
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.mapPickup) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapPickup) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         val imgUpload = findViewById<ImageView>(R.id.imgUpload)
-        val edtWeight = findViewById<EditText>(R.id.edtWeight)
         val edtLocation = findViewById<EditText>(R.id.edtLocation)
         val edtDate = findViewById<EditText>(R.id.edtDate)
         val edtTime = findViewById<EditText>(R.id.edtTime)
         val btnSubmit = findViewById<Button>(R.id.btnSubmitPickup)
 
-        // Category buttons
         val categories = mapOf(
             R.id.catPlastic to "Plastic",
             R.id.catPaper to "Paper",
@@ -97,13 +85,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         edtTime.setOnClickListener { pickTime(edtTime) }
 
         btnSubmit.setOnClickListener {
-            uploadPickupRequest(
-                selectedCategory,
-                edtWeight.text.toString(),
-                edtLocation.text.toString(),
-                edtDate.text.toString(),
-                edtTime.text.toString()
-            )
+            submitPickupRequest(selectedCategory, edtLocation.text.toString())
         }
     }
 
@@ -114,14 +96,8 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun enableMyLocation() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST
-            )
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST)
             return
         }
 
@@ -142,12 +118,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             .setMaxUpdateDelayMillis(LOCATION_UPDATE_MAX_DELAY)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         fusedLocationClient.requestLocationUpdates(request, locationCallback, mainLooper)
     }
 
@@ -156,63 +127,33 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun fetchLastKnownLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
             if (lastLocation != null) {
-                val target = LatLng(lastLocation.latitude, lastLocation.longitude)
-                updateMapLocation(target, 15f)
+                updateMapLocation(LatLng(lastLocation.latitude, lastLocation.longitude), 15f)
             }
         }
     }
 
     private fun updateMapLocation(target: LatLng, zoom: Float) {
         map.clear()
-        map.addMarker(
-            MarkerOptions()
-                .position(target)
-                .title("Current Location")
-        )
+        map.addMarker(MarkerOptions().position(target).title("Current Location"))
         if (!hasCenteredMap) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
             hasCenteredMap = true
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST &&
-            grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             enableMyLocation()
         }
     }
 
     override fun onStart() {
         super.onStart()
-        if (::map.isInitialized) {
-            enableMyLocation()
-        }
+        if (::map.isInitialized) enableMyLocation()
     }
 
     override fun onStop() {
@@ -222,14 +163,11 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun isLocationEnabled(): Boolean {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun highlightCategory(selectedId: Int, allIds: Set<Int>) {
-        allIds.forEach {
-            findViewById<TextView>(it).setBackgroundResource(R.drawable.bg_card_white)
-        }
+        allIds.forEach { findViewById<TextView>(it).setBackgroundResource(R.drawable.bg_card_white) }
         findViewById<TextView>(selectedId).setBackgroundResource(R.drawable.bg_card_green)
     }
 
@@ -241,7 +179,6 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onActivityResult(req: Int, res: Int, data: Intent?) {
         super.onActivityResult(req, res, data)
-
         if (req == 101 && res == RESULT_OK) {
             imageUri = data?.data
             findViewById<ImageView>(R.id.imgUpload).setImageURI(imageUri)
@@ -250,65 +187,70 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun pickDate(editText: EditText) {
         val c = Calendar.getInstance()
-        DatePickerDialog(this, { _, y, m, d ->
-            editText.setText("$d-${m+1}-$y")
-        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
+        DatePickerDialog(this, { _, y, m, d -> editText.setText("$d-${m + 1}-$y") }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
     }
 
     private fun pickTime(editText: EditText) {
         val c = Calendar.getInstance()
-        TimePickerDialog(this, { _, h, m ->
-            editText.setText("$h:$m")
-        }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show()
+        TimePickerDialog(this, { _, h, m -> editText.setText("$h:$m") }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show()
     }
 
-    private fun uploadPickupRequest(category: String, weight: String, location: String, date: String, time: String) {
-        if (category.isEmpty()) {
+    private fun submitPickupRequest(category: String, location: String) {
+        if (category.isBlank()) {
             Toast.makeText(this, "Select category", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val user = auth.currentUser ?: return
-        val id = System.currentTimeMillis().toString()
-
-        val data = hashMapOf(
-            "pickupId" to id,
-            "userId" to user.uid,
-            "category" to category,
-            "weight" to weight,
-            "location" to location,
-            "date" to date,
-            "time" to time,
-            "status" to "Pending",
-            "timestamp" to FieldValue.serverTimestamp()
-        )
-
-        if (imageUri == null) {
-            saveToFirestore(id, data)
-        } else {
-            uploadImage(id, data)
+        if (location.isBlank()) {
+            Toast.makeText(this, "Enter pickup location", Toast.LENGTH_SHORT).show()
+            return
         }
-    }
 
-    private fun uploadImage(id: String, data: HashMap<String, Any>) {
-        imageUri?.let { uri ->
-            val ref = storage.reference.child("pickupImages/$id.jpg")
-            ref.putFile(uri)
-                .addOnSuccessListener {
-                    ref.downloadUrl.addOnSuccessListener { url ->
-                        data["imageUrl"] = url.toString()
-                        saveToFirestore(id, data)
-                    }
+        val selectedImage = imageUri
+        if (selectedImage == null) {
+            Toast.makeText(this, "Upload waste image", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        val householdId = prefs.getString("HOUSEHOLD_ID", null)
+        if (householdId.isNullOrBlank()) {
+            Toast.makeText(this, "Household profile not found. Login again.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val imageFile = createTempImageFile(selectedImage)
+        if (imageFile == null) {
+            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        MobileBackendApi.submitPickupRequest(householdId, category, location, imageFile) { success, message ->
+            runOnUiThread {
+                imageFile.delete()
+                if (success) {
+                    Toast.makeText(this, "Pickup request submitted", Toast.LENGTH_LONG).show()
+                    finish()
+                } else {
+                    Toast.makeText(this, message ?: "Submission failed", Toast.LENGTH_LONG).show()
                 }
+            }
         }
     }
 
-    private fun saveToFirestore(id: String, data: HashMap<String, Any>) {
-        db.collection("pickups").document(id).set(data)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Pickup request submitted", Toast.LENGTH_LONG).show()
-                finish()
+    private fun createTempImageFile(uri: Uri): File? {
+        return try {
+            val input = contentResolver.openInputStream(uri) ?: return null
+            val file = File.createTempFile("pickup_", ".jpg", cacheDir)
+            input.use { ins ->
+                FileOutputStream(file).use { out ->
+                    ins.copyTo(out)
+                }
             }
+            file
+        } catch (_: Exception) {
+            null
+        }
     }
 
     companion object {
