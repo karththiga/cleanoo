@@ -76,6 +76,10 @@ class CollectorDashboardFragment : Fragment() {
                     view.findViewById<Button>(R.id.btnPrimaryAction).visibility = View.GONE
                     view.findViewById<Button>(R.id.btnViewJobDetails).visibility = View.GONE
                 }
+
+                //activeJob = data
+                bindActiveJob(view, data)
+                Toast.makeText(requireContext(), "Route started", Toast.LENGTH_SHORT).show()
             }
         }
     }
