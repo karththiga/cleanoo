@@ -55,11 +55,7 @@ class CollectorDashboardFragment : Fragment() {
 
                 view.findViewById<TextView>(R.id.tvAssignedCount).text = "${data.length()} pending"
                 if (data.length() > 0) {
-                    val first: JSONObject? = data.optJSONObject(0)
-                    if (first != null) {
-                        activeJob = first
-                        bindActiveJob(view, first)
-                    }
+                    bindActiveJob(view, data)
                 } else {
                     activeJob = null
                     view.findViewById<TextView>(R.id.tvCollectorIncomingStatus).text = "No active jobs right now"
@@ -75,7 +71,10 @@ class CollectorDashboardFragment : Fragment() {
         }
     }
 
-    private fun bindActiveJob(view: View, job: JSONObject) {
+    private fun bindActiveJob(view: View, jobs: JSONArray) {
+        val job = jobs.optJSONObject(0) ?: return
+        activeJob = job
+
         val household = job.optJSONObject("household")?.optString("name") ?: "Household"
         val address = job.optString("address", "Unknown address")
         val status = job.optString("status", "assigned").lowercase()
