@@ -4,7 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import org.json.JSONArray
+import org.json.JSONObject
 
 class CollectorHistoryFragment : Fragment() {
 
@@ -12,42 +17,110 @@ class CollectorHistoryFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflater.inflate(R.layout.fragment_collector_history, container, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        view?.let { loadJobs(it) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadJobs(view)
+    }
 
-        val navigateToDetails = View.OnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorJobDetailFragment())
-                .addToBackStack(null)
-                .commit()
+    private fun loadJobs(view: View) {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
+        val collectorId = prefs.getString("COLLECTOR_ID", null)
+
+        if (collectorId.isNullOrBlank()) {
+            view.findViewById<TextView>(R.id.tvCollectorJobsEmpty).visibility = View.VISIBLE
+            view.findViewById<TextView>(R.id.tvCollectorJobsEmpty).text = "Collector session not found"
+            return
         }
 
-        view.findViewById<View>(R.id.btnPickedUpGreenview)?.setOnClickListener(navigateToDetails)
-        view.findViewById<View>(R.id.btnPickedUpLakeside)?.setOnClickListener(navigateToDetails)
+        view.findViewById<View>(R.id.progressCollectorJobs).visibility = View.VISIBLE
+        MobileBackendApi.getCollectorJobHistory(collectorId) { success, data, message ->
+            activity?.runOnUiThread {
+                view.findViewById<View>(R.id.progressCollectorJobs).visibility = View.GONE
+                if (!success || data == null) {
+                    view.findViewById<TextView>(R.id.tvCollectorJobsEmpty).visibility = View.VISIBLE
+                    view.findViewById<TextView>(R.id.tvCollectorJobsEmpty).text = message ?: "Failed to load jobs"
+                    return@runOnUiThread
+                }
 
-        view.findViewById<View>(R.id.btnCollectorComplaint)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorComplaintFragment())
-                .addToBackStack(null)
-                .commit()
+                bindJobs(view, data)
+            }
+        }
+    }
+
+    private fun bindJobs(view: View, jobs: JSONArray) {
+        val recent = view.findViewById<LinearLayout>(R.id.layoutCollectorRecentJobs)
+        val completed = view.findViewById<LinearLayout>(R.id.layoutCollectorCompletedJobs)
+        val empty = view.findViewById<TextView>(R.id.tvCollectorJobsEmpty)
+
+        recent.removeAllViews()
+        completed.removeAllViews()
+
+        if (jobs.length() == 0) {
+            empty.visibility = View.VISIBLE
+            return
         }
 
-        view.findViewById<View>(R.id.btnCollectorReviewHousehold)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorReviewFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+        empty.visibility = View.GONE
 
-        view.findViewById<View>(R.id.cardCollectorCompletedJob)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorJobDetailFragment())
-                .addToBackStack(null)
-                .commit()
+        for (i in 0 until jobs.length()) {
+            val job = jobs.optJSONObject(i) ?: continue
+            val status = job.optString("status", "pending").lowercase()
+            val card = layoutInflater.inflate(R.layout.item_collector_job, recent, false)
+
+            card.findViewById<TextView>(R.id.tvCollectorJobTitle).text =
+                job.optJSONObject("household")?.optString("name", "Household") ?: "Household"
+            card.findViewById<TextView>(R.id.tvCollectorJobMeta).text =
+                "Pickup: ${job.optString("wasteType", "Waste")}"
+            card.findViewById<TextView>(R.id.tvCollectorJobStatus).text = statusLabel(status)
+
+            val btn = card.findViewById<Button>(R.id.btnCollectorJobPrimary)
+            if (status == "completed") {
+                btn.text = "Completed"
+                btn.isEnabled = false
+                completed.addView(card)
+            } else {
+                btn.text = if (status == "assigned" || status == "approved") "Picked up" else "Open details"
+                btn.setOnClickListener {
+                    if (status == "assigned" || status == "approved") {
+                        MobileBackendApi.startCollectorRoute(
+                            job.optString("_id"),
+                            "Collector is near Jaffna Town (dummy location)"
+                        ) { _, _, _ ->
+                            activity?.runOnUiThread { openJobDetails(job.optString("_id")) }
+                        }
+                    } else {
+                        openJobDetails(job.optString("_id"))
+                    }
+                }
+                recent.addView(card)
+            }
+        }
+    }
+
+    private fun openJobDetails(pickupId: String) {
+        if (pickupId.isBlank()) return
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.collectorDashboardContainer, CollectorJobDetailFragment.newInstance(pickupId))
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun statusLabel(status: String): String {
+        return when (status) {
+            "assigned", "approved" -> "Pending pickup"
+            "picked" -> "On the way"
+            "household_confirmed" -> "Awaiting evidence"
+            "completed" -> "Completed"
+            else -> status.replaceFirstChar { it.uppercase() }
         }
     }
 }

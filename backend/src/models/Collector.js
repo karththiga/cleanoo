@@ -7,6 +7,8 @@ const CollectorSchema = new mongoose.Schema({
   uid: { type: String, unique: true }, // Firebase UID link
   phone: { type: String, required: true },
   zone: { type: String, default: "Not Assigned" },
+  latitude: { type: Number },
+  longitude: { type: Number },
   status: { type: String, enum: ["active", "blocked"], default: "active" },
   createdAt: { type: Date, default: Date.now }
 });

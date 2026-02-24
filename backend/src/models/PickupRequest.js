@@ -50,6 +50,20 @@ const pickupRequestSchema = new mongoose.Schema(
       default: ""
     },
 
+
+    collectorLiveLocation: {
+      type: String,
+      default: ""
+    },
+
+    collectorLatitude: {
+      type: Number
+    },
+
+    collectorLongitude: {
+      type: Number
+    },
+
     /* ===============================
        STATUS FLOW
     =============================== */
@@ -60,6 +74,7 @@ const pickupRequestSchema = new mongoose.Schema(
         "approved",
         "assigned",
         "picked",
+        "household_confirmed",
         "completed",
         "rejected",
         "cancelled"
