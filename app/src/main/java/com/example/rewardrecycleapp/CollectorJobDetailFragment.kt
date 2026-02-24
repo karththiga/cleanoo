@@ -51,16 +51,17 @@ class CollectorJobDetailFragment : Fragment() {
                 view.findViewById<TextView>(R.id.tvJobSubtitle).text = subtitleForStatus(status)
 
                 val allowEvidence = status == "picked"
-                val allowDone = status == "collector_completed" || status == "completed"
 
                 view.findViewById<Button>(R.id.btnAddEvidence).apply {
+                    visibility = if (allowEvidence) View.VISIBLE else View.GONE
                     isEnabled = allowEvidence
-                    text = if (allowEvidence) "Upload evidence" else "Evidence unavailable"
+                    text = "Upload evidence"
                 }
 
                 view.findViewById<Button>(R.id.btnMarkCompleted).apply {
+                    visibility = if (allowEvidence) View.VISIBLE else View.GONE
                     isEnabled = allowEvidence
-                    text = if (allowDone) "Marked completed" else "Mark as completed"
+                    text = "Mark as completed"
                 }
             }
         }
