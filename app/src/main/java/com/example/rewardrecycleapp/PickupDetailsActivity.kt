@@ -32,6 +32,21 @@ class PickupDetailsActivity : AppCompatActivity() {
                     .replaceFirstChar { it.uppercase() }
                 findViewById<TextView>(R.id.tvDetailsCollector).text = collectorName
                 findViewById<TextView>(R.id.tvDetailsCollectorPhone).text = collectorPhone
+
+                val reviewRating = data.optInt("householdReviewRating", 0)
+                val reviewComment = data.optString("householdReviewComment", "")
+                findViewById<TextView>(R.id.tvDetailsReview).text =
+                    if (reviewRating > 0) "$reviewRating/5 - $reviewComment".trim() else "No review yet"
+
+                val complaintCategory = data.optString("householdComplaintCategory", "")
+                val complaintDetail = data.optString("householdComplaintDetail", "")
+                findViewById<TextView>(R.id.tvDetailsComplaint).text =
+                    if (complaintCategory.isNotBlank() || complaintDetail.isNotBlank()) {
+                        listOf(complaintCategory, complaintDetail).filter { it.isNotBlank() }.joinToString(" - ")
+                    } else {
+                        "No complaint yet"
+                    }
+
                 findViewById<TextView>(R.id.tvPickupDetailsError).text = ""
             }
         }

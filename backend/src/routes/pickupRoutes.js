@@ -12,6 +12,8 @@ const {
   collectorStartRoute,
   updateCollectorLiveLocation,
   householdConfirmCollected,
+  householdSubmitReview,
+  householdSubmitComplaint,
   collectorPickup,
   updateStatus,
   exportPickups,
@@ -77,6 +79,8 @@ router.put("/assign/:id", assignCollector);
 router.put("/collector/start-route/:id", collectorStartRoute);
 router.put("/collector/location/:id", updateCollectorLiveLocation);
 router.put("/household/confirm/:id", safeHouseholdConfirmCollected);
+router.put("/household/review/:id", householdSubmitReview);
+router.put("/household/complaint/:id", householdSubmitComplaint);
 
 // ===============================
 // COLLECTOR UPLOAD PICK PROOF

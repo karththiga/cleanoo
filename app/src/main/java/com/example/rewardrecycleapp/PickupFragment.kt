@@ -55,8 +55,10 @@ class PickupFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.btnComplaintDelay)?.setOnClickListener {
+            val pickupId = latestPickup?.optString("_id")
+            if (pickupId.isNullOrBlank()) return@setOnClickListener
             parentFragmentManager.beginTransaction()
-                .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
+                .replace(R.id.dashboardContainer, HouseholdComplaintFragment.newInstance(pickupId))
                 .addToBackStack(null)
                 .commit()
         }
@@ -164,13 +166,13 @@ class PickupFragment : Fragment() {
                 actions.visibility = View.VISIBLE
                 item.findViewById<Button>(R.id.btnItemReview).setOnClickListener {
                     parentFragmentManager.beginTransaction()
-                        .replace(R.id.dashboardContainer, HouseholdReviewFragment())
+                        .replace(R.id.dashboardContainer, HouseholdReviewFragment.newInstance(pickup.optString("_id")))
                         .addToBackStack(null)
                         .commit()
                 }
                 item.findViewById<Button>(R.id.btnItemComplaint).setOnClickListener {
                     parentFragmentManager.beginTransaction()
-                        .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
+                        .replace(R.id.dashboardContainer, HouseholdComplaintFragment.newInstance(pickup.optString("_id")))
                         .addToBackStack(null)
                         .commit()
                 }
