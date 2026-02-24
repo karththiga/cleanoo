@@ -14,6 +14,7 @@ import java.io.IOException
 object MobileBackendApi {
     private const val HOUSEHOLD_BASE_URL = "http://10.0.2.2:7777/api/households"
     private const val PICKUP_BASE_URL = "http://10.0.2.2:7777/api/pickups"
+    private const val COLLECTOR_BASE_URL = "http://10.0.2.2:7777/api/collectors"
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
     private val imageMediaType = "image/*".toMediaType()
     private val client = OkHttpClient()
@@ -98,6 +99,58 @@ object MobileBackendApi {
                     val body = it.body?.string()
                     if (it.isSuccessful) onResult(true, JSONObject(body ?: "{}").optJSONObject("data"), null)
                     else onResult(false, null, extractMessage(body, "Profile update failed"))
+                }
+            }
+        })
+    }
+
+
+
+    fun getMyCollectorProfile(idToken: String, onResult: (Boolean, JSONObject?, String?) -> Unit) {
+        val request = Request.Builder()
+            .url("$COLLECTOR_BASE_URL/me")
+            .addHeader("Authorization", "Bearer $idToken")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, JSONObject(body ?: "{}").optJSONObject("data"), null)
+                    else onResult(false, null, extractMessage(body, "Collector profile fetch failed"))
+                }
+            }
+        })
+    }
+
+    fun updateMyCollectorProfile(
+        idToken: String,
+        name: String,
+        phone: String,
+        zone: String,
+        onResult: (Boolean, JSONObject?, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("name", name)
+            put("phone", phone)
+            put("zone", zone)
+        }
+
+        val request = Request.Builder()
+            .url("$COLLECTOR_BASE_URL/me")
+            .addHeader("Authorization", "Bearer $idToken")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, JSONObject(body ?: "{}").optJSONObject("data"), null)
+                    else onResult(false, null, extractMessage(body, "Collector profile update failed"))
                 }
             }
         })
