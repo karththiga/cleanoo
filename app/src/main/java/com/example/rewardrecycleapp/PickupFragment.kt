@@ -28,20 +28,6 @@ class PickupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<View>(R.id.btnHouseholdReview)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.dashboardContainer, HouseholdReviewFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
-        view.findViewById<View>(R.id.btnHouseholdComplaint)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
         view.findViewById<CardView>(R.id.cardCurrentRequest)?.setOnClickListener {
             openPickupDetails(latestPickup?.optString("_id"))
         }
@@ -66,6 +52,13 @@ class PickupFragment : Fragment() {
                     loadPickupData(view)
                 }
             }
+        }
+
+        view.findViewById<Button>(R.id.btnComplaintDelay)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         loadPickupData(view)
@@ -129,8 +122,12 @@ class PickupFragment : Fragment() {
             view.findViewById<TextView>(R.id.tvActiveJobStatus).text = statusLabelForHousehold(status)
             view.findViewById<TextView>(R.id.tvRequestDetailsHint).text = "Tap to view full request details"
 
+            val statusLower = status.lowercase()
             val confirmButton = view.findViewById<Button>(R.id.btnConfirmCollected)
-            confirmButton.visibility = if (status.lowercase() == "collector_completed") View.VISIBLE else View.GONE
+            confirmButton.visibility = if (statusLower == "collector_completed") View.VISIBLE else View.GONE
+
+            val delayButton = view.findViewById<Button>(R.id.btnComplaintDelay)
+            delayButton.visibility = if (statusLower == "assigned" || statusLower == "approved") View.VISIBLE else View.GONE
         }
 
         bindAllPickupCards(view, pickups)
@@ -158,8 +155,28 @@ class PickupFragment : Fragment() {
             item.findViewById<TextView>(R.id.tvItemCollector).text = "Collector: $collectorText"
             item.findViewById<TextView>(R.id.tvItemLiveLocation).text =
                 if (liveLocationText.isBlank()) "Live: Not shared" else "Live: $liveLocationText"
+            val status = pickup.optString("status", "pending").lowercase()
             item.findViewById<TextView>(R.id.tvItemStatus).text =
-                statusLabelForHousehold(pickup.optString("status", "pending"))
+                statusLabelForHousehold(status)
+
+            val actions = item.findViewById<LinearLayout>(R.id.layoutCompletedActions)
+            if (status == "completed") {
+                actions.visibility = View.VISIBLE
+                item.findViewById<Button>(R.id.btnItemReview).setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.dashboardContainer, HouseholdReviewFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+                item.findViewById<Button>(R.id.btnItemComplaint).setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+            } else {
+                actions.visibility = View.GONE
+            }
 
             item.setOnClickListener {
                 openPickupDetails(pickup.optString("_id"))
