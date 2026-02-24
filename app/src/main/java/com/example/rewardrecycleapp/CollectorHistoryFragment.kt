@@ -82,24 +82,14 @@ class CollectorHistoryFragment : Fragment() {
             card.findViewById<TextView>(R.id.tvCollectorJobStatus).text = statusLabel(status)
 
             val btn = card.findViewById<Button>(R.id.btnCollectorJobPrimary)
+            btn.text = "View details"
+            btn.isEnabled = true
+            btn.setOnClickListener { openJobDetails(job.optString("_id")) }
+            card.setOnClickListener { openJobDetails(job.optString("_id")) }
+
             if (status == "completed") {
-                btn.text = "Completed"
-                btn.isEnabled = false
                 completed.addView(card)
             } else {
-                btn.text = actionLabel(status)
-                btn.setOnClickListener {
-                    if (status == "assigned" || status == "approved") {
-                        MobileBackendApi.startCollectorRoute(
-                            job.optString("_id"),
-                            "Collector is near Jaffna Town (dummy location)"
-                        ) { _, _, _ ->
-                            activity?.runOnUiThread { openJobDetails(job.optString("_id")) }
-                        }
-                    } else {
-                        openJobDetails(job.optString("_id"))
-                    }
-                }
                 recent.addView(card)
             }
         }
