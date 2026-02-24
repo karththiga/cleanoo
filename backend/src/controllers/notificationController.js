@@ -1,6 +1,7 @@
 const Notification = require("../models/Notification");
 const Household = require("../models/Household");
 const Collector = require("../models/Collector");
+const mongoose = require("mongoose");
 
 /* =========================================
    SEND NOTIFICATION (NEW LOGIC)
@@ -91,11 +92,21 @@ const sendNotification = async (req, res) => {
 const getNotifications = async (req, res) => {
   try {
     const { userId, userType } = req.query;
-    const filter = { isHidden: { $ne: true } };
+    let filter = { isHidden: { $ne: true } };
 
-    if (userId && ["Household", "Collector"].includes(userType)) {
-      filter.userId = userId;
-      filter.userType = userType;
+    if (userId || userType) {
+      if (!userId || !["Household", "Collector"].includes(userType)) {
+        return res.status(400).json({ success: false, message: "Invalid user filter" });
+      }
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, message: "Invalid userId" });
+      }
+
+      // Mobile app should receive only user-delivered notifications (including hidden broadcast deliveries).
+      filter = {
+        userId,
+        userType
+      };
     }
 
     const list = await Notification.find(filter)

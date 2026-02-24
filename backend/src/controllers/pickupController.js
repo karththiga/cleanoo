@@ -414,6 +414,16 @@ exports.collectorPickup = async (req, res) => {
       });
     }
 
+    // Notify household that collector submitted evidence and awaits final confirmation.
+    await Notification.create({
+      title: "Collector completed pickup",
+      message: "Your collector has uploaded evidence. Please confirm completion from your app.",
+      target: "single_household",
+      userId: pickup.household._id,
+      userType: "Household",
+      type: "info"
+    });
+
     res.json({ success: true, message: "Evidence saved. Waiting for household confirmation." });
   } catch (err) {
     console.error(err);
