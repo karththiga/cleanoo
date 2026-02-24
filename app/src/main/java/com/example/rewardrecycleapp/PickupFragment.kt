@@ -103,7 +103,7 @@ class PickupFragment : Fragment() {
             view.findViewById<TextView>(R.id.tvActiveJobCollector).text = collectorMeta
 
             val status = latest.optString("status", "pending")
-            view.findViewById<TextView>(R.id.tvActiveJobStatus).text = status.replaceFirstChar { it.uppercase() }
+            view.findViewById<TextView>(R.id.tvActiveJobStatus).text = statusLabelForHousehold(status)
             view.findViewById<TextView>(R.id.tvRequestDetailsHint).text = "Tap to view full request details"
         }
 
@@ -133,13 +133,22 @@ class PickupFragment : Fragment() {
             item.findViewById<TextView>(R.id.tvItemLiveLocation).text =
                 if (liveLocationText.isBlank()) "Live: Not shared" else "Live: $liveLocationText"
             item.findViewById<TextView>(R.id.tvItemStatus).text =
-                pickup.optString("status", "pending").replaceFirstChar { it.uppercase() }
+                statusLabelForHousehold(pickup.optString("status", "pending"))
 
             item.setOnClickListener {
                 openPickupDetails(pickup.optString("_id"))
             }
 
             container.addView(item)
+        }
+    }
+
+
+    private fun statusLabelForHousehold(rawStatus: String): String {
+        return when (rawStatus.lowercase()) {
+            "completed" -> "Completed"
+            "picked" -> "On The Way"
+            else -> "Pending Pickup"
         }
     }
 

@@ -225,9 +225,15 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
+        val submitButton = findViewById<Button>(R.id.btnSubmitPickup)
+        submitButton.isEnabled = false
+        submitButton.text = "Submitting..."
+
         MobileBackendApi.submitPickupRequest(householdId, category, location, imageFile) { success, message ->
             runOnUiThread {
                 imageFile.delete()
+                submitButton.isEnabled = true
+                submitButton.text = "Submit Request"
                 if (success) {
                     Toast.makeText(this, "Pickup request submitted", Toast.LENGTH_LONG).show()
                     finish()

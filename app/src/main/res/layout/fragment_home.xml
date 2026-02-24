@@ -17,309 +17,140 @@
             android:padding="20dp"
             android:paddingBottom="96dp">
 
-        <!-- Greeting -->
-        <TextView
-            android:id="@+id/tvGreeting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello, User 👋"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#1A73E8"
-            android:layout_marginBottom="12dp" />
+            <TextView
+                android:id="@+id/tvGreeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello, User 👋"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#1A73E8"
+                android:layout_marginBottom="12dp" />
 
-        <!-- Points Summary Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="6dp">
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@drawable/bg_loyalty_card">
+
+                    <TextView
+                        android:id="@+id/tvPointsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Current Points"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#E3F2FD"/>
+
+                    <TextView
+                        android:id="@+id/tvTotalPoints"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 Points"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
+
+                    <TextView
+                        android:id="@+id/tvTier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Silver Member"
+                        android:textSize="14sp"
+                        android:textColor="#E3F2FD"
+                        android:layout_marginTop="4dp"/>
+
+                    <ProgressBar
+                        android:id="@+id/progressTier"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:layout_marginTop="18dp"
+                        android:progress="60"
+                        android:progressTint="#FFFFFF"
+                        android:progressBackgroundTint="#80FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/tvExpiry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Points expire on: 25 Dec 2025"
+                        android:textSize="12sp"
+                        android:textColor="#E3F2FD"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recent Requests"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="#1E1E1E"/>
+
+            <ProgressBar
+                android:id="@+id/progressRecentRequests"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvRecentRequestsEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No recent requests"
+                android:textColor="#6B7280"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
 
             <LinearLayout
+                android:id="@+id/layoutRecentRequests"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:background="@drawable/bg_loyalty_card">
+                android:layout_marginBottom="6dp" />
 
-                <!-- Current Points Label -->
-                <TextView
-                    android:id="@+id/tvPointsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Current Points"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#E3F2FD"/>
-
-                <!-- Points -->
-                <TextView
-                    android:id="@+id/tvTotalPoints"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2350 Points"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"/>
-
-                <!-- Tier -->
-                <TextView
-                    android:id="@+id/tvTier"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Silver Member"
-                    android:textSize="14sp"
-                    android:textColor="#E3F2FD"
-                    android:layout_marginTop="4dp"/>
-
-                <!-- Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressTier"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="18dp"
-                    android:progress="60"
-                    android:progressTint="#FFFFFF"
-                    android:progressBackgroundTint="#80FFFFFF" />
-
-                <!-- Expiry -->
-                <TextView
-                    android:id="@+id/tvExpiry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Points expire on: 25 Dec 2025"
-                    android:textSize="12sp"
-                    android:textColor="#E3F2FD"
-                    android:layout_marginTop="8dp"/>
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-
-        <!-- Recent Requests -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Recent Requests"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="12dp"
-            android:textColor="#1E1E1E"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Request 1 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                android:text="Announcements"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="12dp"
+                android:textColor="#1E1E1E"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="14dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/baseline_home_24"
-                        app:tint="#1A73E8"/>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:paddingStart="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Household Pickup"
-                            android:textStyle="bold"
-                            android:textSize="14sp"
-                            android:textColor="#1E1E1E"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Requested on Sep 12"
-                            android:textSize="12sp"
-                            android:textColor="#757575"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pending"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="#F57C00"
-                        android:background="#FFF3E0"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Request 2 -->
-            <androidx.cardview.widget.CardView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerAnnouncements"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="14dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/baseline_home_24"
-                        app:tint="#43A047"/>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:paddingStart="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Household Pickup"
-                            android:textStyle="bold"
-                            android:textSize="14sp"
-                            android:textColor="#1E1E1E"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Completed on Sep 08"
-                            android:textSize="12sp"
-                            android:textColor="#757575"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Completed"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="#2E7D32"
-                        android:background="#E8F5E9"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Request 3 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="14dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/baseline_home_24"
-                        app:tint="#1A73E8"/>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:paddingStart="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Household Pickup"
-                            android:textStyle="bold"
-                            android:textSize="14sp"
-                            android:textColor="#1E1E1E"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Requested on Sep 02"
-                            android:textSize="12sp"
-                            android:textColor="#757575"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pending"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="#F57C00"
-                        android:background="#FFF3E0"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-        </LinearLayout>
-
-        <!-- Announcements -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Announcements"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="12dp"
-            android:textColor="#1E1E1E"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerAnnouncements"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:overScrollMode="never"
-            android:paddingBottom="12dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                android:layout_height="160dp"
+                android:clipToPadding="false"
+                android:paddingEnd="10dp" />
 
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabRequestPickup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
-        android:contentDescription="Pickup request"
-        android:text="Pickup request"
-        android:textColor="#FFFFFF"
-        app:icon="@drawable/baseline_local_shipping_24"
-        app:iconTint="#FFFFFF"
-        app:backgroundTint="#1A73E8" />
+        android:contentDescription="Request pickup"
+        android:src="@drawable/baseline_add_24"
+        app:backgroundTint="#1A73E8"
+        app:tint="#FFFFFF" />
+
 </FrameLayout>

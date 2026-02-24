@@ -32,10 +32,16 @@ class CollectorRouteFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            val startButton = view.findViewById<Button>(R.id.btnStartRoute)
+            startButton.isEnabled = false
+            startButton.text = "Starting..."
+
             val dummyLocation = "Collector is near Jaffna Town (dummy location)"
             MobileBackendApi.startCollectorRoute(pickupId, dummyLocation) { success, data, message ->
                 activity?.runOnUiThread {
                     if (!success || data == null) {
+                        startButton.isEnabled = true
+                        startButton.text = "Start route"
                         Toast.makeText(requireContext(), message ?: "Start route failed", Toast.LENGTH_LONG).show()
                         return@runOnUiThread
                     }
