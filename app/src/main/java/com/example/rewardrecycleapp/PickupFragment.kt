@@ -173,8 +173,8 @@ class PickupFragment : Fragment() {
     private fun statusLabelForHousehold(rawStatus: String): String {
         return when (rawStatus.lowercase()) {
             "completed" -> "Completed"
-            "collector_completed" -> "Collector completed • Confirm now"
-            "picked" -> "Collector On The Way"
+            "collector_completed" -> "Collector completed • Please confirm"
+            "picked" -> "Collector is on the way"
             "household_confirmed" -> "Confirmed by household"
             else -> "Pending Pickup"
         }

@@ -89,10 +89,21 @@
                     android:textColor="#6B7280" />
 
                 <Button
-                    android:id="@+id/btnViewJobDetails"
+                    android:id="@+id/btnPrimaryAction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
+                    android:backgroundTint="#111827"
+                    android:text="Start route"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btnViewJobDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:text="View job details"
                     android:textAllCaps="false"
                     android:visibility="gone" />
