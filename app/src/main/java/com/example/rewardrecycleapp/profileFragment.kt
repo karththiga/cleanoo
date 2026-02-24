@@ -21,6 +21,7 @@ class ProfileFragment : Fragment() {
     private lateinit var imgProfile: CircleImageView
     private lateinit var tvName: TextView
     private lateinit var tvEmail: TextView
+    private lateinit var tvAddressLabel: TextView
 
     private lateinit var edtName: EditText
     private lateinit var edtPhone: EditText
@@ -32,6 +33,8 @@ class ProfileFragment : Fragment() {
     private lateinit var btnSavePassword: Button
     private lateinit var btnLogout: Button
 
+    private var userRole: UserRole = UserRole.HOUSEHOLD
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,8 +42,10 @@ class ProfileFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
         auth = FirebaseAuth.getInstance()
+        userRole = resolveUserRole()
 
         bindViews(view)
+        applyRoleUi()
         loadProfileFromPrefs()
         refreshProfileFromApi()
         bindActions()
@@ -48,10 +53,17 @@ class ProfileFragment : Fragment() {
         return view
     }
 
+    private fun resolveUserRole(): UserRole {
+        val role = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            .getString("USER_ROLE", UserRole.HOUSEHOLD.value)
+        return if (role == UserRole.COLLECTOR.value) UserRole.COLLECTOR else UserRole.HOUSEHOLD
+    }
+
     private fun bindViews(view: View) {
         imgProfile = view.findViewById(R.id.imgProfile)
         tvName = view.findViewById(R.id.tvName)
         tvEmail = view.findViewById(R.id.tvEmail)
+        tvAddressLabel = view.findViewById(R.id.tvAddressLabel)
 
         edtName = view.findViewById(R.id.edtName)
         edtPhone = view.findViewById(R.id.edtPhone)
@@ -64,6 +76,14 @@ class ProfileFragment : Fragment() {
         btnLogout = view.findViewById(R.id.btnLogout)
     }
 
+    private fun applyRoleUi() {
+        if (userRole == UserRole.COLLECTOR) {
+            tvAddressLabel.visibility = View.GONE
+            edtAddress.visibility = View.GONE
+            edtZone.hint = "Assigned zone"
+        }
+    }
+
     private fun bindActions() {
         btnSaveProfile.setOnClickListener { updateProfile() }
         btnSavePassword.setOnClickListener { updatePassword() }
@@ -72,11 +92,26 @@ class ProfileFragment : Fragment() {
 
     private fun loadProfileFromPrefs() {
         val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-        val name = prefs.getString("HOUSEHOLD_NAME", "User") ?: "User"
-        val email = prefs.getString("HOUSEHOLD_EMAIL", auth.currentUser?.email ?: "") ?: ""
-        val phone = prefs.getString("HOUSEHOLD_PHONE", "") ?: ""
-        val address = prefs.getString("HOUSEHOLD_ADDRESS", "") ?: ""
-        val zone = prefs.getString("HOUSEHOLD_ZONE", "") ?: ""
+
+        val name: String
+        val email: String
+        val phone: String
+        val address: String
+        val zone: String
+
+        if (userRole == UserRole.COLLECTOR) {
+            name = prefs.getString("COLLECTOR_NAME", "Collector") ?: "Collector"
+            email = prefs.getString("COLLECTOR_EMAIL", auth.currentUser?.email ?: "") ?: ""
+            phone = prefs.getString("COLLECTOR_PHONE", "") ?: ""
+            address = ""
+            zone = prefs.getString("COLLECTOR_ZONE", "") ?: ""
+        } else {
+            name = prefs.getString("HOUSEHOLD_NAME", "User") ?: "User"
+            email = prefs.getString("HOUSEHOLD_EMAIL", auth.currentUser?.email ?: "") ?: ""
+            phone = prefs.getString("HOUSEHOLD_PHONE", "") ?: ""
+            address = prefs.getString("HOUSEHOLD_ADDRESS", "") ?: ""
+            zone = prefs.getString("HOUSEHOLD_ZONE", "") ?: ""
+        }
 
         tvName.text = name
         tvEmail.text = email
@@ -90,21 +125,32 @@ class ProfileFragment : Fragment() {
     private fun refreshProfileFromApi() {
         val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         val token = prefs.getString("ID_TOKEN", null)
-
         if (token.isNullOrEmpty()) return
 
-        MobileBackendApi.getMyHouseholdProfile(token) { success, profile, message ->
-            activity?.runOnUiThread {
-                if (success && profile != null) {
-                    applyProfile(profile)
-                } else if (!message.isNullOrEmpty()) {
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        if (userRole == UserRole.COLLECTOR) {
+            MobileBackendApi.getMyCollectorProfile(token) { success, profile, message ->
+                activity?.runOnUiThread {
+                    if (success && profile != null) {
+                        applyCollectorProfile(profile)
+                    } else if (!message.isNullOrEmpty()) {
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } else {
+            MobileBackendApi.getMyHouseholdProfile(token) { success, profile, message ->
+                activity?.runOnUiThread {
+                    if (success && profile != null) {
+                        applyHouseholdProfile(profile)
+                    } else if (!message.isNullOrEmpty()) {
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
 
-    private fun applyProfile(profile: org.json.JSONObject) {
+    private fun applyHouseholdProfile(profile: org.json.JSONObject) {
         val name = profile.optString("name", "User")
         val email = profile.optString("email", auth.currentUser?.email ?: "")
         val phone = profile.optString("phone", "")
@@ -113,14 +159,12 @@ class ProfileFragment : Fragment() {
 
         tvName.text = name
         tvEmail.text = email
-
         edtName.setText(name)
         edtPhone.setText(phone)
         edtAddress.setText(address)
         edtZone.setText(zone)
 
-        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-        prefs.edit()
+        requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE).edit()
             .putString("HOUSEHOLD_ID", profile.optString("_id"))
             .putString("HOUSEHOLD_NAME", name)
             .putString("HOUSEHOLD_EMAIL", email)
@@ -128,6 +172,27 @@ class ProfileFragment : Fragment() {
             .putString("HOUSEHOLD_ADDRESS", address)
             .putString("HOUSEHOLD_ZONE", zone)
             .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
+            .apply()
+    }
+
+    private fun applyCollectorProfile(profile: org.json.JSONObject) {
+        val name = profile.optString("name", "Collector")
+        val email = profile.optString("email", auth.currentUser?.email ?: "")
+        val phone = profile.optString("phone", "")
+        val zone = profile.optString("zone", "")
+
+        tvName.text = name
+        tvEmail.text = email
+        edtName.setText(name)
+        edtPhone.setText(phone)
+        edtZone.setText(zone)
+
+        requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE).edit()
+            .putString("COLLECTOR_ID", profile.optString("_id"))
+            .putString("COLLECTOR_NAME", name)
+            .putString("COLLECTOR_EMAIL", email)
+            .putString("COLLECTOR_PHONE", phone)
+            .putString("COLLECTOR_ZONE", zone)
             .apply()
     }
 
@@ -145,18 +210,36 @@ class ProfileFragment : Fragment() {
         val address = edtAddress.text.toString().trim()
         val zone = edtZone.text.toString().trim()
 
-        if (name.isEmpty() || phone.isEmpty() || address.isEmpty()) {
-            Toast.makeText(requireContext(), "Name, phone and address are required", Toast.LENGTH_SHORT).show()
+        if (name.isEmpty() || phone.isEmpty()) {
+            Toast.makeText(requireContext(), "Name and phone are required", Toast.LENGTH_SHORT).show()
             return
         }
 
-        MobileBackendApi.updateMyHouseholdProfile(token, name, phone, address, zone) { success, profile, message ->
-            activity?.runOnUiThread {
-                if (success && profile != null) {
-                    applyProfile(profile)
-                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), message ?: "Profile update failed", Toast.LENGTH_LONG).show()
+        if (userRole == UserRole.COLLECTOR) {
+            MobileBackendApi.updateMyCollectorProfile(token, name, phone, zone) { success, profile, message ->
+                activity?.runOnUiThread {
+                    if (success && profile != null) {
+                        applyCollectorProfile(profile)
+                        Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), message ?: "Profile update failed", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        } else {
+            if (address.isEmpty()) {
+                Toast.makeText(requireContext(), "Address is required", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            MobileBackendApi.updateMyHouseholdProfile(token, name, phone, address, zone) { success, profile, message ->
+                activity?.runOnUiThread {
+                    if (success && profile != null) {
+                        applyHouseholdProfile(profile)
+                        Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), message ?: "Profile update failed", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -191,5 +274,10 @@ class ProfileFragment : Fragment() {
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+    }
+
+    enum class UserRole(val value: String) {
+        HOUSEHOLD("household"),
+        COLLECTOR("collector")
     }
 }

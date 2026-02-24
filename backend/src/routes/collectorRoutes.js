@@ -7,10 +7,16 @@ const {
   updateCollector,
   deleteCollector,
   toggleCollectorStatus,
-  getCollectorHistory   
+  getCollectorHistory,
+  getMyCollectorProfile,
+  updateMyCollectorProfile
 } = require("../controllers/collectorController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 router.get("/", getCollectors);
+
+router.get("/me", authMiddleware, getMyCollectorProfile);
+router.put("/me", authMiddleware, updateMyCollectorProfile);
 
 router.post("/", addCollector);
 
