@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -41,13 +42,7 @@ class PickupFragment : Fragment() {
         }
 
         view.findViewById<CardView>(R.id.cardCurrentRequest)?.setOnClickListener {
-            val pickupId = latestPickup?.optString("_id")
-            if (!pickupId.isNullOrBlank()) {
-                startActivity(
-                    Intent(requireContext(), PickupDetailsActivity::class.java)
-                        .putExtra("pickup_id", pickupId)
-                )
-            }
+            openPickupDetails(latestPickup?.optString("_id"))
         }
 
         val householdId = requireContext()
@@ -94,8 +89,47 @@ class PickupFragment : Fragment() {
 
             val status = latest.optString("status", "pending")
             view.findViewById<TextView>(R.id.tvActiveJobStatus).text = status.replaceFirstChar { it.uppercase() }
-
             view.findViewById<TextView>(R.id.tvRequestDetailsHint).text = "Tap to view full request details"
         }
+
+        bindAllPickupCards(view, pickups)
+    }
+
+    private fun bindAllPickupCards(view: View, pickups: JSONArray) {
+        val container = view.findViewById<LinearLayout>(R.id.layoutAllPickupJobs)
+        container.removeAllViews()
+
+        if (pickups.length() == 0) {
+            view.findViewById<TextView>(R.id.tvAllJobsEmpty).visibility = View.VISIBLE
+            return
+        }
+
+        view.findViewById<TextView>(R.id.tvAllJobsEmpty).visibility = View.GONE
+
+        for (i in 0 until pickups.length()) {
+            val pickup = pickups.optJSONObject(i) ?: continue
+            val item = layoutInflater.inflate(R.layout.item_pickup_job, container, false)
+
+            item.findViewById<TextView>(R.id.tvItemWasteType).text = "${pickup.optString("wasteType", "Waste")} Pickup"
+            item.findViewById<TextView>(R.id.tvItemAddress).text = pickup.optString("address", "No address")
+            item.findViewById<TextView>(R.id.tvItemCollector).text =
+                "Collector: ${pickup.optJSONObject("assignedCollector")?.optString("name") ?: "Awaiting assignment"}"
+            item.findViewById<TextView>(R.id.tvItemStatus).text =
+                pickup.optString("status", "pending").replaceFirstChar { it.uppercase() }
+
+            item.setOnClickListener {
+                openPickupDetails(pickup.optString("_id"))
+            }
+
+            container.addView(item)
+        }
+    }
+
+    private fun openPickupDetails(pickupId: String?) {
+        if (pickupId.isNullOrBlank()) return
+        startActivity(
+            Intent(requireContext(), PickupDetailsActivity::class.java)
+                .putExtra("pickup_id", pickupId)
+        )
     }
 }

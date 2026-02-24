@@ -152,6 +152,33 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="All pickup jobs"
+            android:textColor="#1F2A37"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvAllJobsEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="No pickup jobs yet"
+            android:textColor="#6B7280"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layoutAllPickupJobs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
         <Button
             android:id="@+id/btnHouseholdReview"
             android:layout_width="match_parent"

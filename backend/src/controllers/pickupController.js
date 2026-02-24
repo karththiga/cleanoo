@@ -34,43 +34,47 @@ async function findBestAvailableCollector(household) {
     });
   }
 
-  // Fallback: if no collector exists in the same zone, use all active collectors.
+  // Fallback: if no collector exists in the same zone, use all non-blocked collectors.
   if (!collectors.length) {
     collectors = await Collector.find(activeCollectorFilter);
   }
   if (!collectors.length) return null;
 
-  const available = [];
+  const candidates = [];
   for (const col of collectors) {
     const activeTasks = await Pickup.countDocuments({
       assignedCollector: col._id,
       status: { $in: ACTIVE_ASSIGNMENT_STATUSES }
     });
 
-    if (activeTasks === 0) {
-      let distanceKm = Number.MAX_SAFE_INTEGER;
-      if (
-        typeof household.latitude === "number" &&
-        typeof household.longitude === "number" &&
-        typeof col.latitude === "number" &&
-        typeof col.longitude === "number"
-      ) {
-        distanceKm = calculateDistanceKm(
-          household.latitude,
-          household.longitude,
-          col.latitude,
-          col.longitude
-        );
-      }
-
-      available.push({ collector: col, distanceKm });
+    let distanceKm = Number.MAX_SAFE_INTEGER;
+    if (
+      typeof household.latitude === "number" &&
+      typeof household.longitude === "number" &&
+      typeof col.latitude === "number" &&
+      typeof col.longitude === "number"
+    ) {
+      distanceKm = calculateDistanceKm(
+        household.latitude,
+        household.longitude,
+        col.latitude,
+        col.longitude
+      );
     }
+
+    candidates.push({ collector: col, activeTasks, distanceKm });
   }
 
-  if (!available.length) return null;
+  if (!candidates.length) return null;
 
-  available.sort((a, b) => a.distanceKm - b.distanceKm);
-  return available[0].collector;
+  // Always return a collector when at least one non-blocked collector exists.
+  // Prefer free collectors first, otherwise assign the least-loaded nearest collector.
+  candidates.sort((a, b) => {
+    if (a.activeTasks !== b.activeTasks) return a.activeTasks - b.activeTasks;
+    return a.distanceKm - b.distanceKm;
+  });
+
+  return candidates[0].collector;
 }
 
 /* ======================================================
