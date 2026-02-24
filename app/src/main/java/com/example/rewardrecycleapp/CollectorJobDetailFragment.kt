@@ -48,14 +48,31 @@ class CollectorJobDetailFragment : Fragment() {
 
                 view.findViewById<TextView>(R.id.tvJobTitle).text = householdName
                 view.findViewById<TextView>(R.id.tvJobMeta).text = "Pickup: $wasteType"
-                view.findViewById<TextView>(R.id.tvJobSubtitle).text =
-                    if (status == "household_confirmed") "Household confirmed. Add photo evidence now."
-                    else "Status: ${status.replaceFirstChar { it.uppercase() }}"
+                view.findViewById<TextView>(R.id.tvJobSubtitle).text = subtitleForStatus(status)
 
-                val allowEvidence = status == "household_confirmed"
-                view.findViewById<Button>(R.id.btnAddEvidence).isEnabled = allowEvidence
-                view.findViewById<Button>(R.id.btnMarkCompleted).isEnabled = allowEvidence
+                val allowEvidence = status == "picked"
+                val allowDone = status == "collector_completed" || status == "completed"
+
+                view.findViewById<Button>(R.id.btnAddEvidence).apply {
+                    isEnabled = allowEvidence
+                    text = if (allowEvidence) "Upload evidence" else "Evidence unavailable"
+                }
+
+                view.findViewById<Button>(R.id.btnMarkCompleted).apply {
+                    isEnabled = allowEvidence
+                    text = if (allowDone) "Marked completed" else "Mark as completed"
+                }
             }
+        }
+    }
+
+    private fun subtitleForStatus(status: String): String {
+        return when (status.lowercase()) {
+            "assigned", "approved" -> "Start route first from Collector Home before adding proof."
+            "picked" -> "Upload evidence to finish your part. Household will confirm final completion."
+            "collector_completed" -> "Evidence uploaded. Waiting for household confirmation."
+            "completed" -> "Pickup is fully completed and confirmed by household."
+            else -> "Status: ${status.replaceFirstChar { it.uppercase() }}"
         }
     }
 

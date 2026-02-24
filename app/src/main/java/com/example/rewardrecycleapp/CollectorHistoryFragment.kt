@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import org.json.JSONArray
-import org.json.JSONObject
 
 class CollectorHistoryFragment : Fragment() {
 
@@ -88,7 +87,7 @@ class CollectorHistoryFragment : Fragment() {
                 btn.isEnabled = false
                 completed.addView(card)
             } else {
-                btn.text = if (status == "assigned" || status == "approved") "Picked up" else "Open details"
+                btn.text = actionLabel(status)
                 btn.setOnClickListener {
                     if (status == "assigned" || status == "approved") {
                         MobileBackendApi.startCollectorRoute(
@@ -106,6 +105,15 @@ class CollectorHistoryFragment : Fragment() {
         }
     }
 
+    private fun actionLabel(status: String): String {
+        return when (status) {
+            "assigned", "approved" -> "Start route"
+            "picked" -> "Job details"
+            "collector_completed" -> "Track confirmation"
+            else -> "Job details"
+        }
+    }
+
     private fun openJobDetails(pickupId: String) {
         if (pickupId.isBlank()) return
         parentFragmentManager.beginTransaction()
@@ -116,9 +124,9 @@ class CollectorHistoryFragment : Fragment() {
 
     private fun statusLabel(status: String): String {
         return when (status) {
-            "assigned", "approved" -> "Pending pickup"
-            "picked" -> "On the way"
-            "household_confirmed" -> "Awaiting evidence"
+            "assigned", "approved" -> "Ready to start route"
+            "picked" -> "Route started • Upload evidence"
+            "collector_completed" -> "Waiting for household confirmation"
             "completed" -> "Completed"
             else -> status.replaceFirstChar { it.uppercase() }
         }

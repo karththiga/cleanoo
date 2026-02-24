@@ -75,7 +75,7 @@ class CollectorEvidenceFragment : Fragment() {
                         return@runOnUiThread
                     }
 
-                    view.findViewById<TextView>(R.id.tvEvidenceStatus).text = "Evidence saved. Pickup completed."
+                    view.findViewById<TextView>(R.id.tvEvidenceStatus).text = "Evidence saved. Waiting for household confirmation."
                     parentFragmentManager.popBackStack()
                     parentFragmentManager.popBackStack()
                 }
