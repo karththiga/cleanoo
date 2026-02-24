@@ -57,7 +57,7 @@ class PickupFragment : Fragment() {
             MobileBackendApi.householdConfirmCollection(pickupId) { success, _, message ->
                 activity?.runOnUiThread {
                     button.isEnabled = true
-                    button.text = "Confirm Waste Collected"
+                    button.text = "Confirm Job Completed"
                     if (!success) {
                         view.findViewById<TextView>(R.id.tvActiveJobMeta).text = message ?: "Confirmation failed"
                         return@runOnUiThread
@@ -130,7 +130,7 @@ class PickupFragment : Fragment() {
             view.findViewById<TextView>(R.id.tvRequestDetailsHint).text = "Tap to view full request details"
 
             val confirmButton = view.findViewById<Button>(R.id.btnConfirmCollected)
-            confirmButton.visibility = if (status.lowercase() == "picked") View.VISIBLE else View.GONE
+            confirmButton.visibility = if (status.lowercase() == "collector_completed") View.VISIBLE else View.GONE
         }
 
         bindAllPickupCards(view, pickups)
@@ -173,8 +173,9 @@ class PickupFragment : Fragment() {
     private fun statusLabelForHousehold(rawStatus: String): String {
         return when (rawStatus.lowercase()) {
             "completed" -> "Completed"
-            "household_confirmed" -> "Awaiting Collector Proof"
-            "picked" -> "On The Way"
+            "collector_completed" -> "Collector completed • Confirm now"
+            "picked" -> "Collector On The Way"
+            "household_confirmed" -> "Confirmed by household"
             else -> "Pending Pickup"
         }
     }
