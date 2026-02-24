@@ -327,37 +327,6 @@ exports.updateCollectorLiveLocation = async (req, res) => {
 
 /* ======================================================
    HOUSEHOLD CONFIRM COLLECTION
-====================================================== */
-exports.householdConfirmCollected = async (req, res) => {
-  try {
-    const pickup = await Pickup.findById(req.params.id);
-    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
-
-    if (pickup.status !== "picked") {
-      return res.status(400).json({ success: false, message: "Pickup is not ready for household confirmation" });
-    }
-
-    pickup.status = "household_confirmed";
-    await pickup.save();
-
-    if (pickup.assignedCollector) {
-      await Notification.create({
-        title: "Household confirmed collection",
-        message: "Household confirmed waste collection. Upload photo evidence to complete.",
-        target: "single_collector",
-        userId: pickup.assignedCollector,
-        userType: "Collector",
-        type: "info"
-      });
-    }
-
-    res.json({ success: true, data: pickup });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Household confirm failed" });
-  }
-};
-
 /* ======================================================
    COLLECTOR PICKUP (UPLOAD PROOF)
 ====================================================== */
