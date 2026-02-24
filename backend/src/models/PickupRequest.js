@@ -74,6 +74,7 @@ const pickupRequestSchema = new mongoose.Schema(
         "approved",
         "assigned",
         "picked",
+        "collector_completed",
         "household_confirmed",
         "completed",
         "rejected",
@@ -125,6 +126,31 @@ const pickupRequestSchema = new mongoose.Schema(
     },
 
     completedDate: {
+      type: Date
+    },
+
+    householdReviewRating: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+
+    householdReviewComment: {
+      type: String,
+      default: ""
+    },
+
+    householdComplaintCategory: {
+      type: String,
+      default: ""
+    },
+
+    householdComplaintDetail: {
+      type: String,
+      default: ""
+    },
+
+    householdConfirmedDate: {
       type: Date
     },
 

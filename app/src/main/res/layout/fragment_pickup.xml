@@ -143,8 +143,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Confirm Waste Collected"
+                    android:text="Confirm Job Completed"
                     android:textAllCaps="false"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btnComplaintDelay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#FEE2E2"
+                    android:text="Raise complaint (collector delay)"
+                    android:textAllCaps="false"
+                    android:textColor="#991B1B"
                     android:visibility="gone" />
 
                 <TextView
@@ -190,22 +201,6 @@
             android:layout_marginTop="8dp"
             android:orientation="vertical" />
 
-        <Button
-            android:id="@+id/btnHouseholdReview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Leave a review"
-            android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/btnHouseholdComplaint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="#FEE2E2"
-            android:text="Submit complaint"
-            android:textAllCaps="false"
-            android:textColor="#991B1B" />
     </LinearLayout>
 </ScrollView>

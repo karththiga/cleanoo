@@ -28,20 +28,6 @@ class PickupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<View>(R.id.btnHouseholdReview)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.dashboardContainer, HouseholdReviewFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
-        view.findViewById<View>(R.id.btnHouseholdComplaint)?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.dashboardContainer, HouseholdComplaintFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
         view.findViewById<CardView>(R.id.cardCurrentRequest)?.setOnClickListener {
             openPickupDetails(latestPickup?.optString("_id"))
         }
@@ -57,7 +43,7 @@ class PickupFragment : Fragment() {
             MobileBackendApi.householdConfirmCollection(pickupId) { success, _, message ->
                 activity?.runOnUiThread {
                     button.isEnabled = true
-                    button.text = "Confirm Waste Collected"
+                    button.text = "Confirm Job Completed"
                     if (!success) {
                         view.findViewById<TextView>(R.id.tvActiveJobMeta).text = message ?: "Confirmation failed"
                         return@runOnUiThread
@@ -66,6 +52,15 @@ class PickupFragment : Fragment() {
                     loadPickupData(view)
                 }
             }
+        }
+
+        view.findViewById<Button>(R.id.btnComplaintDelay)?.setOnClickListener {
+            val pickupId = latestPickup?.optString("_id")
+            if (pickupId.isNullOrBlank()) return@setOnClickListener
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.dashboardContainer, HouseholdComplaintFragment.newInstance(pickupId))
+                .addToBackStack(null)
+                .commit()
         }
 
         loadPickupData(view)
@@ -129,8 +124,12 @@ class PickupFragment : Fragment() {
             view.findViewById<TextView>(R.id.tvActiveJobStatus).text = statusLabelForHousehold(status)
             view.findViewById<TextView>(R.id.tvRequestDetailsHint).text = "Tap to view full request details"
 
+            val statusLower = status.lowercase()
             val confirmButton = view.findViewById<Button>(R.id.btnConfirmCollected)
-            confirmButton.visibility = if (status.lowercase() == "picked") View.VISIBLE else View.GONE
+            confirmButton.visibility = if (statusLower == "collector_completed") View.VISIBLE else View.GONE
+
+            val delayButton = view.findViewById<Button>(R.id.btnComplaintDelay)
+            delayButton.visibility = if (statusLower == "assigned" || statusLower == "approved") View.VISIBLE else View.GONE
         }
 
         bindAllPickupCards(view, pickups)
@@ -158,8 +157,57 @@ class PickupFragment : Fragment() {
             item.findViewById<TextView>(R.id.tvItemCollector).text = "Collector: $collectorText"
             item.findViewById<TextView>(R.id.tvItemLiveLocation).text =
                 if (liveLocationText.isBlank()) "Live: Not shared" else "Live: $liveLocationText"
+            val status = pickup.optString("status", "pending").lowercase()
             item.findViewById<TextView>(R.id.tvItemStatus).text =
-                statusLabelForHousehold(pickup.optString("status", "pending"))
+                statusLabelForHousehold(status)
+
+            val actions = item.findViewById<LinearLayout>(R.id.layoutCompletedActions)
+            val reviewSummary = item.findViewById<TextView>(R.id.tvItemReviewSummary)
+            val complaintSummary = item.findViewById<TextView>(R.id.tvItemComplaintSummary)
+            if (status == "completed") {
+                actions.visibility = View.VISIBLE
+
+                val rating = pickup.optInt("householdReviewRating", 0)
+                val reviewComment = pickup.optString("householdReviewComment", "")
+                if (rating > 0 || reviewComment.isNotBlank()) {
+                    reviewSummary.visibility = View.VISIBLE
+                    reviewSummary.text = if (reviewComment.isNotBlank()) {
+                        "Your review: ${rating.coerceAtLeast(1)}/5 - $reviewComment"
+                    } else {
+                        "Your review: ${rating.coerceAtLeast(1)}/5"
+                    }
+                } else {
+                    reviewSummary.visibility = View.GONE
+                }
+
+                val complaintCategory = pickup.optString("householdComplaintCategory", "")
+                val complaintDetail = pickup.optString("householdComplaintDetail", "")
+                if (complaintCategory.isNotBlank() || complaintDetail.isNotBlank()) {
+                    complaintSummary.visibility = View.VISIBLE
+                    complaintSummary.text = listOf(complaintCategory, complaintDetail)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" - ", prefix = "Your complaint: ")
+                } else {
+                    complaintSummary.visibility = View.GONE
+                }
+
+                item.findViewById<Button>(R.id.btnItemReview).setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.dashboardContainer, HouseholdReviewFragment.newInstance(pickup.optString("_id")))
+                        .addToBackStack(null)
+                        .commit()
+                }
+                item.findViewById<Button>(R.id.btnItemComplaint).setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.dashboardContainer, HouseholdComplaintFragment.newInstance(pickup.optString("_id")))
+                        .addToBackStack(null)
+                        .commit()
+                }
+            } else {
+                actions.visibility = View.GONE
+                reviewSummary.visibility = View.GONE
+                complaintSummary.visibility = View.GONE
+            }
 
             item.setOnClickListener {
                 openPickupDetails(pickup.optString("_id"))
@@ -173,8 +221,9 @@ class PickupFragment : Fragment() {
     private fun statusLabelForHousehold(rawStatus: String): String {
         return when (rawStatus.lowercase()) {
             "completed" -> "Completed"
-            "household_confirmed" -> "Awaiting Collector Proof"
-            "picked" -> "On The Way"
+            "collector_completed" -> "Collector completed • Please confirm"
+            "picked" -> "Collector is on the way"
+            "household_confirmed" -> "Confirmed by household"
             else -> "Pending Pickup"
         }
     }
