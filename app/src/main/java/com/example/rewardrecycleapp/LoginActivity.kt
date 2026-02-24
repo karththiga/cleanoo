@@ -5,14 +5,15 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import com.example.rewardrecycleapp.databinding.ActivityLoginBinding
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
+    private var selectedRole: UserRole = UserRole.HOUSEHOLD
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,13 +23,10 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        bindRoleTabs()
+
         binding.tvSignup.setOnClickListener {
             startActivity(Intent(this, SignupActivity::class.java))
-        }
-
-        binding.etEmail.addTextChangedListener { editable ->
-            val isCollector = editable?.toString()?.trim() == "abcd"
-            binding.tvSignup.visibility = if (isCollector) View.GONE else View.VISIBLE
         }
 
         binding.tvForgotPassword.setOnClickListener {
@@ -49,14 +47,20 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (email == "abcd" && pwd == "123") {
-                Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, CollectorDashboardActivity::class.java))
-                finish()
-            } else {
-                loginUser(email, pwd)
-            }
+            loginUser(email, pwd)
         }
+    }
+
+    private fun bindRoleTabs() {
+        binding.tabRole.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                selectedRole = if (tab?.position == 1) UserRole.COLLECTOR else UserRole.HOUSEHOLD
+                binding.tvSignup.visibility = if (selectedRole == UserRole.HOUSEHOLD) View.VISIBLE else View.GONE
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
+            override fun onTabReselected(tab: TabLayout.Tab?) = Unit
+        })
     }
 
     private fun loginUser(email: String, pwd: String) {
@@ -73,33 +77,13 @@ class LoginActivity : AppCompatActivity() {
                         val idToken = tokenResult.token
                         if (idToken.isNullOrEmpty()) {
                             Toast.makeText(this, "Failed to get auth token", Toast.LENGTH_LONG).show()
-                        } else {
-
-                        MobileBackendApi.getMyHouseholdProfile(idToken) { success, profile, message ->
-                            runOnUiThread {
-                                if (!success || profile == null) {
-                                    Toast.makeText(this, message ?: "Profile not found", Toast.LENGTH_LONG).show()
-                                    return@runOnUiThread
-                                }
-
-                                val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
-                                prefs.edit()
-                                    .putString("ID_TOKEN", idToken)
-                                    .putString("HOUSEHOLD_ID", profile.optString("_id"))
-                                    .putString("FIREBASE_UID", user.uid)
-                                    .putString("HOUSEHOLD_NAME", profile.optString("name"))
-                                    .putString("HOUSEHOLD_EMAIL", profile.optString("email"))
-                                    .putString("HOUSEHOLD_PHONE", profile.optString("phone"))
-                                    .putString("HOUSEHOLD_ADDRESS", profile.optString("address"))
-                                    .putString("HOUSEHOLD_ZONE", profile.optString("zone"))
-                                    .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
-                                    .apply()
-
-                                Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                startActivity(Intent(this, DashboardActivity::class.java))
-                                finish()
-                            }
+                            return@addOnSuccessListener
                         }
+
+                        if (selectedRole == UserRole.COLLECTOR) {
+                            loginCollector(idToken, user.uid)
+                        } else {
+                            loginHousehold(idToken, user.uid)
                         }
                     }
                     .addOnFailureListener {
@@ -109,5 +93,76 @@ class LoginActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun loginHousehold(idToken: String, firebaseUid: String) {
+        MobileBackendApi.getMyHouseholdProfile(idToken) { success, profile, message ->
+            runOnUiThread {
+                if (!success || profile == null) {
+                    Toast.makeText(this, message ?: "Household profile not found", Toast.LENGTH_LONG).show()
+                    return@runOnUiThread
+                }
+
+                getSharedPreferences("auth_prefs", MODE_PRIVATE).edit()
+                    .putString("USER_ROLE", UserRole.HOUSEHOLD.value)
+                    .putString("ID_TOKEN", idToken)
+                    .putString("FIREBASE_UID", firebaseUid)
+                    .putString("HOUSEHOLD_ID", profile.optString("_id"))
+                    .putString("HOUSEHOLD_NAME", profile.optString("name"))
+                    .putString("HOUSEHOLD_EMAIL", profile.optString("email"))
+                    .putString("HOUSEHOLD_PHONE", profile.optString("phone"))
+                    .putString("HOUSEHOLD_ADDRESS", profile.optString("address"))
+                    .putString("HOUSEHOLD_ZONE", profile.optString("zone"))
+                    .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
+                    .remove("COLLECTOR_ID")
+                    .remove("COLLECTOR_EMAIL")
+                    .remove("COLLECTOR_NAME")
+                    .remove("COLLECTOR_PHONE")
+                    .remove("COLLECTOR_ZONE")
+                    .apply()
+
+                Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, DashboardActivity::class.java))
+                finish()
+            }
+        }
+    }
+
+    private fun loginCollector(idToken: String, firebaseUid: String) {
+        MobileBackendApi.getMyCollectorProfile(idToken) { success, profile, message ->
+            runOnUiThread {
+                if (!success || profile == null) {
+                    Toast.makeText(this, message ?: "Collector profile not found", Toast.LENGTH_LONG).show()
+                    return@runOnUiThread
+                }
+
+                getSharedPreferences("auth_prefs", MODE_PRIVATE).edit()
+                    .putString("USER_ROLE", UserRole.COLLECTOR.value)
+                    .putString("ID_TOKEN", idToken)
+                    .putString("FIREBASE_UID", firebaseUid)
+                    .putString("COLLECTOR_ID", profile.optString("_id"))
+                    .putString("COLLECTOR_EMAIL", profile.optString("email"))
+                    .putString("COLLECTOR_NAME", profile.optString("name"))
+                    .putString("COLLECTOR_PHONE", profile.optString("phone"))
+                    .putString("COLLECTOR_ZONE", profile.optString("zone"))
+                    .remove("HOUSEHOLD_ID")
+                    .remove("HOUSEHOLD_NAME")
+                    .remove("HOUSEHOLD_EMAIL")
+                    .remove("HOUSEHOLD_PHONE")
+                    .remove("HOUSEHOLD_ADDRESS")
+                    .remove("HOUSEHOLD_ZONE")
+                    .remove("HOUSEHOLD_POINTS")
+                    .apply()
+
+                Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, CollectorDashboardActivity::class.java))
+                finish()
+            }
+        }
+    }
+
+    enum class UserRole(val value: String) {
+        HOUSEHOLD("household"),
+        COLLECTOR("collector")
     }
 }
