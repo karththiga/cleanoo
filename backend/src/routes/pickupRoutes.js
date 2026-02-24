@@ -12,7 +12,9 @@ const {
   collectorPickup,
   updateStatus,
   exportPickups,
-  sendWarning
+  sendWarning,
+  getHouseholdRequests,
+  getCollectorIncomingRequests
 } = require("../controllers/pickupController");
 
 // ===============================
@@ -24,6 +26,16 @@ router.get("/export", exportPickups);
 // GET ALL PICKUPS (ADMIN)
 // ===============================
 router.get("/", getRequests);
+
+// ===============================
+// MOBILE: HOUSEHOLD REQUEST HISTORY
+// ===============================
+router.get("/household/:householdId", getHouseholdRequests);
+
+// ===============================
+// MOBILE: COLLECTOR INCOMING REQUESTS
+// ===============================
+router.get("/collector/incoming", getCollectorIncomingRequests);
 
 // ===============================
 // GET SINGLE PICKUP (BY ID)
