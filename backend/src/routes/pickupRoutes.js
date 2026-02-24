@@ -20,6 +20,12 @@ const {
   getCollectorIncomingRequests
 } = require("../controllers/pickupController");
 
+
+const safeHouseholdConfirmCollected =
+  typeof householdConfirmCollected === "function"
+    ? householdConfirmCollected
+    : (req, res) => res.status(500).json({ success: false, message: "Household confirmation handler missing" });
+
 // ===============================
 // EXPORT CSV (ADMIN)
 // ===============================
@@ -70,7 +76,7 @@ router.put("/assign/:id", assignCollector);
 // ===============================
 router.put("/collector/start-route/:id", collectorStartRoute);
 router.put("/collector/location/:id", updateCollectorLiveLocation);
-router.put("/household/confirm/:id", householdConfirmCollected);
+router.put("/household/confirm/:id", safeHouseholdConfirmCollected);
 
 // ===============================
 // COLLECTOR UPLOAD PICK PROOF
