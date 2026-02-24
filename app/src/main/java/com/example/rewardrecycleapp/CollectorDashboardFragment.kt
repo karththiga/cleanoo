@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import org.json.JSONArray
 import org.json.JSONObject
 
 class CollectorDashboardFragment : Fragment() {
@@ -45,7 +46,7 @@ class CollectorDashboardFragment : Fragment() {
             return
         }
 
-        MobileBackendApi.getCollectorIncomingRequests(collectorEmail) { success, data, message ->
+        MobileBackendApi.getCollectorIncomingRequests(collectorEmail) { success: Boolean, data: JSONArray?, message: String? ->
             activity?.runOnUiThread {
                 if (!success || data == null) {
                     view.findViewById<TextView>(R.id.tvCollectorIncomingStatus).text = message ?: "Failed to load incoming requests"
@@ -54,7 +55,7 @@ class CollectorDashboardFragment : Fragment() {
 
                 view.findViewById<TextView>(R.id.tvAssignedCount).text = "${data.length()} pending"
                 if (data.length() > 0) {
-                    val first = data.optJSONObject(0)
+                    val first: JSONObject? = data.optJSONObject(0)
                     if (first != null) {
                         activeJob = first
                         bindActiveJob(view, first)
