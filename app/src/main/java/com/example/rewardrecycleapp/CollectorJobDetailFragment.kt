@@ -35,6 +35,20 @@ class CollectorJobDetailFragment : Fragment() {
             openEvidence(pickupId)
         }
 
+        view.findViewById<Button>(R.id.btnCollectorDetailReview)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorReviewFragment.newInstance(pickupId))
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<Button>(R.id.btnCollectorDetailComplaint)?.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorComplaintFragment.newInstance(pickupId))
+                .addToBackStack(null)
+                .commit()
+        }
+
         MobileBackendApi.getPickupById(pickupId) { success, data, message ->
             activity?.runOnUiThread {
                 if (!success || data == null) {
@@ -48,9 +62,17 @@ class CollectorJobDetailFragment : Fragment() {
 
                 view.findViewById<TextView>(R.id.tvJobTitle).text = householdName
                 view.findViewById<TextView>(R.id.tvJobMeta).text = "Pickup: $wasteType"
+                view.findViewById<TextView>(R.id.tvJobAddress).text = "Address: ${data.optString("address", "-")}"
+                view.findViewById<TextView>(R.id.tvJobStatusDetail).text = "Status: ${status.replaceFirstChar { it.uppercase() }}"
+                view.findViewById<TextView>(R.id.tvJobLiveLocation).text =
+                    "Live location: ${data.optString("collectorLiveLocation", "Not shared")}"
+                view.findViewById<TextView>(R.id.tvJobRequestedDate).text =
+                    "Requested: ${data.optString("requestDate", "-").take(16)}"
+
                 view.findViewById<TextView>(R.id.tvJobSubtitle).text = subtitleForStatus(status)
 
                 val allowEvidence = status == "picked"
+                val allowPostActions = status == "collector_completed" || status == "completed"
 
                 view.findViewById<Button>(R.id.btnAddEvidence).apply {
                     visibility = if (allowEvidence) View.VISIBLE else View.GONE
@@ -63,6 +85,9 @@ class CollectorJobDetailFragment : Fragment() {
                     isEnabled = allowEvidence
                     text = "Mark as completed"
                 }
+
+                view.findViewById<View>(R.id.layoutCollectorDetailCompletedActions).visibility =
+                    if (allowPostActions) View.VISIBLE else View.GONE
             }
         }
     }

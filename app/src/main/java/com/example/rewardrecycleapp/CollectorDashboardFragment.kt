@@ -50,7 +50,7 @@ class CollectorDashboardFragment : Fragment() {
             val pickupId = activeJob?.optString("_id").orEmpty()
             if (pickupId.isBlank()) return@setOnClickListener
             parentFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorReviewFragment())
+                .replace(R.id.collectorDashboardContainer, CollectorReviewFragment.newInstance(pickupId))
                 .addToBackStack(null)
                 .commit()
         }
@@ -59,7 +59,7 @@ class CollectorDashboardFragment : Fragment() {
             val pickupId = activeJob?.optString("_id").orEmpty()
             if (pickupId.isBlank()) return@setOnClickListener
             parentFragmentManager.beginTransaction()
-                .replace(R.id.collectorDashboardContainer, CollectorComplaintFragment())
+                .replace(R.id.collectorDashboardContainer, CollectorComplaintFragment.newInstance(pickupId))
                 .addToBackStack(null)
                 .commit()
         }
@@ -174,7 +174,7 @@ class CollectorDashboardFragment : Fragment() {
                 primary.text = "Collector completed"
                 primary.isEnabled = false
             }
-            "completed" -> {
+            "collector_completed", "completed" -> {
                 primary.visibility = View.GONE
                 details.visibility = View.VISIBLE
                 completedActions.visibility = View.VISIBLE

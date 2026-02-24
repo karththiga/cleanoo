@@ -62,6 +62,38 @@
                     android:layout_marginTop="8dp"
                     android:text="Pickup: Waste"
                     android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Address: -"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobStatusDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Status: -"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobLiveLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Live location: -"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobRequestedDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Requested: -"
+                    android:textColor="#6B7280" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -83,6 +115,34 @@
             android:text="Mark as completed"
             android:textAllCaps="false"
             android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layoutCollectorDetailCompletedActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnCollectorDetailReview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Review"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/btnCollectorDetailComplaint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#FEE2E2"
+                android:text="Raise complaint"
+                android:textAllCaps="false"
+                android:textColor="#991B1B" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

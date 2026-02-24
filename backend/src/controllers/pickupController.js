@@ -428,6 +428,70 @@ exports.householdSubmitComplaint = async (req, res) => {
   }
 };
 
+exports.collectorSubmitReview = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    const rating = Number(req.body?.rating);
+    const comment = (req.body?.comment || "").toString().trim();
+
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ success: false, message: "Rating must be between 1 and 5" });
+    }
+
+    pickup.collectorReviewRating = rating;
+    pickup.collectorReviewComment = comment;
+    await pickup.save();
+
+    await Notification.create({
+      title: "Collector submitted review",
+      message: `Your collector submitted a review (${rating}/5).`,
+      target: "single_household",
+      userId: pickup.household,
+      userType: "Household",
+      type: "info"
+    });
+
+    res.json({ success: true, data: pickup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Collector review submission failed" });
+  }
+};
+
+exports.collectorSubmitComplaint = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    const category = (req.body?.category || "").toString().trim();
+    const detail = (req.body?.detail || "").toString().trim();
+
+    if (!category || !detail) {
+      return res.status(400).json({ success: false, message: "Category and detail are required" });
+    }
+
+    pickup.collectorComplaintCategory = category;
+    pickup.collectorComplaintDetail = detail;
+    await pickup.save();
+
+    await Notification.create({
+      title: "Collector raised complaint",
+      message: `Complaint: ${category}`,
+      target: "single_household",
+      userId: pickup.household,
+      userType: "Household",
+      type: "alert"
+    });
+
+    res.json({ success: true, data: pickup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Collector complaint submission failed" });
+  }
+};
+
 /* ======================================================
    COLLECTOR PICKUP (UPLOAD PROOF)
 ====================================================== */

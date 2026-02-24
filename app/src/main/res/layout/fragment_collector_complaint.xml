@@ -36,6 +36,7 @@
             android:textStyle="bold" />
 
         <EditText
+            android:id="@+id/edtCollectorComplaintCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -52,6 +53,7 @@
             android:textStyle="bold" />
 
         <EditText
+            android:id="@+id/edtCollectorComplaintDetail"
             android:layout_width="match_parent"
             android:layout_height="140dp"
             android:layout_marginTop="8dp"
@@ -61,6 +63,7 @@
             android:padding="12dp" />
 
         <Button
+            android:id="@+id/btnSubmitCollectorComplaint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
@@ -68,5 +71,12 @@
             android:text="Submit complaint"
             android:textAllCaps="false"
             android:textColor="#991B1B" />
+
+        <TextView
+            android:id="@+id/tvCollectorComplaintStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#6B7280" />
     </LinearLayout>
 </ScrollView>

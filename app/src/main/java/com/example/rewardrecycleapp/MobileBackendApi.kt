@@ -386,6 +386,62 @@ object MobileBackendApi {
             }
         })
     }
+
+    fun collectorSubmitReview(
+        pickupId: String,
+        rating: String,
+        comment: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("rating", rating)
+            put("comment", comment)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/collector/review/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Collector review submission failed"))
+                }
+            }
+        })
+    }
+
+    fun collectorSubmitComplaint(
+        pickupId: String,
+        category: String,
+        detail: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("category", category)
+            put("detail", detail)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/collector/complaint/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Collector complaint submission failed"))
+                }
+            }
+        })
+    }
     fun startCollectorRoute(
         pickupId: String,
         liveLocation: String,

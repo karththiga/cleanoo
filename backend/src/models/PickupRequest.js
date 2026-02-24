@@ -150,6 +150,27 @@ const pickupRequestSchema = new mongoose.Schema(
       default: ""
     },
 
+    collectorReviewRating: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+
+    collectorReviewComment: {
+      type: String,
+      default: ""
+    },
+
+    collectorComplaintCategory: {
+      type: String,
+      default: ""
+    },
+
+    collectorComplaintDetail: {
+      type: String,
+      default: ""
+    },
+
     householdConfirmedDate: {
       type: Date
     },

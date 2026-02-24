@@ -36,6 +36,7 @@
             android:textStyle="bold" />
 
         <EditText
+            android:id="@+id/edtCollectorReviewRating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -52,6 +53,7 @@
             android:textStyle="bold" />
 
         <EditText
+            android:id="@+id/edtCollectorReviewComment"
             android:layout_width="match_parent"
             android:layout_height="140dp"
             android:layout_marginTop="8dp"
@@ -61,10 +63,18 @@
             android:padding="12dp" />
 
         <Button
+            android:id="@+id/btnSubmitCollectorReview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Submit review"
             android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/tvCollectorReviewStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#6B7280" />
     </LinearLayout>
 </ScrollView>

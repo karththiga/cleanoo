@@ -47,6 +47,27 @@ class PickupDetailsActivity : AppCompatActivity() {
                         "No complaint yet"
                     }
 
+                val collectorReviewRating = data.optInt("collectorReviewRating", 0)
+                val collectorReviewComment = data.optString("collectorReviewComment", "")
+                findViewById<TextView>(R.id.tvDetailsCollectorReview).text =
+                    if (collectorReviewRating > 0) {
+                        if (collectorReviewComment.isBlank()) "$collectorReviewRating/5"
+                        else "$collectorReviewRating/5 - $collectorReviewComment"
+                    } else {
+                        "No collector review yet"
+                    }
+
+                val collectorComplaintCategory = data.optString("collectorComplaintCategory", "")
+                val collectorComplaintDetail = data.optString("collectorComplaintDetail", "")
+                findViewById<TextView>(R.id.tvDetailsCollectorComplaint).text =
+                    if (collectorComplaintCategory.isNotBlank() || collectorComplaintDetail.isNotBlank()) {
+                        listOf(collectorComplaintCategory, collectorComplaintDetail)
+                            .filter { it.isNotBlank() }
+                            .joinToString(" - ")
+                    } else {
+                        "No collector complaint yet"
+                    }
+
                 findViewById<TextView>(R.id.tvPickupDetailsError).text = ""
             }
         }
