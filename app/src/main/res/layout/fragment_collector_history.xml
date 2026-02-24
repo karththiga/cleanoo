@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F8FC"
+    android:background="#F3F4F6"
     android:fillViewport="true">
 
     <LinearLayout
@@ -15,9 +15,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="My Jobs"
-            android:textColor="#1F2A37"
-            android:textSize="24sp"
+            android:textColor="#111827"
+            android:textSize="26sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Track your active pickups and finished jobs"
+            android:textColor="#6B7280"
+            android:textSize="14sp" />
 
         <ProgressBar
             android:id="@+id/progressCollectorJobs"
@@ -38,8 +46,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Recent pickups"
+            android:layout_marginTop="18dp"
+            android:text="Active"
             android:textColor="#111827"
             android:textSize="17sp"
             android:textStyle="bold" />
@@ -55,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Completed pickups"
+            android:text="Completed"
             android:textColor="#111827"
             android:textSize="17sp"
             android:textStyle="bold" />

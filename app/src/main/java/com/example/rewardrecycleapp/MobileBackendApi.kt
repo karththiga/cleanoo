@@ -15,6 +15,7 @@ object MobileBackendApi {
     private const val HOUSEHOLD_BASE_URL = "http://10.0.2.2:7777/api/households"
     private const val PICKUP_BASE_URL = "http://10.0.2.2:7777/api/pickups"
     private const val COLLECTOR_BASE_URL = "http://10.0.2.2:7777/api/collectors"
+    private const val NOTIFICATION_BASE_URL = "http://10.0.2.2:7777/api/notifications"
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
     private val imageMediaType = "image/*".toMediaType()
     private val client = OkHttpClient()
@@ -329,6 +330,118 @@ object MobileBackendApi {
         })
     }
 
+
+    fun householdSubmitReview(
+        pickupId: String,
+        rating: String,
+        comment: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("rating", rating)
+            put("comment", comment)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/household/review/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Review submission failed"))
+                }
+            }
+        })
+    }
+
+    fun householdSubmitComplaint(
+        pickupId: String,
+        category: String,
+        detail: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("category", category)
+            put("detail", detail)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/household/complaint/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Complaint submission failed"))
+                }
+            }
+        })
+    }
+
+    fun collectorSubmitReview(
+        pickupId: String,
+        rating: String,
+        comment: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("rating", rating)
+            put("comment", comment)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/collector/review/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Collector review submission failed"))
+                }
+            }
+        })
+    }
+
+    fun collectorSubmitComplaint(
+        pickupId: String,
+        category: String,
+        detail: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("category", category)
+            put("detail", detail)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/collector/complaint/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Collector complaint submission failed"))
+                }
+            }
+        })
+    }
     fun startCollectorRoute(
         pickupId: String,
         liveLocation: String,
@@ -382,6 +495,32 @@ object MobileBackendApi {
         })
     }
 
+
+    fun getMyNotifications(
+        userId: String,
+        userType: String,
+        onResult: (Boolean, JSONArray?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("$NOTIFICATION_BASE_URL?userId=$userId&userType=$userType")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONArray("data"), null)
+                    } else {
+                        onResult(false, null, extractMessage(body, "Notification fetch failed"))
+                    }
+                }
+            }
+        })
+    }
     private fun extractMessage(rawBody: String?, fallback: String): String {
         return try {
             JSONObject(rawBody ?: "{}").optString("message", fallback)

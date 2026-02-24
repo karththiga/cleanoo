@@ -32,6 +32,42 @@ class PickupDetailsActivity : AppCompatActivity() {
                     .replaceFirstChar { it.uppercase() }
                 findViewById<TextView>(R.id.tvDetailsCollector).text = collectorName
                 findViewById<TextView>(R.id.tvDetailsCollectorPhone).text = collectorPhone
+
+                val reviewRating = data.optInt("householdReviewRating", 0)
+                val reviewComment = data.optString("householdReviewComment", "")
+                findViewById<TextView>(R.id.tvDetailsReview).text =
+                    if (reviewRating > 0) "$reviewRating/5 - $reviewComment".trim() else "No review yet"
+
+                val complaintCategory = data.optString("householdComplaintCategory", "")
+                val complaintDetail = data.optString("householdComplaintDetail", "")
+                findViewById<TextView>(R.id.tvDetailsComplaint).text =
+                    if (complaintCategory.isNotBlank() || complaintDetail.isNotBlank()) {
+                        listOf(complaintCategory, complaintDetail).filter { it.isNotBlank() }.joinToString(" - ")
+                    } else {
+                        "No complaint yet"
+                    }
+
+                val collectorReviewRating = data.optInt("collectorReviewRating", 0)
+                val collectorReviewComment = data.optString("collectorReviewComment", "")
+                findViewById<TextView>(R.id.tvDetailsCollectorReview).text =
+                    if (collectorReviewRating > 0) {
+                        if (collectorReviewComment.isBlank()) "$collectorReviewRating/5"
+                        else "$collectorReviewRating/5 - $collectorReviewComment"
+                    } else {
+                        "No collector review yet"
+                    }
+
+                val collectorComplaintCategory = data.optString("collectorComplaintCategory", "")
+                val collectorComplaintDetail = data.optString("collectorComplaintDetail", "")
+                findViewById<TextView>(R.id.tvDetailsCollectorComplaint).text =
+                    if (collectorComplaintCategory.isNotBlank() || collectorComplaintDetail.isNotBlank()) {
+                        listOf(collectorComplaintCategory, collectorComplaintDetail)
+                            .filter { it.isNotBlank() }
+                            .joinToString(" - ")
+                    } else {
+                        "No collector complaint yet"
+                    }
+
                 findViewById<TextView>(R.id.tvPickupDetailsError).text = ""
             }
         }

@@ -98,5 +98,61 @@
             android:text="-"
             android:textSize="16sp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Your review"
+            android:textColor="#6B7280" />
+
+        <TextView
+            android:id="@+id/tvDetailsReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No review yet"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Your complaint"
+            android:textColor="#6B7280" />
+
+        <TextView
+            android:id="@+id/tvDetailsComplaint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No complaint yet"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Collector review"
+            android:textColor="#6B7280" />
+
+        <TextView
+            android:id="@+id/tvDetailsCollectorReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No collector review yet"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Collector complaint"
+            android:textColor="#6B7280" />
+
+        <TextView
+            android:id="@+id/tvDetailsCollectorComplaint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No collector complaint yet"
+            android:textSize="16sp" />
+
     </LinearLayout>
 </ScrollView>

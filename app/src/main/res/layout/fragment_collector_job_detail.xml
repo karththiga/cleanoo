@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F8FC"
+    android:background="#F3F4F6"
     android:fillViewport="true">
 
     <LinearLayout
@@ -15,9 +16,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Job details"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#1F2A37" />
+            android:textColor="#111827"
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvJobSubtitle"
@@ -33,9 +34,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:layout_marginBottom="16dp"
-            android:padding="16dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="16dp">
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -49,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:text="Household"
                     android:textColor="#111827"
-                    android:textSize="17sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -59,6 +62,38 @@
                     android:layout_marginTop="8dp"
                     android:text="Pickup: Waste"
                     android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Address: -"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobStatusDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Status: -"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobLiveLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Live location: -"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvJobRequestedDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Requested: -"
+                    android:textColor="#6B7280" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -66,8 +101,11 @@
             android:id="@+id/btnAddEvidence"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add evidence"
-            android:textAllCaps="false" />
+            android:backgroundTint="#111827"
+            android:text="Upload evidence"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnMarkCompleted"
@@ -75,7 +113,36 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Mark as completed"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layoutCollectorDetailCompletedActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnCollectorDetailReview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Review"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/btnCollectorDetailComplaint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#FEE2E2"
+                android:text="Raise complaint"
+                android:textAllCaps="false"
+                android:textColor="#991B1B" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
