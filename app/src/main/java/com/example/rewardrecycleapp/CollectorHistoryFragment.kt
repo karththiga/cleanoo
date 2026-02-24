@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import org.json.JSONArray
-import org.json.JSONObject
 
 class CollectorHistoryFragment : Fragment() {
 
@@ -83,24 +82,14 @@ class CollectorHistoryFragment : Fragment() {
             card.findViewById<TextView>(R.id.tvCollectorJobStatus).text = statusLabel(status)
 
             val btn = card.findViewById<Button>(R.id.btnCollectorJobPrimary)
+            btn.text = "View details"
+            btn.isEnabled = true
+            btn.setOnClickListener { openJobDetails(job.optString("_id")) }
+            card.setOnClickListener { openJobDetails(job.optString("_id")) }
+
             if (status == "completed") {
-                btn.text = "Completed"
-                btn.isEnabled = false
                 completed.addView(card)
             } else {
-                btn.text = if (status == "assigned" || status == "approved") "Picked up" else "Open details"
-                btn.setOnClickListener {
-                    if (status == "assigned" || status == "approved") {
-                        MobileBackendApi.startCollectorRoute(
-                            job.optString("_id"),
-                            "Collector is near Jaffna Town (dummy location)"
-                        ) { _, _, _ ->
-                            activity?.runOnUiThread { openJobDetails(job.optString("_id")) }
-                        }
-                    } else {
-                        openJobDetails(job.optString("_id"))
-                    }
-                }
                 recent.addView(card)
             }
         }
@@ -116,9 +105,9 @@ class CollectorHistoryFragment : Fragment() {
 
     private fun statusLabel(status: String): String {
         return when (status) {
-            "assigned", "approved" -> "Pending pickup"
-            "picked" -> "On the way"
-            "household_confirmed" -> "Awaiting evidence"
+            "assigned", "approved" -> "Ready to start route"
+            "picked" -> "Route started • Upload evidence"
+            "collector_completed" -> "Waiting for household confirmation"
             "completed" -> "Completed"
             else -> status.replaceFirstChar { it.uppercase() }
         }

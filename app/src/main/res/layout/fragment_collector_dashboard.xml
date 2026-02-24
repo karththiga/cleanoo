@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F8FC"
+    android:background="#F3F4F6"
     android:fillViewport="true">
 
     <LinearLayout
@@ -15,16 +15,28 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Collector Dashboard"
-            android:textColor="#1F2A37"
-            android:textSize="24sp"
+            android:text="Collector Home"
+            android:textColor="#111827"
+            android:textSize="26sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Manage your full workflow here: start route, upload evidence, and complete jobs"
+            android:textColor="#6B7280"
+            android:textSize="14sp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp">
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -35,16 +47,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Incoming requests"
+                    android:text="Active jobs"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="#111827" />
 
                 <TextView
                     android:id="@+id/tvAssignedCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="0 assigned"
+                    android:text="0 pending"
                     android:textColor="#1D4ED8"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -54,18 +67,46 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="No incoming jobs yet"
+                    android:text="No active jobs right now"
+                    android:textColor="#6B7280" />
+
+                <TextView
+                    android:id="@+id/tvActiveJobTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="No active pickup"
+                    android:textColor="#111827"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvActiveJobMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="New assigned jobs will appear here"
                     android:textColor="#6B7280" />
 
                 <Button
-                    android:id="@+id/btnStartRoute"
+                    android:id="@+id/btnPrimaryAction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Start route"
+                    android:layout_marginTop="14dp"
+                    android:text="No action needed"
                     android:textAllCaps="false"
-                    android:backgroundTint="#DBEAFE"
-                    android:textColor="#1D4ED8" />
+                    android:backgroundTint="#111827"
+                    android:textColor="#FFFFFF"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/btnViewJobDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="View job details"
+                    android:textAllCaps="false"
+                    android:enabled="false" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
