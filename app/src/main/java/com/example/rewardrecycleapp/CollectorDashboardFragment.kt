@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import org.json.JSONObject
 
@@ -64,6 +66,10 @@ class CollectorDashboardFragment : Fragment() {
                     view.findViewById<TextView>(R.id.tvActiveJobMeta).text = "New assigned jobs will appear here"
                     view.findViewById<android.widget.Button>(R.id.btnViewJobDetails).visibility = View.GONE
                 }
+
+                activeJob = data
+                bindActiveJob(view, data)
+                Toast.makeText(requireContext(), "Route started", Toast.LENGTH_SHORT).show()
             }
         }
     }
