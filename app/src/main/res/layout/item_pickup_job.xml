@@ -90,6 +90,24 @@
                 android:textAllCaps="false"
                 android:textColor="#991B1B" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvItemReviewSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#4B5563"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvItemComplaintSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#4B5563"
+            android:textSize="12sp"
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

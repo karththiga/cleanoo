@@ -162,8 +162,35 @@ class PickupFragment : Fragment() {
                 statusLabelForHousehold(status)
 
             val actions = item.findViewById<LinearLayout>(R.id.layoutCompletedActions)
+            val reviewSummary = item.findViewById<TextView>(R.id.tvItemReviewSummary)
+            val complaintSummary = item.findViewById<TextView>(R.id.tvItemComplaintSummary)
             if (status == "completed") {
                 actions.visibility = View.VISIBLE
+
+                val rating = pickup.optInt("householdReviewRating", 0)
+                val reviewComment = pickup.optString("householdReviewComment", "")
+                if (rating > 0 || reviewComment.isNotBlank()) {
+                    reviewSummary.visibility = View.VISIBLE
+                    reviewSummary.text = if (reviewComment.isNotBlank()) {
+                        "Your review: ${rating.coerceAtLeast(1)}/5 - $reviewComment"
+                    } else {
+                        "Your review: ${rating.coerceAtLeast(1)}/5"
+                    }
+                } else {
+                    reviewSummary.visibility = View.GONE
+                }
+
+                val complaintCategory = pickup.optString("householdComplaintCategory", "")
+                val complaintDetail = pickup.optString("householdComplaintDetail", "")
+                if (complaintCategory.isNotBlank() || complaintDetail.isNotBlank()) {
+                    complaintSummary.visibility = View.VISIBLE
+                    complaintSummary.text = listOf(complaintCategory, complaintDetail)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" - ", prefix = "Your complaint: ")
+                } else {
+                    complaintSummary.visibility = View.GONE
+                }
+
                 item.findViewById<Button>(R.id.btnItemReview).setOnClickListener {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.dashboardContainer, HouseholdReviewFragment.newInstance(pickup.optString("_id")))
@@ -178,6 +205,8 @@ class PickupFragment : Fragment() {
                 }
             } else {
                 actions.visibility = View.GONE
+                reviewSummary.visibility = View.GONE
+                complaintSummary.visibility = View.GONE
             }
 
             item.setOnClickListener {

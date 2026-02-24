@@ -46,12 +46,30 @@ class CollectorDashboardFragment : Fragment() {
             openJobDetails(activeJob?.optString("_id").orEmpty())
         }
 
+        view.findViewById<Button>(R.id.btnCollectorReview)?.setOnClickListener {
+            val pickupId = activeJob?.optString("_id").orEmpty()
+            if (pickupId.isBlank()) return@setOnClickListener
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorReviewFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        view.findViewById<Button>(R.id.btnCollectorComplaint)?.setOnClickListener {
+            val pickupId = activeJob?.optString("_id").orEmpty()
+            if (pickupId.isBlank()) return@setOnClickListener
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.collectorDashboardContainer, CollectorComplaintFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
         loadIncomingJobs(view)
     }
 
     private fun loadIncomingJobs(view: View) {
-        val collectorEmail = requireContext().getSharedPreferences("auth_prefs", 0)
-            .getString("COLLECTOR_EMAIL", null)
+        val prefs = requireContext().getSharedPreferences("auth_prefs", 0)
+        val collectorEmail = prefs.getString("COLLECTOR_EMAIL", null)
 
         if (collectorEmail.isNullOrBlank()) {
             view.findViewById<TextView>(R.id.tvCollectorIncomingStatus).text = "Collector session not found"
@@ -67,25 +85,64 @@ class CollectorDashboardFragment : Fragment() {
 
                 view.findViewById<TextView>(R.id.tvAssignedCount).text = "${data.length()} pending"
                 if (data.length() > 0) {
-                    bindActiveJob(view, data)
+                    bindActiveJob(view, data.optJSONObject(0))
                 } else {
-                    activeJob = null
-                    view.findViewById<TextView>(R.id.tvCollectorIncomingStatus).text = "No active jobs right now"
-                    view.findViewById<TextView>(R.id.tvActiveJobTitle).text = "No active pickup"
-                    view.findViewById<TextView>(R.id.tvActiveJobMeta).text = "New assigned jobs will appear here"
-                    view.findViewById<Button>(R.id.btnPrimaryAction).visibility = View.GONE
-                    view.findViewById<Button>(R.id.btnViewJobDetails).visibility = View.GONE
+                    // If there are no pending jobs, show latest completed job to allow review/complaint actions.
+                    loadLatestCompletedJob(view)
                 }
-
-                //activeJob = data
-                bindActiveJob(view, data)
-                Toast.makeText(requireContext(), "Route started", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun bindActiveJob(view: View, jobs: JSONArray?) {
-        val job = jobs?.optJSONObject(0) ?: return
+    private fun loadLatestCompletedJob(view: View) {
+        val collectorId = requireContext().getSharedPreferences("auth_prefs", 0)
+            .getString("COLLECTOR_ID", null)
+
+        if (collectorId.isNullOrBlank()) {
+            showNoJobState(view)
+            return
+        }
+
+        MobileBackendApi.getCollectorJobHistory(collectorId) { success, data, _ ->
+            activity?.runOnUiThread {
+                if (!success || data == null) {
+                    showNoJobState(view)
+                    return@runOnUiThread
+                }
+
+                var latestCompleted: JSONObject? = null
+                for (i in 0 until data.length()) {
+                    val item = data.optJSONObject(i) ?: continue
+                    if (item.optString("status", "").lowercase() == "completed") {
+                        latestCompleted = item
+                        break
+                    }
+                }
+
+                if (latestCompleted != null) {
+                    bindActiveJob(view, latestCompleted)
+                } else {
+                    showNoJobState(view)
+                }
+            }
+        }
+    }
+
+    private fun showNoJobState(view: View) {
+        activeJob = null
+        view.findViewById<TextView>(R.id.tvCollectorIncomingStatus).text = "No active jobs right now"
+        view.findViewById<TextView>(R.id.tvActiveJobTitle).text = "No active pickup"
+        view.findViewById<TextView>(R.id.tvActiveJobMeta).text = "New assigned jobs will appear here"
+        view.findViewById<Button>(R.id.btnPrimaryAction).visibility = View.GONE
+        view.findViewById<Button>(R.id.btnViewJobDetails).visibility = View.GONE
+        view.findViewById<View>(R.id.layoutCollectorCompletedActions).visibility = View.GONE
+    }
+
+    private fun bindActiveJob(view: View, job: JSONObject?) {
+        if (job == null) {
+            showNoJobState(view)
+            return
+        }
         activeJob = job
 
         val household = job.optJSONObject("household")?.optString("name") ?: "Household"
@@ -97,7 +154,13 @@ class CollectorDashboardFragment : Fragment() {
         view.findViewById<TextView>(R.id.tvActiveJobMeta).text = "${job.optString("wasteType", "Waste")} • $address"
 
         val primary = view.findViewById<Button>(R.id.btnPrimaryAction)
+        val details = view.findViewById<Button>(R.id.btnViewJobDetails)
+        val completedActions = view.findViewById<View>(R.id.layoutCollectorCompletedActions)
+
         primary.visibility = View.VISIBLE
+        details.visibility = View.VISIBLE
+        completedActions.visibility = View.GONE
+
         when (status) {
             "assigned", "approved" -> {
                 primary.text = "Start route"
@@ -112,16 +175,15 @@ class CollectorDashboardFragment : Fragment() {
                 primary.isEnabled = false
             }
             "completed" -> {
-                primary.text = "Completed"
-                primary.isEnabled = false
+                primary.visibility = View.GONE
+                details.visibility = View.VISIBLE
+                completedActions.visibility = View.VISIBLE
             }
             else -> {
                 primary.text = "Open details"
                 primary.isEnabled = true
             }
         }
-
-        view.findViewById<Button>(R.id.btnViewJobDetails).visibility = View.VISIBLE
     }
 
     private fun startRoute(view: View, pickupId: String) {
@@ -142,8 +204,7 @@ class CollectorDashboardFragment : Fragment() {
                 }
 
                 activeJob = data
-                val jobs = JSONArray().put(data)
-                bindActiveJob(view, jobs)
+                bindActiveJob(view, data)
                 Toast.makeText(requireContext(), "Route started", Toast.LENGTH_SHORT).show()
             }
         }

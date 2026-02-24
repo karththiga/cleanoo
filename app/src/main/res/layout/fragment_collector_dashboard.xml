@@ -107,6 +107,34 @@
                     android:text="View job details"
                     android:textAllCaps="false"
                     android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/layoutCollectorCompletedActions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/btnCollectorReview"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Review"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/btnCollectorComplaint"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FEE2E2"
+                        android:text="Raise complaint"
+                        android:textAllCaps="false"
+                        android:textColor="#991B1B" />
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
