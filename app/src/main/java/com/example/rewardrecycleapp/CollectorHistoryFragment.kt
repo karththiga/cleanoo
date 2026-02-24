@@ -95,6 +95,15 @@ class CollectorHistoryFragment : Fragment() {
         }
     }
 
+    private fun actionLabel(status: String): String {
+        return when (status) {
+            "assigned", "approved" -> "Start route"
+            "picked" -> "Job details"
+            "collector_completed" -> "Track confirmation"
+            else -> "Job details"
+        }
+    }
+
     private fun openJobDetails(pickupId: String) {
         if (pickupId.isBlank()) return
         parentFragmentManager.beginTransaction()
