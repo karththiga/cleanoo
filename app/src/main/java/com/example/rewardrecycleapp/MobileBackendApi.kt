@@ -244,6 +244,36 @@ object MobileBackendApi {
         })
     }
 
+
+
+    fun startCollectorRoute(
+        pickupId: String,
+        liveLocation: String,
+        onResult: (Boolean, JSONObject?, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("liveLocation", liveLocation)
+            put("latitude", 9.6615)
+            put("longitude", 80.0255)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/collector/start-route/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, JSONObject(body ?: "{}").optJSONObject("data"), null)
+                    else onResult(false, null, extractMessage(body, "Start route failed"))
+                }
+            }
+        })
+    }
+
     fun getCollectorIncomingRequests(
         collectorEmail: String,
         onResult: (Boolean, JSONArray?, String?) -> Unit

@@ -45,6 +45,15 @@ class PickupFragment : Fragment() {
             openPickupDetails(latestPickup?.optString("_id"))
         }
 
+        loadPickupData(view)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        view?.let { loadPickupData(it) }
+    }
+
+    private fun loadPickupData(view: View) {
         val householdId = requireContext()
             .getSharedPreferences("auth_prefs", 0)
             .getString("HOUSEHOLD_ID", null)
@@ -85,7 +94,13 @@ class PickupFragment : Fragment() {
             view.findViewById<TextView>(R.id.tvActiveJobMeta).text = latest.optString("address", "No address")
 
             val collector = latest.optJSONObject("assignedCollector")?.optString("name") ?: "Awaiting assignment"
-            view.findViewById<TextView>(R.id.tvActiveJobCollector).text = "Collector: $collector"
+            val liveLocation = latest.optString("collectorLiveLocation", "")
+            val collectorMeta = if (liveLocation.isBlank()) {
+                "Collector: $collector"
+            } else {
+                "Collector: $collector • Live: $liveLocation"
+            }
+            view.findViewById<TextView>(R.id.tvActiveJobCollector).text = collectorMeta
 
             val status = latest.optString("status", "pending")
             view.findViewById<TextView>(R.id.tvActiveJobStatus).text = status.replaceFirstChar { it.uppercase() }
@@ -112,8 +127,11 @@ class PickupFragment : Fragment() {
 
             item.findViewById<TextView>(R.id.tvItemWasteType).text = "${pickup.optString("wasteType", "Waste")} Pickup"
             item.findViewById<TextView>(R.id.tvItemAddress).text = pickup.optString("address", "No address")
-            item.findViewById<TextView>(R.id.tvItemCollector).text =
-                "Collector: ${pickup.optJSONObject("assignedCollector")?.optString("name") ?: "Awaiting assignment"}"
+            val collectorText = pickup.optJSONObject("assignedCollector")?.optString("name") ?: "Awaiting assignment"
+            val liveLocationText = pickup.optString("collectorLiveLocation", "")
+            item.findViewById<TextView>(R.id.tvItemCollector).text = "Collector: $collectorText"
+            item.findViewById<TextView>(R.id.tvItemLiveLocation).text =
+                if (liveLocationText.isBlank()) "Live: Not shared" else "Live: $liveLocationText"
             item.findViewById<TextView>(R.id.tvItemStatus).text =
                 pickup.optString("status", "pending").replaceFirstChar { it.uppercase() }
 

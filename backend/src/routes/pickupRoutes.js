@@ -9,6 +9,8 @@ const {
   approvePickup,
   rejectPickup,
   assignCollector,
+  collectorStartRoute,
+  updateCollectorLiveLocation,
   collectorPickup,
   updateStatus,
   exportPickups,
@@ -61,6 +63,12 @@ router.put("/reject/:id", rejectPickup);
 // ADMIN ASSIGN COLLECTOR
 // ===============================
 router.put("/assign/:id", assignCollector);
+
+// ===============================
+// COLLECTOR START ROUTE / LIVE LOCATION
+// ===============================
+router.put("/collector/start-route/:id", collectorStartRoute);
+router.put("/collector/location/:id", updateCollectorLiveLocation);
 
 // ===============================
 // COLLECTOR UPLOAD PICK PROOF

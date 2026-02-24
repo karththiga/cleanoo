@@ -263,6 +263,68 @@ exports.assignCollector = async (req, res) => {
   }
 };
 
+
+
+/* ======================================================
+   COLLECTOR START ROUTE (MOBILE)
+====================================================== */
+exports.collectorStartRoute = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    const liveLocation = req.body?.liveLocation || "Collector is near Jaffna Town (dummy location)";
+    const latitude = typeof req.body?.latitude === "number" ? req.body.latitude : 9.6615;
+    const longitude = typeof req.body?.longitude === "number" ? req.body.longitude : 80.0255;
+
+    pickup.status = "picked";
+    pickup.pickedDate = new Date();
+    pickup.collectorLiveLocation = liveLocation;
+    pickup.collectorLatitude = latitude;
+    pickup.collectorLongitude = longitude;
+
+    await pickup.save();
+
+    await Notification.create({
+      title: "Collector started route",
+      message: "Your assigned collector has started the route.",
+      target: "single_household",
+      userId: pickup.household,
+      userType: "Household",
+      type: "info"
+    });
+
+    res.json({ success: true, data: pickup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Start route failed" });
+  }
+};
+
+/* ======================================================
+   COLLECTOR UPDATE LIVE LOCATION (MOBILE)
+====================================================== */
+exports.updateCollectorLiveLocation = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    pickup.collectorLiveLocation = req.body?.liveLocation || pickup.collectorLiveLocation || "Collector en route";
+    if (typeof req.body?.latitude === "number") pickup.collectorLatitude = req.body.latitude;
+    if (typeof req.body?.longitude === "number") pickup.collectorLongitude = req.body.longitude;
+    if (pickup.status === "assigned" || pickup.status === "approved") {
+      pickup.status = "picked";
+      pickup.pickedDate = pickup.pickedDate || new Date();
+    }
+
+    await pickup.save();
+    res.json({ success: true, data: pickup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Location update failed" });
+  }
+};
+
 /* ======================================================
    COLLECTOR PICKUP (UPLOAD PROOF)
 ====================================================== */
