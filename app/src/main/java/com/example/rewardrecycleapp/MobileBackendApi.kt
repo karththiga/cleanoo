@@ -15,6 +15,7 @@ object MobileBackendApi {
     private const val HOUSEHOLD_BASE_URL = "http://10.0.2.2:7777/api/households"
     private const val PICKUP_BASE_URL = "http://10.0.2.2:7777/api/pickups"
     private const val COLLECTOR_BASE_URL = "http://10.0.2.2:7777/api/collectors"
+    private const val NOTIFICATION_BASE_URL = "http://10.0.2.2:7777/api/notifications"
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
     private val imageMediaType = "image/*".toMediaType()
     private val client = OkHttpClient()
@@ -382,6 +383,32 @@ object MobileBackendApi {
         })
     }
 
+
+    fun getMyNotifications(
+        userId: String,
+        userType: String,
+        onResult: (Boolean, JSONArray?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("$NOTIFICATION_BASE_URL?userId=$userId&userType=$userType")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONArray("data"), null)
+                    } else {
+                        onResult(false, null, extractMessage(body, "Notification fetch failed"))
+                    }
+                }
+            }
+        })
+    }
     private fun extractMessage(rawBody: String?, fallback: String): String {
         return try {
             JSONObject(rawBody ?: "{}").optString("message", fallback)
