@@ -5,7 +5,7 @@ const Reward = require("../models/Reward");
 const Setting = require("../models/Setting");
 const Notification = require("../models/Notification");
 
-const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked", "household_confirmed"];
+const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked", "collector_completed"];
 
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (deg) => (deg * Math.PI) / 180;
@@ -326,7 +326,40 @@ exports.updateCollectorLiveLocation = async (req, res) => {
 };
 
 /* ======================================================
-   HOUSEHOLD CONFIRM COLLECTION
+   HOUSEHOLD CONFIRM COLLECTION (FINAL STEP)
+====================================================== */
+exports.householdConfirmCollected = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) {
+      return res.status(404).json({ success: false, message: "Pickup not found" });
+    }
+
+    if (pickup.status !== "collector_completed") {
+      return res.status(400).json({ success: false, message: "Collector has not completed this pickup yet" });
+    }
+
+    pickup.status = "completed";
+    pickup.completedDate = pickup.completedDate || new Date();
+    pickup.householdConfirmedDate = new Date();
+    await pickup.save();
+
+    await Notification.create({
+      title: "Pickup confirmed by household",
+      message: "Household confirmed your completed pickup.",
+      target: "single_collector",
+      userId: pickup.assignedCollector,
+      userType: "Collector",
+      type: "info"
+    });
+
+    res.json({ success: true, data: pickup, message: "Pickup confirmed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Household confirmation failed" });
+  }
+};
+
 /* ======================================================
    COLLECTOR PICKUP (UPLOAD PROOF)
 ====================================================== */
@@ -339,8 +372,8 @@ exports.collectorPickup = async (req, res) => {
       return res.status(400).json({ message: "Proof image required" });
     }
 
-    if (pickup.status !== "household_confirmed") {
-      return res.status(400).json({ message: "Wait for household confirmation before uploading proof" });
+    if (pickup.status !== "picked") {
+      return res.status(400).json({ message: "Start route before uploading proof" });
     }
 
     if (!req.body.weight || Number(req.body.weight) <= 0) {
@@ -348,10 +381,10 @@ exports.collectorPickup = async (req, res) => {
     }
 
     pickup.collectorImage = req.file.filename;
-    // USER REQUEST: Auto-complete when collector uploads proof + weight
-    pickup.status = "completed";
+    // Collector finished physically; household still needs to confirm final completion.
+    pickup.status = "collector_completed";
     pickup.pickedDate = new Date(); // They picked it up
-    pickup.completedDate = new Date(); // And finished the job
+    pickup.completedDate = new Date();
     pickup.weight = Number(req.body.weight);
 
     await pickup.save();
@@ -381,7 +414,7 @@ exports.collectorPickup = async (req, res) => {
       });
     }
 
-    res.json({ success: true, message: "Pickup completed & Reward generated (Pending Approval)" });
+    res.json({ success: true, message: "Evidence saved. Waiting for household confirmation." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Pickup failed" });

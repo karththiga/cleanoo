@@ -74,6 +74,7 @@ const pickupRequestSchema = new mongoose.Schema(
         "approved",
         "assigned",
         "picked",
+        "collector_completed",
         "household_confirmed",
         "completed",
         "rejected",
@@ -125,6 +126,10 @@ const pickupRequestSchema = new mongoose.Schema(
     },
 
     completedDate: {
+      type: Date
+    },
+
+    householdConfirmedDate: {
       type: Date
     },
 
