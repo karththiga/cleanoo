@@ -248,6 +248,62 @@ object MobileBackendApi {
 
 
 
+
+
+    fun getCollectorJobHistory(
+        collectorId: String,
+        onResult: (Boolean, JSONArray?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("$COLLECTOR_BASE_URL/$collectorId/history")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONArray("data"), null)
+                    } else {
+                        onResult(false, null, extractMessage(body, "Collector history fetch failed"))
+                    }
+                }
+            }
+        })
+    }
+
+    fun submitCollectorPickupEvidence(
+        pickupId: String,
+        imageFile: File,
+        weight: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val formBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("weight", weight)
+            .addFormDataPart("image", imageFile.name, imageFile.asRequestBody(imageMediaType))
+            .build()
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/collector/pick/$pickupId")
+            .post(formBody)
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Evidence upload failed"))
+                }
+            }
+        })
+    }
+
     fun householdConfirmCollection(
         pickupId: String,
         onResult: (Boolean, JSONObject?, String?) -> Unit
