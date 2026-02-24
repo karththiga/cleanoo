@@ -90,7 +90,15 @@ const sendNotification = async (req, res) => {
 ========================================= */
 const getNotifications = async (req, res) => {
   try {
-    const list = await Notification.find({ isHidden: { $ne: true } })
+    const { userId, userType } = req.query;
+    const filter = { isHidden: { $ne: true } };
+
+    if (userId && ["Household", "Collector"].includes(userType)) {
+      filter.userId = userId;
+      filter.userType = userType;
+    }
+
+    const list = await Notification.find(filter)
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: list });
