@@ -50,6 +50,20 @@ const pickupRequestSchema = new mongoose.Schema(
       default: ""
     },
 
+
+    collectorLiveLocation: {
+      type: String,
+      default: ""
+    },
+
+    collectorLatitude: {
+      type: Number
+    },
+
+    collectorLongitude: {
+      type: Number
+    },
+
     /* ===============================
        STATUS FLOW
     =============================== */
