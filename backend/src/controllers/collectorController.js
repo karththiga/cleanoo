@@ -186,11 +186,73 @@ const getCollectorHistory = async (req, res) => {
   }
 };
 
+
+// GET MY COLLECTOR PROFILE (MOBILE)
+const getMyCollectorProfile = async (req, res) => {
+  try {
+    const uid = req.user?.uid;
+    if (!uid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const collector = await Collector.findOne({ uid }).select("-password");
+    if (!collector) {
+      return res.status(404).json({ success: false, message: "Collector profile not found for this account" });
+    }
+
+    return res.json({ success: true, data: collector });
+  } catch (error) {
+    console.error("Get collector profile error:", error);
+    return res.status(500).json({ success: false, message: "Failed to fetch profile" });
+  }
+};
+
+// UPDATE MY COLLECTOR PROFILE (MOBILE)
+const updateMyCollectorProfile = async (req, res) => {
+  try {
+    const uid = req.user?.uid;
+    if (!uid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const allowedUpdates = ["name", "phone", "zone"];
+    const payload = {};
+
+    allowedUpdates.forEach((key) => {
+      if (typeof req.body[key] === "string") {
+        payload[key] = req.body[key].trim();
+      }
+    });
+
+    if (!Object.keys(payload).length) {
+      return res.status(400).json({ success: false, message: "No valid fields provided" });
+    }
+
+    const updated = await Collector.findOneAndUpdate(
+      { uid },
+      payload,
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Collector profile not found for this account" });
+    }
+
+    return res.json({ success: true, message: "Profile updated", data: updated });
+  } catch (error) {
+    console.error("Update collector profile error:", error);
+    return res.status(500).json({ success: false, message: "Failed to update profile" });
+  }
+};
+
+
 module.exports = {
   getCollectors,
   addCollector,
   updateCollector,
   deleteCollector,
   toggleCollectorStatus,
-  getCollectorHistory
+  getCollectorHistory,
+  getMyCollectorProfile,
+  updateMyCollectorProfile
 };

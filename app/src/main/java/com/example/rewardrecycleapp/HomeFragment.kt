@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +15,7 @@ import com.example.rewardrecycleapp.MobileBackendApi
 import com.example.rewardrecycleapp.R
 import com.example.rewardrecycleapp.RequestPickupActivity
 import com.example.rewardrecycleapp.databinding.FragmentHomeBinding
+import org.json.JSONArray
 
 class HomeFragment : Fragment() {
 
@@ -32,8 +35,14 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         loadUserFromPrefs()
         refreshHouseholdProfile()
+        loadRecentRequests()
         setupAnnouncements()
         setupClicks()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadRecentRequests()
     }
 
     private fun loadUserFromPrefs() {
@@ -73,6 +82,58 @@ class HomeFragment : Fragment() {
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+    }
+
+    private fun loadRecentRequests() {
+        val householdId = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            .getString("HOUSEHOLD_ID", null)
+
+        if (householdId.isNullOrBlank()) return
+
+        binding.progressRecentRequests.visibility = View.VISIBLE
+        MobileBackendApi.getHouseholdPickupHistory(householdId) { success, data, message ->
+            activity?.runOnUiThread {
+                binding.progressRecentRequests.visibility = View.GONE
+                if (!success || data == null) {
+                    binding.tvRecentRequestsEmpty.visibility = View.VISIBLE
+                    binding.tvRecentRequestsEmpty.text = message ?: "Unable to load recent requests"
+                    return@runOnUiThread
+                }
+
+                bindRecentRequests(data)
+            }
+        }
+    }
+
+    private fun bindRecentRequests(data: JSONArray) {
+        val container = binding.root.findViewById<LinearLayout>(R.id.layoutRecentRequests)
+        container.removeAllViews()
+
+        val limit = minOf(3, data.length())
+        if (limit == 0) {
+            binding.tvRecentRequestsEmpty.visibility = View.VISIBLE
+            return
+        }
+
+        binding.tvRecentRequestsEmpty.visibility = View.GONE
+
+        for (i in 0 until limit) {
+            val pickup = data.optJSONObject(i) ?: continue
+            val item = layoutInflater.inflate(R.layout.item_recent_request_home, container, false)
+            item.findViewById<TextView>(R.id.tvRecentWasteType).text = "${pickup.optString("wasteType", "Waste")} Pickup"
+            item.findViewById<TextView>(R.id.tvRecentAddress).text = pickup.optString("address", "No address")
+            item.findViewById<TextView>(R.id.tvRecentStatus).text = statusLabelForHousehold(pickup.optString("status"))
+            container.addView(item)
+        }
+    }
+
+    private fun statusLabelForHousehold(raw: String): String {
+        return when (raw.lowercase()) {
+            "completed" -> "Completed"
+            "household_confirmed" -> "Awaiting Collector Proof"
+            "picked" -> "On The Way"
+            else -> "Pending Pickup"
         }
     }
 

@@ -9,6 +9,8 @@ const HouseholdSchema = new mongoose.Schema(
 
     address: { type: String, required: true },
     zone: { type: String, default: "Unassigned" },
+    latitude: { type: Number },
+    longitude: { type: Number },
 
     status: {
       type: String,

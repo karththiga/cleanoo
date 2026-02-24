@@ -9,10 +9,15 @@ const {
   approvePickup,
   rejectPickup,
   assignCollector,
+  collectorStartRoute,
+  updateCollectorLiveLocation,
+  householdConfirmCollected,
   collectorPickup,
   updateStatus,
   exportPickups,
-  sendWarning
+  sendWarning,
+  getHouseholdRequests,
+  getCollectorIncomingRequests
 } = require("../controllers/pickupController");
 
 // ===============================
@@ -24,6 +29,16 @@ router.get("/export", exportPickups);
 // GET ALL PICKUPS (ADMIN)
 // ===============================
 router.get("/", getRequests);
+
+// ===============================
+// MOBILE: HOUSEHOLD REQUEST HISTORY
+// ===============================
+router.get("/household/:householdId", getHouseholdRequests);
+
+// ===============================
+// MOBILE: COLLECTOR INCOMING REQUESTS
+// ===============================
+router.get("/collector/incoming", getCollectorIncomingRequests);
 
 // ===============================
 // GET SINGLE PICKUP (BY ID)
@@ -49,6 +64,13 @@ router.put("/reject/:id", rejectPickup);
 // ADMIN ASSIGN COLLECTOR
 // ===============================
 router.put("/assign/:id", assignCollector);
+
+// ===============================
+// COLLECTOR START ROUTE / LIVE LOCATION
+// ===============================
+router.put("/collector/start-route/:id", collectorStartRoute);
+router.put("/collector/location/:id", updateCollectorLiveLocation);
+router.put("/household/confirm/:id", householdConfirmCollected);
 
 // ===============================
 // COLLECTOR UPLOAD PICK PROOF
