@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F8FC"
+    android:background="#F3F4F6"
     android:fillViewport="true">
 
     <LinearLayout
@@ -15,9 +16,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Job details"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#1F2A37" />
+            android:textColor="#111827"
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvJobSubtitle"
@@ -33,9 +34,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:layout_marginBottom="16dp"
-            android:padding="16dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="16dp">
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -49,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:text="Household"
                     android:textColor="#111827"
-                    android:textSize="17sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -66,8 +69,11 @@
             android:id="@+id/btnAddEvidence"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add evidence"
-            android:textAllCaps="false" />
+            android:backgroundTint="#111827"
+            android:text="Upload evidence"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnMarkCompleted"
@@ -75,7 +81,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Mark as completed"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>
