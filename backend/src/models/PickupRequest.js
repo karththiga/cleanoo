@@ -74,6 +74,7 @@ const pickupRequestSchema = new mongoose.Schema(
         "approved",
         "assigned",
         "picked",
+        "household_confirmed",
         "completed",
         "rejected",
         "cancelled"

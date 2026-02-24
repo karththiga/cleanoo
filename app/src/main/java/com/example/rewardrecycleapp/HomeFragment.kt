@@ -131,6 +131,7 @@ class HomeFragment : Fragment() {
     private fun statusLabelForHousehold(raw: String): String {
         return when (raw.lowercase()) {
             "completed" -> "Completed"
+            "household_confirmed" -> "Awaiting Collector Proof"
             "picked" -> "On The Way"
             else -> "Pending Pickup"
         }

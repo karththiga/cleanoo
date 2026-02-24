@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -43,6 +44,28 @@ class PickupFragment : Fragment() {
 
         view.findViewById<CardView>(R.id.cardCurrentRequest)?.setOnClickListener {
             openPickupDetails(latestPickup?.optString("_id"))
+        }
+
+        view.findViewById<Button>(R.id.btnConfirmCollected)?.setOnClickListener {
+            val pickupId = latestPickup?.optString("_id")
+            if (pickupId.isNullOrBlank()) return@setOnClickListener
+
+            val button = view.findViewById<Button>(R.id.btnConfirmCollected)
+            button.isEnabled = false
+            button.text = "Confirming..."
+
+            MobileBackendApi.householdConfirmCollection(pickupId) { success, _, message ->
+                activity?.runOnUiThread {
+                    button.isEnabled = true
+                    button.text = "Confirm Waste Collected"
+                    if (!success) {
+                        view.findViewById<TextView>(R.id.tvActiveJobMeta).text = message ?: "Confirmation failed"
+                        return@runOnUiThread
+                    }
+
+                    loadPickupData(view)
+                }
+            }
         }
 
         loadPickupData(view)
@@ -105,6 +128,9 @@ class PickupFragment : Fragment() {
             val status = latest.optString("status", "pending")
             view.findViewById<TextView>(R.id.tvActiveJobStatus).text = statusLabelForHousehold(status)
             view.findViewById<TextView>(R.id.tvRequestDetailsHint).text = "Tap to view full request details"
+
+            val confirmButton = view.findViewById<Button>(R.id.btnConfirmCollected)
+            confirmButton.visibility = if (status.lowercase() == "picked") View.VISIBLE else View.GONE
         }
 
         bindAllPickupCards(view, pickups)
@@ -147,6 +173,7 @@ class PickupFragment : Fragment() {
     private fun statusLabelForHousehold(rawStatus: String): String {
         return when (rawStatus.lowercase()) {
             "completed" -> "Completed"
+            "household_confirmed" -> "Awaiting Collector Proof"
             "picked" -> "On The Way"
             else -> "Pending Pickup"
         }

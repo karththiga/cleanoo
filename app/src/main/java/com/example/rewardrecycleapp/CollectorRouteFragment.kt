@@ -97,7 +97,8 @@ class CollectorRouteFragment : Fragment() {
         view.findViewById<TextView>(R.id.tvDummyLocation).text =
             if (location.isBlank()) "Live location: Not shared" else "Live location: $location"
 
-        val isAlreadyStarted = pickup.optString("status") == "picked"
+        val status = pickup.optString("status")
+        val isAlreadyStarted = status == "picked" || status == "household_confirmed" || status == "completed"
         view.findViewById<Button>(R.id.btnStartRoute).text = if (isAlreadyStarted) "Route started" else "Start route"
         view.findViewById<Button>(R.id.btnStartRoute).isEnabled = !isAlreadyStarted
     }

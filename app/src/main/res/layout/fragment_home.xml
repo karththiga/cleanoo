@@ -142,7 +142,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/fabRequestPickup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -152,8 +152,6 @@
         android:text="Request Pickup"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:src="@drawable/baseline_add_24"
-        app:backgroundTint="#1A73E8"
-        app:tint="#FFFFFF" />
+        app:backgroundTint="#1A73E8" />
 
 </FrameLayout>

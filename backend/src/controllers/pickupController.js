@@ -5,7 +5,7 @@ const Reward = require("../models/Reward");
 const Setting = require("../models/Setting");
 const Notification = require("../models/Notification");
 
-const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked"];
+const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked", "household_confirmed"];
 
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (deg) => (deg * Math.PI) / 180;
@@ -326,6 +326,8 @@ exports.updateCollectorLiveLocation = async (req, res) => {
 };
 
 /* ======================================================
+   HOUSEHOLD CONFIRM COLLECTION
+/* ======================================================
    COLLECTOR PICKUP (UPLOAD PROOF)
 ====================================================== */
 exports.collectorPickup = async (req, res) => {
@@ -335,6 +337,10 @@ exports.collectorPickup = async (req, res) => {
 
     if (!req.file) {
       return res.status(400).json({ message: "Proof image required" });
+    }
+
+    if (pickup.status !== "household_confirmed") {
+      return res.status(400).json({ message: "Wait for household confirmation before uploading proof" });
     }
 
     if (!req.body.weight || Number(req.body.weight) <= 0) {

@@ -246,6 +246,33 @@ object MobileBackendApi {
 
 
 
+
+
+    fun householdConfirmCollection(
+        pickupId: String,
+        onResult: (Boolean, JSONObject?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/household/confirm/$pickupId")
+            .put("".toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONObject("data"), null)
+                    } else {
+                        onResult(false, null, extractMessage(body, "Household confirmation failed"))
+                    }
+                }
+            }
+        })
+    }
+
     fun startCollectorRoute(
         pickupId: String,
         liveLocation: String,
