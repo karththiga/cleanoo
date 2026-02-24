@@ -45,6 +45,9 @@
         <activity
             android:name=".RequestPickupActivity"
             android:exported="false" />
+        <activity
+            android:name=".PickupDetailsActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -24,12 +24,20 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
 async function findBestAvailableCollector(household) {
   if (!household) return null;
 
-  const collectorFilter = { status: "active" };
+  const activeCollectorFilter = { status: { $ne: "blocked" } };
+  let collectors = [];
+
   if (household.zone) {
-    collectorFilter.zone = household.zone;
+    collectors = await Collector.find({
+      ...activeCollectorFilter,
+      zone: household.zone
+    });
   }
 
-  const collectors = await Collector.find(collectorFilter);
+  // Fallback: if no collector exists in the same zone, use all active collectors.
+  if (!collectors.length) {
+    collectors = await Collector.find(activeCollectorFilter);
+  }
   if (!collectors.length) return null;
 
   const available = [];

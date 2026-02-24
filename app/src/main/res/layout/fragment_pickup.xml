@@ -82,9 +82,13 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardCurrentRequest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="16dp">
 
@@ -120,6 +124,17 @@
                     android:text="Collector: Awaiting assignment"
                     android:textColor="#6B7280"
                     android:textSize="13sp" />
+
+
+
+                <TextView
+                    android:id="@+id/tvRequestDetailsHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text=""
+                    android:textColor="#2563EB"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvActiveJobStatus"
