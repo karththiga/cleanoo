@@ -182,7 +182,7 @@ object MobileBackendApi {
                     val body = it.body?.string()
                     if (it.isSuccessful) {
                         val root = JSONObject(body ?: "{}")
-                        onResult(true, root.optJSONObject("data"), null)
+                        onResult(true, root.optJSONArray("data"), null)
                     } else {
                         onResult(false, null, extractMessage(body, "Pickup details fetch failed"))
                     }
