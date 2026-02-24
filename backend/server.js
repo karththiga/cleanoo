@@ -49,6 +49,7 @@ app.use("/api/households", require("./src/routes/mobileHouseholdRoutes"));
 
 //  NOTIFICATIONS
 app.use("/api/admin/notifications", require("./src/routes/notificationRoutes"));
+app.use("/api/notifications", require("./src/routes/notificationRoutes"));
 
 
 //  REWARDS
