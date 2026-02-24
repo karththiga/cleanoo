@@ -5,6 +5,78 @@ const Reward = require("../models/Reward");
 const Setting = require("../models/Setting");
 const Notification = require("../models/Notification");
 
+const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked"];
+
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusKm * c;
+}
+
+async function findBestAvailableCollector(household) {
+  if (!household) return null;
+
+  const activeCollectorFilter = { status: { $ne: "blocked" } };
+  let collectors = [];
+
+  if (household.zone) {
+    collectors = await Collector.find({
+      ...activeCollectorFilter,
+      zone: household.zone
+    });
+  }
+
+  // Fallback: if no collector exists in the same zone, use all non-blocked collectors.
+  if (!collectors.length) {
+    collectors = await Collector.find(activeCollectorFilter);
+  }
+  if (!collectors.length) return null;
+
+  const candidates = [];
+  for (const col of collectors) {
+    const activeTasks = await Pickup.countDocuments({
+      assignedCollector: col._id,
+      status: { $in: ACTIVE_ASSIGNMENT_STATUSES }
+    });
+
+    let distanceKm = Number.MAX_SAFE_INTEGER;
+    if (
+      typeof household.latitude === "number" &&
+      typeof household.longitude === "number" &&
+      typeof col.latitude === "number" &&
+      typeof col.longitude === "number"
+    ) {
+      distanceKm = calculateDistanceKm(
+        household.latitude,
+        household.longitude,
+        col.latitude,
+        col.longitude
+      );
+    }
+
+    candidates.push({ collector: col, activeTasks, distanceKm });
+  }
+
+  if (!candidates.length) return null;
+
+  // Always return a collector when at least one non-blocked collector exists.
+  // Prefer free collectors first, otherwise assign the least-loaded nearest collector.
+  candidates.sort((a, b) => {
+    if (a.activeTasks !== b.activeTasks) return a.activeTasks - b.activeTasks;
+    return a.distanceKm - b.distanceKm;
+  });
+
+  return candidates[0].collector;
+}
+
 /* ======================================================
    GET ALL PICKUPS (FILTERS)
 ====================================================== */
@@ -71,32 +143,16 @@ exports.createRequest = async (req, res) => {
 
     const data = JSON.parse(req.body.data);
 
-    // AUTO-ASSIGN LOGIC
+    // AUTO-ASSIGN LOGIC (nearest available collector in zone)
     let status = "pending";
     let assignedCollector = null;
 
     try {
       const household = await Household.findById(data.household);
-      if (household && household.zone) {
-        // Find active collectors in the same zone
-        const collectors = await Collector.find({
-          zone: household.zone,
-          status: "active"
-        });
-
-        // Find one with 0 active tasks
-        for (const col of collectors) {
-          const activeTasks = await Pickup.countDocuments({
-            assignedCollector: col._id,
-            status: { $in: ["assigned", "approved"] }
-          });
-
-          if (activeTasks === 0) {
-            assignedCollector = col._id;
-            status = "assigned";
-            break; // Found one!
-          }
-        }
+      const bestCollector = await findBestAvailableCollector(household);
+      if (bestCollector) {
+        assignedCollector = bestCollector._id;
+        status = "assigned";
       }
     } catch (assignError) {
       console.error("Auto-assign failed:", assignError);
@@ -123,6 +179,17 @@ exports.createRequest = async (req, res) => {
       type: "admin_alert"
     });
 
+    if (assignedCollector) {
+      await Notification.create({
+        title: "New Pickup Assigned",
+        message: `A new ${data.wasteType} pickup has been assigned to you.`,
+        target: "single_collector",
+        userId: assignedCollector,
+        userType: "Collector",
+        type: "assignment"
+      });
+    }
+
     res.json({ success: true, data: created });
   } catch (err) {
     console.error(err);
@@ -142,10 +209,7 @@ exports.approvePickup = async (req, res) => {
     pickup.verifiedByAdmin = true;
     pickup.rejectionReason = "";
 
-    const collector = await Collector.findOne({
-      zone: pickup.household.zone,
-      status: "active"
-    });
+    const collector = await findBestAvailableCollector(pickup.household);
 
     if (collector) {
       pickup.assignedCollector = collector._id;
@@ -196,6 +260,68 @@ exports.assignCollector = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Assign failed" });
+  }
+};
+
+
+
+/* ======================================================
+   COLLECTOR START ROUTE (MOBILE)
+====================================================== */
+exports.collectorStartRoute = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    const liveLocation = req.body?.liveLocation || "Collector is near Jaffna Town (dummy location)";
+    const latitude = typeof req.body?.latitude === "number" ? req.body.latitude : 9.6615;
+    const longitude = typeof req.body?.longitude === "number" ? req.body.longitude : 80.0255;
+
+    pickup.status = "picked";
+    pickup.pickedDate = new Date();
+    pickup.collectorLiveLocation = liveLocation;
+    pickup.collectorLatitude = latitude;
+    pickup.collectorLongitude = longitude;
+
+    await pickup.save();
+
+    await Notification.create({
+      title: "Collector started route",
+      message: "Your assigned collector has started the route.",
+      target: "single_household",
+      userId: pickup.household,
+      userType: "Household",
+      type: "info"
+    });
+
+    res.json({ success: true, data: pickup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Start route failed" });
+  }
+};
+
+/* ======================================================
+   COLLECTOR UPDATE LIVE LOCATION (MOBILE)
+====================================================== */
+exports.updateCollectorLiveLocation = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    pickup.collectorLiveLocation = req.body?.liveLocation || pickup.collectorLiveLocation || "Collector en route";
+    if (typeof req.body?.latitude === "number") pickup.collectorLatitude = req.body.latitude;
+    if (typeof req.body?.longitude === "number") pickup.collectorLongitude = req.body.longitude;
+    if (pickup.status === "assigned" || pickup.status === "approved") {
+      pickup.status = "picked";
+      pickup.pickedDate = pickup.pickedDate || new Date();
+    }
+
+    await pickup.save();
+    res.json({ success: true, data: pickup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Location update failed" });
   }
 };
 
@@ -404,5 +530,51 @@ exports.exportPickups = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Export failed");
+  }
+};
+
+/* ======================================================
+   GET HOUSEHOLD PICKUPS (MOBILE)
+====================================================== */
+exports.getHouseholdRequests = async (req, res) => {
+  try {
+    const pickups = await Pickup.find({ household: req.params.householdId })
+      .populate("assignedCollector", "name phone")
+      .sort({ requestDate: -1 });
+
+    res.json({ success: true, data: pickups });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Load failed" });
+  }
+};
+
+/* ======================================================
+   GET INCOMING REQUESTS FOR COLLECTOR (MOBILE)
+====================================================== */
+exports.getCollectorIncomingRequests = async (req, res) => {
+  try {
+    const { email, uid, collectorId } = req.query;
+    let collector = null;
+
+    if (collectorId) collector = await Collector.findById(collectorId);
+    if (!collector && uid) collector = await Collector.findOne({ uid });
+    if (!collector && email) collector = await Collector.findOne({ email });
+
+    if (!collector) {
+      return res.status(404).json({ success: false, message: "Collector not found" });
+    }
+
+    const incoming = await Pickup.find({
+      assignedCollector: collector._id,
+      status: { $in: ACTIVE_ASSIGNMENT_STATUSES }
+    })
+      .populate("household", "name phone address")
+      .sort({ requestDate: -1 });
+
+    res.json({ success: true, data: incoming });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Load failed" });
   }
 };

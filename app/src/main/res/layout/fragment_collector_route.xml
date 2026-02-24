@@ -21,9 +21,10 @@
             android:textColor="#1F2A37" />
 
         <TextView
+            android:id="@+id/tvRouteSummary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Optimize your route and check stops."
+            android:text="Loading current assignment..."
             android:textSize="14sp"
             android:textColor="#6B7280"
             android:layout_marginTop="6dp"
@@ -32,10 +33,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardUseCompatPadding="true"
             app:cardBackgroundColor="@color/white">
 
             <LinearLayout
@@ -45,93 +43,45 @@
                 android:padding="16dp">
 
                 <TextView
+                    android:id="@+id/tvRouteJobTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Today: 8 stops"
+                    android:text="No assigned job"
+                    android:textColor="#111827"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#111827" />
+                    android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tvRouteAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Estimated time: 3h 20m"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="6dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stops"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#111827"
-            android:layout_marginBottom="10dp" />
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="3dp"
-            app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="@color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                    android:layout_marginTop="5dp"
+                    android:text="-"
+                    android:textColor="#6B7280" />
 
                 <TextView
+                    android:id="@+id/tvRouteStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Stop 1 • Greenview Apartments"
-                    android:textSize="14sp"
-                    android:textColor="#111827" />
+                    android:layout_marginTop="8dp"
+                    android:text="Status: -"
+                    android:textColor="#6B7280" />
 
                 <TextView
+                    android:id="@+id/tvDummyLocation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Plastic • 12kg"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:layout_marginTop="8dp"
+                    android:text="Live location: Not shared"
+                    android:textColor="#1D4ED8" />
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="3dp"
-            app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="@color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <Button
+                    android:id="@+id/btnStartRoute"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Stop 2 • Lakeside Villas"
-                    android:textSize="14sp"
-                    android:textColor="#111827" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Paper • 9kg"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="14dp"
+                    android:text="Start route"
+                    android:textAllCaps="false" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
