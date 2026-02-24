@@ -64,7 +64,7 @@ class CollectorDashboardFragment : Fragment() {
                     view.findViewById<android.widget.Button>(R.id.btnViewJobDetails).visibility = View.GONE
                 }
 
-                activeJob = data
+                //activeJob = data
                 bindActiveJob(view, data)
                 Toast.makeText(requireContext(), "Route started", Toast.LENGTH_SHORT).show()
             }
