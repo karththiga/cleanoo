@@ -71,8 +71,12 @@ class CollectorDashboardFragment : Fragment() {
         }
     }
 
-    private fun bindActiveJob(view: View, jobs: JSONArray) {
-        val job = jobs.optJSONObject(0) ?: return
+    private fun bindActiveJob(view: View, jobs: JSONArray?) {
+        val job = jobs?.optJSONObject(0) ?: return
+        bindActiveJob(view, job)
+    }
+
+    private fun bindActiveJob(view: View, job: JSONObject) {
         activeJob = job
 
         val household = job.optJSONObject("household")?.optString("name") ?: "Household"
