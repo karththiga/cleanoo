@@ -3,12 +3,17 @@ package com.example.rewardrecycleapp
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.appbar.MaterialToolbar
 
 class PickupDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pickup_details)
+
+        findViewById<MaterialToolbar>(R.id.toolbarPickupDetails).setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
         val pickupId = intent.getStringExtra("pickup_id")
         if (pickupId.isNullOrBlank()) {

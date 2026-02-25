@@ -16,6 +16,9 @@ class ForgotPasswordActivity : AppCompatActivity() {
         binding = ActivityForgotPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbarForgotPassword)
+        binding.toolbarForgotPassword.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+
         auth = FirebaseAuth.getInstance()
 
         // Reset button click

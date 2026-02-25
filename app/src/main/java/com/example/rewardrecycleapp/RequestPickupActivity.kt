@@ -16,6 +16,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.material.appbar.MaterialToolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationCallback
@@ -55,6 +56,10 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_request_pickup)
 
         auth = FirebaseAuth.getInstance()
+
+        findViewById<MaterialToolbar>(R.id.toolbarRequestPickup).setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.mapPickup) as SupportMapFragment
         mapFragment.getMapAsync(this)
