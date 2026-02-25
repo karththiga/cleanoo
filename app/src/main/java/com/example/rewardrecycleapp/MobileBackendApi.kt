@@ -521,6 +521,34 @@ object MobileBackendApi {
             }
         })
     }
+
+
+    fun getMyRewardsSummary(
+        idToken: String,
+        onResult: (Boolean, JSONObject?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("$HOUSEHOLD_BASE_URL/me/rewards")
+            .addHeader("Authorization", "Bearer $idToken")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONObject("data"), null)
+                    } else {
+                        onResult(false, null, extractMessage(body, "Rewards summary fetch failed"))
+                    }
+                }
+            }
+        })
+    }
+
     private fun extractMessage(rawBody: String?, fallback: String): String {
         return try {
             JSONObject(rawBody ?: "{}").optString("message", fallback)

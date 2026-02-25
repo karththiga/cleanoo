@@ -71,6 +71,43 @@ const getMyHouseholdProfile = async (req, res) => {
   }
 };
 
+
+
+const getMyRewardSummary = async (req, res) => {
+  try {
+    const firebaseUid = req.user?.uid;
+    if (!firebaseUid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const household = await Household.findOne({ firebaseUid }).select("_id points");
+    if (!household) {
+      return res.status(404).json({ success: false, message: "Household profile not found for this account" });
+    }
+
+    const rewards = await Reward.find({ household: household._id })
+      .populate("pickup", "wasteType weight completedDate requestDate")
+      .sort({ createdAt: -1 });
+
+    const currentPoints = Number(household.points || 0);
+    const milestoneStep = 500;
+    const nextMilestone = Math.ceil(Math.max(currentPoints, 1) / milestoneStep) * milestoneStep;
+
+    return res.json({
+      success: true,
+      data: {
+        currentPoints,
+        nextMilestone,
+        pointsToNextMilestone: Math.max(nextMilestone - currentPoints, 0),
+        rewards
+      }
+    });
+  } catch (err) {
+    console.error("Get reward summary error:", err);
+    return res.status(500).json({ success: false, message: "Failed to fetch rewards summary" });
+  }
+};
+
 /* ==================================================
    MOBILE PROFILE UPDATE: UPDATE HOUSEHOLD BY FIREBASE UID
    ================================================== */
@@ -287,6 +324,7 @@ const deleteHousehold = async (req, res) => {
 module.exports = {
   createHouseholdProfile,
   getMyHouseholdProfile,
+  getMyRewardSummary,
   updateMyHouseholdProfile,
   getHouseholds,
   deleteHousehold,

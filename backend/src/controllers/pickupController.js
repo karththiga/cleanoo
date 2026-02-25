@@ -7,6 +7,69 @@ const Notification = require("../models/Notification");
 
 const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked", "collector_completed"];
 
+
+
+function getWasteTypeRewardRate(settings, wasteType) {
+  const normalized = (wasteType || "").toString().trim();
+  if (!normalized) return 0;
+
+  const directRate = settings?.rewards?.get(normalized);
+  if (typeof directRate === "number") return directRate;
+
+  const lower = normalized.toLowerCase();
+  const recyclableTypes = new Set([
+    "plastic",
+    "paper",
+    "cardboard",
+    "glass",
+    "metal",
+    "aluminum",
+    "steel",
+    "e-waste",
+    "ewaste",
+    "textile"
+  ]);
+
+  const baseRatePerKg = 6;
+  return recyclableTypes.has(lower) ? baseRatePerKg * 1.8 : baseRatePerKg;
+}
+
+async function applyCompletedPickupReward(pickup, approvedBy = "System") {
+  if (!pickup?.household) return { reward: null, pointsAdded: 0 };
+
+  const settings = await Setting.findOne();
+  const pickupWeight = Number(pickup.weight || 0);
+  const ratePerKg = getWasteTypeRewardRate(settings, pickup.wasteType);
+  const points = Math.max(0, Math.round(pickupWeight * ratePerKg));
+
+  let reward = await Reward.findOne({ pickup: pickup._id });
+  let pointsAdded = 0;
+
+  if (!reward) {
+    reward = await Reward.create({
+      household: pickup.household._id || pickup.household,
+      pickup: pickup._id,
+      wasteType: pickup.wasteType,
+      points,
+      status: "approved",
+      approvedBy
+    });
+    pointsAdded = points;
+  } else if (reward.status !== "approved") {
+    reward.status = "approved";
+    reward.approvedBy = approvedBy;
+    reward.points = points;
+    await reward.save();
+    pointsAdded = points;
+  }
+
+  if (pointsAdded > 0) {
+    await Household.findByIdAndUpdate(reward.household, { $inc: { points: pointsAdded } });
+  }
+
+  return { reward, pointsAdded };
+}
+
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (deg) => (deg * Math.PI) / 180;
   const earthRadiusKm = 6371;
@@ -344,6 +407,8 @@ exports.householdConfirmCollected = async (req, res) => {
     pickup.householdConfirmedDate = new Date();
     await pickup.save();
 
+    const { pointsAdded } = await applyCompletedPickupReward(pickup, "Household Confirmed");
+
     await Notification.create({
       title: "Pickup confirmed by household",
       message: "Household confirmed your completed pickup.",
@@ -353,7 +418,7 @@ exports.householdConfirmCollected = async (req, res) => {
       type: "info"
     });
 
-    res.json({ success: true, data: pickup, message: "Pickup confirmed successfully" });
+    res.json({ success: true, data: pickup, pointsAdded, message: "Pickup confirmed successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Household confirmation failed" });
@@ -521,30 +586,7 @@ exports.collectorPickup = async (req, res) => {
 
     await pickup.save();
 
-    // 🏆 GENERATE PENDING REWARD (Logic Moved/Duplicated from updateStatus)
-    const rewardExists = await Reward.findOne({ pickup: pickup._id });
-
-    if (!rewardExists) {
-      const settings = await Setting.findOne();
-      const ratePerKg = settings?.rewards?.get(pickup.wasteType) || 0;
-      const points = Math.round(pickup.weight * ratePerKg);
-
-      await Reward.create({
-        household: pickup.household._id,
-        pickup: pickup._id,
-        wasteType: pickup.wasteType,
-        points,
-        status: "pending" // Waiting for Admin Approval
-      });
-
-      // 🔔 NOTIFY ADMIN
-      await Notification.create({
-        title: "Reward Approval Needed",
-        message: `Collector completed pickup (${pickup.wasteType}, ${pickup.weight}kg). Please review reward.`,
-        target: "admin",
-        type: "admin_alert"
-      });
-    }
+    // Reward is finalized when status moves to completed (household confirm/admin completion).
 
     // Notify household that collector submitted evidence and awaits final confirmation.
     await Notification.create({
@@ -591,39 +633,7 @@ exports.updateStatus = async (req, res) => {
 
     if (status === "completed") {
       pickup.completedDate = new Date();
-
-      // 🔒 prevent duplicate rewards
-      const rewardExists = await Reward.findOne({
-        pickup: pickup._id
-      });
-
-      if (!rewardExists) {
-        const settings = await Setting.findOne();
-
-        // Check if weight is provided, else default to 0 (or handled by frontend to be required)
-        // If weight < 0.1, we might treat it as 0 points or minimum 1? 
-        // For now: exact calculation
-        const pickupWeight = pickup.weight || 0;
-        const ratePerKg = settings?.rewards?.get(pickup.wasteType) || 0;
-
-        const points = Math.round(pickupWeight * ratePerKg);
-
-        await Reward.create({
-          household: pickup.household._id,
-          pickup: pickup._id,
-          wasteType: pickup.wasteType,
-          points,
-          status: "pending"
-        });
-
-        // 🔔 NOTIFY ADMIN (REWARD APPROVAL)
-        await Notification.create({
-          title: "Reward Approval Needed",
-          message: `Reward generated for completed pickup (Type: ${pickup.wasteType}). Please review.`,
-          target: "admin",
-          type: "admin_alert"
-        });
-      }
+      await applyCompletedPickupReward(pickup, "Admin");
     }
 
     if (status === "cancelled") {
