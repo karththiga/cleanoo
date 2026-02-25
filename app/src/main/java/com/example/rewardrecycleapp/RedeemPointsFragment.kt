@@ -1,6 +1,7 @@
 package com.example.rewardrecycleapp
 
 import android.os.Bundle
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,11 +31,13 @@ class RedeemPointsFragment : Fragment() {
         val pointsView = root.findViewById<TextView>(R.id.tvAvailablePoints)
         val nextRewardHintView = root.findViewById<TextView>(R.id.tvNextRewardHint)
 
-        val prefs = requireContext().getSharedPreferences("cleanoo_prefs", 0)
-        val idToken = prefs.getString("FIREBASE_ID_TOKEN", null)
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val cachedPoints = prefs.getString("HOUSEHOLD_POINTS", "0") ?: "0"
+        val idToken = prefs.getString("ID_TOKEN", null)
+
+        pointsView.text = "$cachedPoints Points"
 
         if (idToken.isNullOrBlank()) {
-            pointsView.text = "0 Points"
             nextRewardHintView.text = "Sign in again to refresh points"
             return
         }
