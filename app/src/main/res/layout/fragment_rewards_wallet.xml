@@ -54,7 +54,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1,240"
+                    android:id="@+id/tvWalletAvailablePoints"
+                    android:text="0"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:textColor="#111827"
@@ -63,7 +64,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bonus week: +20% on glass"
+                    android:id="@+id/tvWalletBonusHint"
+                    android:text="Loading rewards..."
                     android:textSize="12sp"
                     android:textColor="#10B981"
                     android:layout_marginTop="6dp" />
