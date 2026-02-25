@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Button
 import androidx.fragment.app.Fragment
 
 class RedeemPointsFragment : Fragment() {
@@ -19,6 +20,7 @@ class RedeemPointsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupActions(view)
         loadRewardsSummary(view)
     }
 
@@ -27,10 +29,19 @@ class RedeemPointsFragment : Fragment() {
         view?.let { loadRewardsSummary(it) }
     }
 
+    private fun setupActions(root: View) {
+        val viewAllRewardsButton = root.findViewById<Button>(R.id.btnViewAllRewards)
+        viewAllRewardsButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.dashboardContainer, RewardsWalletFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
     private fun loadRewardsSummary(root: View) {
         val pointsView = root.findViewById<TextView>(R.id.tvAvailablePoints)
         val nextRewardHintView = root.findViewById<TextView>(R.id.tvNextRewardHint)
-
         val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         val cachedPoints = prefs.getString("HOUSEHOLD_POINTS", "0") ?: "0"
         val idToken = prefs.getString("ID_TOKEN", null)
