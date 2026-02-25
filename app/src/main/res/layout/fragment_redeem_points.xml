@@ -55,7 +55,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2,350 Points"
+                    android:id="@+id/tvAvailablePoints"
+                    android:text="0 Points"
                     android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="#111827"
@@ -64,6 +65,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/tvNextRewardHint"
                     android:text="Next reward at 3,000 points"
                     android:textSize="12sp"
                     android:textColor="#6B7280"
