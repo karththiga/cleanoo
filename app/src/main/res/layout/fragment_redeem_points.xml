@@ -227,6 +227,7 @@
                     android:layout_marginTop="6dp" />
 
                 <Button
+                    android:id="@+id/btnViewAllRewards"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="View all rewards"
