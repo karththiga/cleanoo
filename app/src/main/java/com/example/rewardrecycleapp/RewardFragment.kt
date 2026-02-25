@@ -15,13 +15,11 @@ class RewardFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_reward, container, false)
     }
 
-    fun getEarnedPoints(weightInKg: Double, isRecyclable: Boolean): Int {
-        val wasteType = if (isRecyclable) {
-            RewardCalculator.WasteType.RECYCLABLE
-        } else {
-            RewardCalculator.WasteType.NON_RECYCLABLE
-        }
-
+    /**
+     * Call this from your redeem/earn flow using the exact waste type selected in UI,
+     * such as "Plastic", "Paper", "General Waste", etc.
+     */
+    fun getEarnedPoints(weightInKg: Double, wasteType: String): Int {
         return RewardCalculator.calculateRewardPoints(weightInKg, wasteType)
     }
 }

@@ -5,29 +5,51 @@ import kotlin.math.roundToInt
 /**
  * Centralized reward calculation for waste submissions.
  *
- * Rules:
- * - Recyclable waste earns more than non-recyclable waste.
- * - Weight is in kilograms.
+ * Reward model:
+ * - Points depend on submitted weight (kg) and waste type.
+ * - Recyclable waste types are intentionally rewarded with higher multipliers
+ *   than non-recyclable waste types to encourage sustainable behavior.
  */
 object RewardCalculator {
 
     private const val BASE_POINTS_PER_KG = 10
-    private const val RECYCLABLE_BONUS_MULTIPLIER = 1.5
-    private const val NON_RECYCLABLE_MULTIPLIER = 1.0
 
-    enum class WasteType {
+    enum class WasteCategory {
         RECYCLABLE,
         NON_RECYCLABLE
+    }
+
+    enum class WasteType(
+        val category: WasteCategory,
+        val multiplier: Double
+    ) {
+        // Recyclable
+        PLASTIC(WasteCategory.RECYCLABLE, 1.6),
+        PAPER(WasteCategory.RECYCLABLE, 1.4),
+        GLASS(WasteCategory.RECYCLABLE, 1.3),
+        METAL(WasteCategory.RECYCLABLE, 1.7),
+
+        // Non-recyclable
+        GENERAL_WASTE(WasteCategory.NON_RECYCLABLE, 0.9),
+        SANITARY_WASTE(WasteCategory.NON_RECYCLABLE, 0.7),
+        HAZARDOUS_WASTE(WasteCategory.NON_RECYCLABLE, 0.6);
+
+        companion object {
+            fun fromInput(type: String): WasteType {
+                val normalized = type.trim().uppercase().replace(' ', '_')
+                return entries.firstOrNull { it.name == normalized } ?: GENERAL_WASTE
+            }
+        }
     }
 
     fun calculateRewardPoints(weightInKg: Double, wasteType: WasteType): Int {
         if (weightInKg <= 0.0) return 0
 
-        val multiplier = when (wasteType) {
-            WasteType.RECYCLABLE -> RECYCLABLE_BONUS_MULTIPLIER
-            WasteType.NON_RECYCLABLE -> NON_RECYCLABLE_MULTIPLIER
-        }
+        val rawPoints = weightInKg * BASE_POINTS_PER_KG * wasteType.multiplier
+        return rawPoints.roundToInt()
+    }
 
-        return (weightInKg * BASE_POINTS_PER_KG * multiplier).roundToInt()
+    fun calculateRewardPoints(weightInKg: Double, wasteTypeInput: String): Int {
+        return calculateRewardPoints(weightInKg, WasteType.fromInput(wasteTypeInput))
     }
 }
