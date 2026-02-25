@@ -1,161 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="#F6F8FF">
+    android:orientation="vertical"
+    android:background="@color/md_green_background">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarRequestPickup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_ic_ab_back_material"
+        app:title="Request Pickup" />
 
-        <!-- Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Request Pickup"
-            android:textColor="#0F4C81"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="20dp"/>
-
-        <!-- Pickup Location -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pickup Location"
-            android:textStyle="bold"
-            android:textColor="#0F4C81"
-            android:layout_marginBottom="10dp"/>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            android:backgroundTint="#FFFFFF">
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/mapPickup"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- Location -->
-        <EditText
-            android:id="@+id/edtLocation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Confirm pickup address"
-            android:layout_marginTop="12dp"
-            android:padding="14dp"
-            android:background="@drawable/bg_input_blue"/>
-
-        <!-- Waste Category -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Waste Category"
-            android:textStyle="bold"
-            android:textColor="#0F4C81"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="20dp">
 
         <LinearLayout
-            android:id="@+id/categorySection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="5">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/catPlastic"
-                style="@style/CategoryCard"
-                android:text="Plastic"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pickup Location"
+                android:textStyle="bold"
+                android:textColor="@color/md_green_primary_variant"
+                android:layout_marginBottom="10dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/mapPickup"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </androidx.cardview.widget.CardView>
+
+            <EditText
+                android:id="@+id/edtLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Confirm pickup address"
+                android:layout_marginTop="12dp"
+                android:padding="14dp"
+                android:background="@drawable/bg_input_blue"/>
 
             <TextView
-                android:id="@+id/catPaper"
-                style="@style/CategoryCard"
-                android:text="Paper"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Waste Category"
+                android:textStyle="bold"
+                android:textColor="@color/md_green_primary_variant"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:id="@+id/categorySection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <TextView android:id="@+id/catPlastic" style="@style/CategoryCard" android:text="Plastic"/>
+                <TextView android:id="@+id/catPaper" style="@style/CategoryCard" android:text="Paper"/>
+                <TextView android:id="@+id/catGlass" style="@style/CategoryCard" android:text="Glass"/>
+                <TextView android:id="@+id/catMetal" style="@style/CategoryCard" android:text="Metal"/>
+                <TextView android:id="@+id/catEwaste" style="@style/CategoryCard" android:text="E-waste"/>
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/catGlass"
-                style="@style/CategoryCard"
-                android:text="Glass"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload Waste Images"
+                android:textStyle="bold"
+                android:textColor="@color/md_green_primary_variant"
+                android:layout_marginTop="20dp"/>
 
-            <TextView
-                android:id="@+id/catMetal"
-                style="@style/CategoryCard"
-                android:text="Metal"/>
+            <ImageView
+                android:id="@+id/imgUpload"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_card_white"
+                android:padding="10dp"
+                android:src="@drawable/baseline_motion_photos_on_24"/>
 
-            <TextView
-                android:id="@+id/catEwaste"
-                style="@style/CategoryCard"
-                android:text="E-waste"/>
+            <EditText
+                android:id="@+id/edtWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_input_blue"
+                android:hint="Estimated Weight (kg)"
+                android:inputType="number"
+                android:padding="14dp"/>
+
+            <EditText
+                android:id="@+id/edtDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_input_blue"
+                android:focusable="false"
+                android:hint="Pickup Date"
+                android:padding="14dp"/>
+
+            <EditText
+                android:id="@+id/edtTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_input_blue"
+                android:focusable="false"
+                android:hint="Pickup Time"
+                android:padding="14dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmitPickup"
+                style="@style/AppPrimaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Submit Request"/>
         </LinearLayout>
-
-        <!-- Image Picker -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upload Waste Images"
-            android:textStyle="bold"
-            android:textColor="#0F4C81"
-            android:layout_marginTop="20dp"/>
-
-        <ImageView
-            android:id="@+id/imgUpload"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:padding="10dp"
-            android:src="@drawable/baseline_motion_photos_on_24"
-            android:background="@drawable/bg_card_white"
-            android:layout_marginTop="10dp"/>
-
-        <!-- Weight -->
-        <EditText
-            android:id="@+id/edtWeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Estimated Weight (kg)"
-            android:inputType="number"
-            android:layout_marginTop="20dp"
-            android:padding="14dp"
-            android:background="@drawable/bg_input_blue"/>
-
-        <!-- Date Picker -->
-        <EditText
-            android:id="@+id/edtDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Pickup Date"
-            android:focusable="false"
-            android:padding="14dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/bg_input_blue"/>
-
-        <!-- Time Picker -->
-        <EditText
-            android:id="@+id/edtTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Pickup Time"
-            android:focusable="false"
-            android:padding="14dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_input_blue"/>
-
-        <!-- Submit -->
-        <Button
-            android:id="@+id/btnSubmitPickup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit Request"
-            android:layout_marginTop="30dp"
-            android:backgroundTint="#0F4C81"
-            android:textColor="@android:color/white"/>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
