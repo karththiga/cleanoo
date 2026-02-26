@@ -213,7 +213,7 @@ class CollectorDashboardFragment : Fragment() {
 
         MobileBackendApi.startCollectorRoute(
             pickupId,
-            "Collector is near Jaffna Town (dummy location)"
+            "Collector started route"
         ) { success, data, message ->
             activity?.runOnUiThread {
                 if (!success || data == null) {
