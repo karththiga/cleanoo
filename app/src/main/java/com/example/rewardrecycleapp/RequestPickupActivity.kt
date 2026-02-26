@@ -50,6 +50,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var imageUri: Uri? = null
     private var selectedCategory = ""
+    private lateinit var edtLocation: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +66,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         val imgUpload = findViewById<ImageView>(R.id.imgUpload)
-        val edtLocation = findViewById<EditText>(R.id.edtLocation)
+        edtLocation = findViewById(R.id.edtLocation)
         val edtDate = findViewById<EditText>(R.id.edtDate)
         val edtTime = findViewById<EditText>(R.id.edtTime)
         val btnSubmit = findViewById<Button>(R.id.btnSubmitPickup)
@@ -97,6 +98,11 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = true
+        map.setOnMyLocationButtonClickListener {
+            hasCenteredMap = false
+            fetchCurrentLocation()
+            false
+        }
         enableMyLocation()
     }
 
@@ -114,7 +120,18 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         fetchLastKnownLocation()
+        fetchCurrentLocation()
         startLocationUpdates()
+    }
+
+    private fun fetchCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { location ->
+                if (location != null) {
+                    updateMapLocation(LatLng(location.latitude, location.longitude), 16f)
+                }
+            }
     }
 
     private fun startLocationUpdates() {
@@ -143,6 +160,9 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateMapLocation(target: LatLng, zoom: Float) {
         map.clear()
         map.addMarker(MarkerOptions().position(target).title("Current Location"))
+        if (edtLocation.text.isNullOrBlank()) {
+            edtLocation.setText("${"%.6f".format(target.latitude)}, ${"%.6f".format(target.longitude)}")
+        }
         if (!hasCenteredMap) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
             hasCenteredMap = true
@@ -164,6 +184,13 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         stopLocationUpdates()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::map.isInitialized && isLocationEnabled()) {
+            enableMyLocation()
+        }
     }
 
     private fun isLocationEnabled(): Boolean {
