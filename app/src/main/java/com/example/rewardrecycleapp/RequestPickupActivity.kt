@@ -183,8 +183,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun centerMap(target: LatLng, zoom: Float) {
         if (hasCenteredMap) return
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
-        hasCenteredMap = true
+        updateSelectedLocation(target, zoom, recenterCamera = true)
     }
 
     private fun updateSelectedLocation(

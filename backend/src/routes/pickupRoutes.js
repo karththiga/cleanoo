@@ -14,6 +14,7 @@ const {
   householdConfirmCollected,
   householdSubmitReview,
   householdSubmitComplaint,
+  householdCancelPickup,
   collectorSubmitReview,
   collectorSubmitComplaint,
   collectorPickup,
@@ -83,6 +84,7 @@ router.put("/collector/location/:id", updateCollectorLiveLocation);
 router.put("/household/confirm/:id", safeHouseholdConfirmCollected);
 router.put("/household/review/:id", householdSubmitReview);
 router.put("/household/complaint/:id", householdSubmitComplaint);
+router.put("/household/cancel/:id", householdCancelPickup);
 router.put("/collector/review/:id", collectorSubmitReview);
 router.put("/collector/complaint/:id", collectorSubmitComplaint);
 
