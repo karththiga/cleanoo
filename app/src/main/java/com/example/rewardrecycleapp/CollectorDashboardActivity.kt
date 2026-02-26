@@ -64,7 +64,7 @@ class CollectorDashboardActivity : AppCompatActivity() {
     private fun currentToolbarTitle(): String {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.collectorDashboardContainer)
         return when (currentFragment) {
-            is CollectorDashboardFragment -> "Dashboard"
+            is CollectorDashboardFragment -> collectorGreetingTitle()
             is CollectorHistoryFragment -> "Job History"
             is NotificationFragment -> "Notifications"
             is ProfileFragment -> "My Profile"
@@ -72,8 +72,17 @@ class CollectorDashboardActivity : AppCompatActivity() {
             is CollectorEvidenceFragment -> "Upload Evidence"
             is CollectorReviewFragment -> "Submit Review"
             is CollectorComplaintFragment -> "Report Complaint"
-            else -> getString(R.string.app_name)
+            else -> "Collector"
         }
+    }
+
+    private fun collectorGreetingTitle(): String {
+        val name = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+            .getString("COLLECTOR_NAME", "there")
+            ?.trim()
+            .orEmpty()
+        val firstName = name.split(" ").firstOrNull().orEmpty()
+        return if (firstName.isBlank()) "Hi there 👋" else "Hi $firstName 👋"
     }
 
     private fun loadFragment(fragment: Fragment) {

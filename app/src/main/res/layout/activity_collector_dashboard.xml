@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.Material3.Light"
-        app:title="Dashboard" />
+        app:title="Hi there 👋" />
 
     <FrameLayout
         android:id="@+id/collectorDashboardContainer"
