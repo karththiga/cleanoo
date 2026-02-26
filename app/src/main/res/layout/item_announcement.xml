@@ -6,7 +6,8 @@
     android:layout_marginEnd="12dp"
     app:cardCornerRadius="14dp"
     app:cardElevation="3dp"
-    android:backgroundTint="#FFFFFF">
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,21 +28,25 @@
 
             <TextView
                 android:id="@+id/tvAnnouncementTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="Community Cleanup Drive"
-                android:textStyle="bold"
+                android:textColor="#1E1E1E"
                 android:textSize="14sp"
-                android:textColor="#1E1E1E" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvAnnouncementDescription"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:text="Drop off plastics this weekend for bonus points."
-                android:textSize="12sp"
                 android:textColor="#757575"
-                android:layout_marginTop="6dp" />
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
