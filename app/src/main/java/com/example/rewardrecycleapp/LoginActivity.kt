@@ -1,6 +1,7 @@
 package com.example.rewardrecycleapp
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -20,6 +21,8 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        disableAutofillAndSuggestions()
 
         auth = FirebaseAuth.getInstance()
 
@@ -48,6 +51,15 @@ class LoginActivity : AppCompatActivity() {
             }
 
             loginUser(email, pwd)
+        }
+    }
+
+
+    private fun disableAutofillAndSuggestions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            window.decorView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+            binding.etEmail.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            binding.etPassword.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
         }
     }
 
