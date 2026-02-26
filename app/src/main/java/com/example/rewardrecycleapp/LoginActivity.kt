@@ -23,6 +23,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         disableAutofillAndSuggestions()
+        preventInitialInputFocus()
 
         auth = FirebaseAuth.getInstance()
 
@@ -61,6 +62,12 @@ class LoginActivity : AppCompatActivity() {
             binding.etEmail.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
             binding.etPassword.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
         }
+    }
+
+
+    private fun preventInitialInputFocus() {
+        binding.root.isFocusableInTouchMode = true
+        binding.root.requestFocus()
     }
 
     private fun bindRoleTabs() {
