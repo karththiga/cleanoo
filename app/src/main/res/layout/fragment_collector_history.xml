@@ -117,7 +117,7 @@
                         android:textSize="12sp" />
 
                     <TextView
-                        android:id="@+id/tvActiveCount"
+                        android:id="@+id/tvActiveCount2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
@@ -147,7 +147,7 @@
                         android:textSize="12sp" />
 
                     <TextView
-                        android:id="@+id/tvCompletedCount"
+                        android:id="@+id/tvCompletedCount2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
