@@ -17,6 +17,9 @@ class SignupActivity : AppCompatActivity() {
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbarSignup)
+        binding.toolbarSignup.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+
         auth = FirebaseAuth.getInstance()
 
         binding.btnSignup.setOnClickListener {

@@ -1,7 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.RewardRecycleApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/md_green_secondary</item>
+        <item name="colorPrimaryContainer">@color/md_green_primary</item>
+        <item name="colorSecondary">@color/md_green_secondary</item>
+        <item name="android:colorBackground">#101510</item>
+        <item name="colorSurface">#151A15</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="buttonStyle">@style/Widget.Material3.Button</item>
+        <item name="cardViewStyle">@style/AppCardView</item>
+        <item name="materialButtonStyle">@style/AppPrimaryButton</item>
+        <item name="toolbarStyle">@style/AppToolbar</item>
     </style>
 </resources>
