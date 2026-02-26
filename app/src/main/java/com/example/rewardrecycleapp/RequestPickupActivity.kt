@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.LocationManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -50,11 +49,10 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private var hasCenteredMap = false
-    private var hasShownEmulatorLocationHint = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
-            updateMapLocation(normalizeLocation(LatLng(location.latitude, location.longitude)), 16f)
+            centerMap(LatLng(location.latitude, location.longitude), 16f)
         }
     }
 
@@ -62,26 +60,6 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private var selectedCategory = ""
     private lateinit var edtLocation: EditText
     private var locationMarker: Marker? = null
-    private val geocodeHandler = Handler(Looper.getMainLooper())
-    private var suppressAddressLookup = false
-    private val addressTextWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (!::map.isInitialized || suppressAddressLookup) return
-            geocodeHandler.removeCallbacksAndMessages(null)
-
-            val typedAddress = s?.toString()?.trim().orEmpty()
-            if (typedAddress.isBlank()) return
-
-            geocodeHandler.postDelayed(
-                { markTypedAddressOnMap(typedAddress) },
-                ADDRESS_LOOKUP_DEBOUNCE_MS
-            )
-        }
-
-        override fun afterTextChanged(s: Editable?) = Unit
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,8 +109,8 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = true
         map.uiSettings.isZoomControlsEnabled = true
-        map.setOnMapClickListener { location ->
-            updateMapLocation(location, map.cameraPosition.zoom, updateAddressField = true, recenterCamera = false)
+        map.setOnMapLongClickListener { location ->
+            updateSelectedLocation(location, map.cameraPosition.zoom, recenterCamera = false)
         }
 
         map.setOnMarkerDragListener(object : GoogleMap.OnMarkerDragListener {
@@ -141,7 +119,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onMarkerDrag(marker: Marker) = Unit
 
             override fun onMarkerDragEnd(marker: Marker) {
-                updateMapLocation(marker.position, map.cameraPosition.zoom, updateAddressField = true, recenterCamera = false)
+                updateSelectedLocation(marker.position, map.cameraPosition.zoom, recenterCamera = false)
             }
         })
         map.setOnMyLocationButtonClickListener {
@@ -175,7 +153,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
             .addOnSuccessListener { location ->
                 if (location != null) {
-                    updateMapLocation(normalizeLocation(LatLng(location.latitude, location.longitude)), 16f)
+                    centerMap(LatLng(location.latitude, location.longitude), 16f)
                 }
             }
     }
@@ -198,48 +176,21 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
             if (lastLocation != null) {
-                updateMapLocation(normalizeLocation(LatLng(lastLocation.latitude, lastLocation.longitude)), 15f)
+                centerMap(LatLng(lastLocation.latitude, lastLocation.longitude), 15f)
             }
         }
     }
 
-    private fun normalizeLocation(target: LatLng): LatLng {
-        if (isProbablyEmulator() && !isLikelyInSriLanka(target)) {
-            if (!hasShownEmulatorLocationHint) {
-                hasShownEmulatorLocationHint = true
-                Toast.makeText(
-                    this,
-                    "Emulator is using a default mock location. Set emulator location to your city in Sri Lanka.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            return DEFAULT_SRI_LANKA_LOCATION
-        }
-        return target
+    private fun centerMap(target: LatLng, zoom: Float) {
+        if (hasCenteredMap) return
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
+        hasCenteredMap = true
     }
 
-    private fun isLikelyInSriLanka(location: LatLng): Boolean {
-        val lat = location.latitude
-        val lng = location.longitude
-        return lat in 5.0..10.2 && lng in 79.5..82.1
-    }
-
-    private fun isProbablyEmulator(): Boolean {
-        val fingerprint = Build.FINGERPRINT.lowercase(Locale.ROOT)
-        val model = Build.MODEL.lowercase(Locale.ROOT)
-        val manufacturer = Build.MANUFACTURER.lowercase(Locale.ROOT)
-        return fingerprint.contains("generic") ||
-            fingerprint.contains("emulator") ||
-            model.contains("emulator") ||
-            model.contains("sdk") ||
-            manufacturer.contains("genymotion")
-    }
-
-    private fun updateMapLocation(
+    private fun updateSelectedLocation(
         target: LatLng,
         zoom: Float,
-        updateAddressField: Boolean = true,
-        recenterCamera: Boolean = !hasCenteredMap
+        recenterCamera: Boolean = true
     ) {
         if (locationMarker == null) {
             locationMarker = map.addMarker(
@@ -252,9 +203,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             locationMarker?.position = target
         }
 
-        if (updateAddressField) {
-            fillAddressFromCoordinates(target)
-        }
+        fillAddressFromCoordinates(target)
 
         if (recenterCamera) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
@@ -290,9 +239,8 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (isFinishing || isDestroyed) return@runOnUiThread
 
                 if (!addressText.isNullOrBlank()) {
-                    safelySetLocationText(addressText)
-                } else if (edtLocation.text.isNullOrBlank() && target == DEFAULT_SRI_LANKA_LOCATION) {
-                    safelySetLocationText(DEFAULT_SRI_LANKA_ADDRESS)
+                    edtLocation.setText(addressText)
+                    edtLocation.setSelection(addressText.length)
                 }
             }
         }
@@ -395,6 +343,11 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
+        if (locationMarker == null) {
+            Toast.makeText(this, "Drop a pin on the map to select pickup location", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val selectedImage = imageUri
         if (selectedImage == null) {
             Toast.makeText(this, "Upload waste image", Toast.LENGTH_SHORT).show()
@@ -453,9 +406,5 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val LOCATION_UPDATE_INTERVAL = 2000L
         private const val LOCATION_UPDATE_MIN_INTERVAL = 1000L
         private const val LOCATION_UPDATE_MAX_DELAY = 2000L
-        private const val ADDRESS_LOOKUP_DEBOUNCE_MS = 600L
-
-        private val DEFAULT_SRI_LANKA_LOCATION = LatLng(9.6652, 80.1630)
-        private const val DEFAULT_SRI_LANKA_ADDRESS = "Aruguveli Thanankilappu, Chavakachcheri, Jaffna, Northern Province, Sri Lanka"
     }
 }
