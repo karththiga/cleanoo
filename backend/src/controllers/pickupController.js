@@ -118,7 +118,7 @@ function scoreAddressZoneMatch(pickupAddress, collectorZone) {
 async function findBestAvailableCollector(household, pickupAddress = "") {
   if (!household) return null;
 
-  const sourceAddress = (pickupAddress || household.address || "").toString().trim();
+  const sourceAddress = (household.address || pickupAddress || "").toString().trim();
   if (!sourceAddress) return null;
 
   const activeCollectorFilter = { status: { $ne: "blocked" } };
