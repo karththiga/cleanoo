@@ -359,6 +359,33 @@ object MobileBackendApi {
         })
     }
 
+
+    fun householdCancelPickup(
+        pickupId: String,
+        reason: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val payload = JSONObject().apply {
+            put("reason", reason)
+        }
+
+        val request = Request.Builder()
+            .url("$PICKUP_BASE_URL/household/cancel/$pickupId")
+            .put(payload.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) onResult(true, null)
+                    else onResult(false, extractMessage(body, "Pickup cancellation failed"))
+                }
+            }
+        })
+    }
+
     fun householdSubmitComplaint(
         pickupId: String,
         category: String,
