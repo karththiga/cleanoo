@@ -84,23 +84,45 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   return earthRadiusKm * c;
 }
 
-async function findBestAvailableCollector(household) {
+
+function normalizeLocationText(value) {
+  return (value || "")
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function scoreAddressZoneMatch(pickupAddress, collectorZone) {
+  const normalizedAddress = normalizeLocationText(pickupAddress);
+  const normalizedZone = normalizeLocationText(collectorZone);
+  if (!normalizedAddress || !normalizedZone) return 0;
+
+  if (normalizedAddress.includes(normalizedZone) || normalizedZone.includes(normalizedAddress)) {
+    return 1;
+  }
+
+  const addressTokens = new Set(normalizedAddress.split(" ").filter(Boolean));
+  const zoneTokens = new Set(normalizedZone.split(" ").filter(Boolean));
+  if (!addressTokens.size || !zoneTokens.size) return 0;
+
+  let overlap = 0;
+  for (const token of zoneTokens) {
+    if (addressTokens.has(token)) overlap += 1;
+  }
+
+  return overlap / Math.max(zoneTokens.size, 1);
+}
+
+async function findBestAvailableCollector(household, pickupAddress = "") {
   if (!household) return null;
 
+  const sourceAddress = (pickupAddress || household.address || "").toString().trim();
+  if (!sourceAddress) return null;
+
   const activeCollectorFilter = { status: { $ne: "blocked" } };
-  let collectors = [];
-
-  if (household.zone) {
-    collectors = await Collector.find({
-      ...activeCollectorFilter,
-      zone: household.zone
-    });
-  }
-
-  // Fallback: if no collector exists in the same zone, use all non-blocked collectors.
-  if (!collectors.length) {
-    collectors = await Collector.find(activeCollectorFilter);
-  }
+  const collectors = await Collector.find(activeCollectorFilter);
   if (!collectors.length) return null;
 
   const candidates = [];
@@ -125,19 +147,27 @@ async function findBestAvailableCollector(household) {
       );
     }
 
-    candidates.push({ collector: col, activeTasks, distanceKm });
+    const zoneMatchScore = scoreAddressZoneMatch(sourceAddress, col.zone);
+
+    candidates.push({ collector: col, activeTasks, distanceKm, zoneMatchScore });
   }
 
-  if (!candidates.length) return null;
+  const matchingCandidates = candidates.filter((candidate) => candidate.zoneMatchScore > 0);
 
-  // Always return a collector when at least one non-blocked collector exists.
-  // Prefer free collectors first, otherwise assign the least-loaded nearest collector.
-  candidates.sort((a, b) => {
-    if (a.activeTasks !== b.activeTasks) return a.activeTasks - b.activeTasks;
-    return a.distanceKm - b.distanceKm;
-  });
+  if (matchingCandidates.length) {
+    // If any household-address text matches collector zone, prefer the nearest matching collector.
+    matchingCandidates.sort((a, b) => {
+      if (a.distanceKm !== b.distanceKm) return a.distanceKm - b.distanceKm;
+      if (a.zoneMatchScore !== b.zoneMatchScore) return b.zoneMatchScore - a.zoneMatchScore;
+      return a.activeTasks - b.activeTasks;
+    });
 
-  return candidates[0].collector;
+    return matchingCandidates[0].collector;
+  }
+
+  // No place-name match found: assign a random active collector.
+  const randomIndex = Math.floor(Math.random() * candidates.length);
+  return candidates[randomIndex].collector;
 }
 
 /* ======================================================
@@ -212,7 +242,7 @@ exports.createRequest = async (req, res) => {
 
     try {
       const household = await Household.findById(data.household);
-      const bestCollector = await findBestAvailableCollector(household);
+      const bestCollector = await findBestAvailableCollector(household, data.address);
       if (bestCollector) {
         assignedCollector = bestCollector._id;
         status = "assigned";
@@ -272,7 +302,7 @@ exports.approvePickup = async (req, res) => {
     pickup.verifiedByAdmin = true;
     pickup.rejectionReason = "";
 
-    const collector = await findBestAvailableCollector(pickup.household);
+    const collector = await findBestAvailableCollector(pickup.household, pickup.address);
 
     if (collector) {
       pickup.assignedCollector = collector._id;
@@ -336,7 +366,7 @@ exports.collectorStartRoute = async (req, res) => {
     const pickup = await Pickup.findById(req.params.id);
     if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
 
-    const liveLocation = req.body?.liveLocation || "Collector is near Jaffna Town (dummy location)";
+    const liveLocation = (req.body?.liveLocation || "").toString().trim();
     const latitude = typeof req.body?.latitude === "number" ? req.body.latitude : 9.6615;
     const longitude = typeof req.body?.longitude === "number" ? req.body.longitude : 80.0255;
 
