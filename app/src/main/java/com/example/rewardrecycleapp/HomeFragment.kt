@@ -149,17 +149,17 @@ class HomeFragment : Fragment() {
             Announcement(
                 title = "Pickup Schedule Update",
                 description = "Saturday pickups move to 10 AM this week.",
-                imageUrl = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600"
+                imageUrl = "https://asianmirror.lk/wp-content/uploads/2025/02/10.jpg"
             ),
             Announcement(
                 title = "Bonus Points Week",
                 description = "Earn 2x points on glass and metal recycling.",
-                imageUrl = "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=600"
+                imageUrl = "https://www.redcross.lk/wp-content/uploads/2016/06/IMG_0564.jpg"
             ),
             Announcement(
                 title = "Neighborhood Cleanup",
                 description = "Join the cleanup drive and get rewarded.",
-                imageUrl = "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600"
+                imageUrl = "https://www.navy.lk/assets/img/cleanSL/36.webp"
             )
         )
         binding.recyclerAnnouncements.layoutManager =
