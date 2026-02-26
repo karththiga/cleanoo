@@ -72,17 +72,17 @@ class CollectorDashboardFragment : Fragment() {
 
     private fun loadDashboardImages(view: View) {
         Glide.with(this)
-            .load("https://137pillarshotels.com/cms/resources/sustainability/recycle-waste-01-01.jpg")
+            .load("https://www.elanka.com.au/wp-content/uploads/2025/01/Clean-minds-essential-for-a-Clean-Sri-Lanka.-The-system-change-must-begin-with-mind-set-change.-By-Aubrey-Joachim.png")
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorHero))
 
         Glide.with(this)
-            .load("https://files01.pna.gov.ph/source/2023/05/03/garbage-collection-05022023rn.jpg")
+            .load("https://www.navy.lk/assets/img/cleanSL/36.webp")
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryOne))
 
         Glide.with(this)
-            .load("https://www.rts.com/wp-content/uploads/2019/11/23405746_1953349674932539_6655836021756150616_o-1-1024x683.jpg")
+            .load("https://cleanupsrilanka.lk/wp-content/uploads/2024/07/cleanup-sri-lanka-1-1.webp")
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryTwo))
     }

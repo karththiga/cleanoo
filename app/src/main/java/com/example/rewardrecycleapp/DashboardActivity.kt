@@ -19,7 +19,9 @@ class DashboardActivity : AppCompatActivity() {
 
         setupToolbarBackButton()
 
-        loadFragment(HomeFragment())
+        if (savedInstanceState == null) {
+            loadFragment(HomeFragment())
+        }
         fetchUserProfile()
 
         binding.bottomNav.setOnItemSelectedListener { item ->
@@ -31,13 +33,15 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.nav_notification -> loadFragment(NotificationFragment())
                 R.id.nav_profile -> loadFragment(ProfileFragment())
             }
-            updateBackButtonVisibility()
+            updateToolbarUi()
             true
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
-            updateBackButtonVisibility()
+            updateToolbarUi()
         }
+
+        updateToolbarUi()
     }
 
     private fun setupToolbarBackButton() {
@@ -45,10 +49,10 @@ class DashboardActivity : AppCompatActivity() {
         binding.toolbarDashboard.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
-        updateBackButtonVisibility()
+        updateToolbarUi()
     }
 
-    private fun updateBackButtonVisibility() {
+    private fun updateToolbarUi() {
         val hasBackStack = supportFragmentManager.backStackEntryCount > 0
         supportActionBar?.setDisplayHomeAsUpEnabled(hasBackStack)
         supportActionBar?.setHomeButtonEnabled(hasBackStack)
@@ -57,6 +61,33 @@ class DashboardActivity : AppCompatActivity() {
         } else {
             null
         }
+
+        binding.toolbarDashboard.title = currentToolbarTitle()
+    }
+
+    private fun currentToolbarTitle(): String {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.dashboardContainer)
+        return when (currentFragment) {
+            is HomeFragment -> householdGreetingTitle()
+            is PickupFragment -> "Pickups"
+            is RedeemPointsFragment -> "Redeem Points"
+            is RewardsWalletFragment -> "Rewards Wallet"
+            is NotificationFragment -> "Notifications"
+            is ProfileFragment -> "My Profile"
+            is HouseholdJobDetailFragment -> "Job Details"
+            is HouseholdReviewFragment -> "Submit Review"
+            is HouseholdComplaintFragment -> "Report Issue"
+            else -> "Dashboard"
+        }
+    }
+
+    private fun householdGreetingTitle(): String {
+        val name = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+            .getString("HOUSEHOLD_NAME", "there")
+            ?.trim()
+            .orEmpty()
+        val firstName = name.split(" ").firstOrNull().orEmpty()
+        return if (firstName.isBlank()) "Hi there 👋" else "Hi $firstName 👋"
     }
 
     private fun fetchUserProfile() {
@@ -80,6 +111,7 @@ class DashboardActivity : AppCompatActivity() {
                         .putString("HOUSEHOLD_ZONE", profile.optString("zone"))
                         .putString("HOUSEHOLD_POINTS", profile.optInt("points", 0).toString())
                         .apply()
+                    updateToolbarUi()
                 } else {
                     Toast.makeText(this, message ?: "Failed to load profile", Toast.LENGTH_LONG).show()
                 }
@@ -91,5 +123,8 @@ class DashboardActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.dashboardContainer, fragment)
             .commit()
+
+        supportFragmentManager.executePendingTransactions()
+        updateToolbarUi()
     }
 }
