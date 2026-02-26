@@ -1,8 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.RewardRecycleApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/md_green_primary</item>
+        <item name="colorPrimaryContainer">@color/md_green_secondary</item>
+        <item name="colorSecondary">@color/md_green_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_green_background</item>
+        <item name="colorSurface">@color/md_green_surface</item>
+        <item name="android:colorBackground">@color/md_green_background</item>
+        <item name="colorOnPrimary">@color/md_green_on_primary</item>
+        <item name="colorOnSurface">@color/md_green_on_surface</item>
+        <item name="buttonStyle">@style/Widget.Material3.Button</item>
+        <item name="cardViewStyle">@style/AppCardView</item>
+        <item name="materialButtonStyle">@style/AppPrimaryButton</item>
+        <item name="toolbarStyle">@style/AppToolbar</item>
     </style>
 
     <style name="Theme.RewardRecycleApp" parent="Base.Theme.RewardRecycleApp" />

@@ -1,227 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="#ECF2FF"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="@color/md_green_background">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarSignup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_ic_ab_back_material"
+        app:title="Create account" />
 
-        <androidx.cardview.widget.CardView
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="20dp"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="4dp"
-            app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="#FDFEFF">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="#FDFEFF">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:background="@drawable/bg_signup_header_gradient"
-                    android:layout_marginBottom="16dp" />
-
-                <TextView
-                    android:id="@+id/tvTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Create Account"
-                    android:textColor="#1E3A8A"
-                    android:textStyle="bold"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Join the community and start earning points."
-                    android:textColor="#6B7280"
-                    android:textSize="14sp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Full Name"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280" />
-
-                <EditText
-                    android:id="@+id/etName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter your name"
-                    android:padding="12dp"
-                    android:background="@drawable/bg_input_blue"
-                    android:layout_marginTop="6dp" />
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Email Address"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="14dp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/bg_signup_header_gradient" />
 
-                <EditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="you@example.com"
-                    android:padding="12dp"
-                    android:layout_marginTop="6dp"
-                    android:inputType="textEmailAddress"
-                    android:background="@drawable/bg_input_blue" />
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Create Account"
+                        android:textColor="@color/md_green_primary_variant"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="Join the community and start earning points."
+                        android:textColor="#6B7280"
+                        android:textSize="14sp" />
 
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full Name" android:textSize="12sp" android:textColor="#6B7280"/>
+                    <EditText android:id="@+id/etName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter your name" android:padding="12dp" android:background="@drawable/bg_input_blue" android:layout_marginTop="6dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Phone Number"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="14dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginTop="14dp"/>
+                    <EditText android:id="@+id/etEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="you@example.com" android:padding="12dp" android:layout_marginTop="6dp" android:inputType="textEmailAddress" android:background="@drawable/bg_input_blue" />
 
-                <EditText
-                    android:id="@+id/etPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="07XXXXXXXX"
-                    android:padding="12dp"
-                    android:layout_marginTop="6dp"
-                    android:inputType="phone"
-                    android:background="@drawable/bg_input_blue" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phone Number" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginTop="14dp"/>
+                    <EditText android:id="@+id/etPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="07XXXXXXXX" android:padding="12dp" android:layout_marginTop="6dp" android:inputType="phone" android:background="@drawable/bg_input_blue" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Address"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="14dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Address" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginTop="14dp"/>
+                    <EditText android:id="@+id/etAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter your address" android:padding="12dp" android:layout_marginTop="6dp" android:inputType="textPostalAddress" android:background="@drawable/bg_input_blue" />
 
-                <EditText
-                    android:id="@+id/etAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Enter your address"
-                    android:padding="12dp"
-                    android:layout_marginTop="6dp"
-                    android:inputType="textPostalAddress"
-                    android:background="@drawable/bg_input_blue" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Password" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginTop="14dp"/>
+                    <EditText android:id="@+id/etPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Create a password" android:padding="12dp" android:layout_marginTop="6dp" android:inputType="textPassword" android:background="@drawable/bg_input_blue" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Password"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="14dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Confirm Password" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginTop="14dp"/>
+                    <EditText android:id="@+id/etConfirmPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Re-enter password" android:padding="12dp" android:layout_marginTop="6dp" android:inputType="textPassword" android:background="@drawable/bg_input_blue" />
 
-                <EditText
-                    android:id="@+id/etPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Create a password"
-                    android:padding="12dp"
-                    android:layout_marginTop="6dp"
-                    android:inputType="textPassword"
-                    android:background="@drawable/bg_input_blue" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="By creating an account you agree to our terms and privacy policy."
+                        android:textColor="#9CA3AF"
+                        android:textSize="12sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Confirm Password"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="14dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSignup"
+                        style="@style/AppPrimaryButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="Create Account" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-                <EditText
-                    android:id="@+id/etConfirmPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Re-enter password"
-                    android:padding="12dp"
-                    android:layout_marginTop="6dp"
-                    android:inputType="textPassword"
-                    android:background="@drawable/bg_input_blue" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="By creating an account you agree to our terms and privacy policy."
-                    android:textSize="12sp"
-                    android:textColor="#9CA3AF"
-                    android:layout_marginTop="12dp" />
-
-                <Button
-                    android:id="@+id/btnSignup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Create Account"
-                    android:layout_marginTop="20dp"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:backgroundTint="#2563EB" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardUseCompatPadding="true"
-            app:cardBackgroundColor="#EAF2FF">
-
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#EAF6EA">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Why create an account?"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#1E40AF" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• Track pickups and rewards\n• Redeem points instantly\n• Get real-time updates"
-                    android:textSize="12sp"
-                    android:textColor="#3B82F6"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Why create an account?"
+                        android:textColor="@color/md_green_primary_variant"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Already have an account? Login"
-            android:textColor="#1E40AF"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="• Track pickups and rewards\n• Redeem points instantly\n• Get real-time updates"
+                        android:textColor="@color/md_green_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tvLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Already have an account? Login"
+                android:textColor="@color/md_green_primary_variant"
+                android:textStyle="bold" />
 
-</ScrollView>
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

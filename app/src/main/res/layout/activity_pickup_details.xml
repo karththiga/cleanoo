@@ -1,158 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="#F5F8FC">
+    android:orientation="vertical"
+    android:background="@color/md_green_background">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarPickupDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_ic_ab_back_material"
+        app:title="Pickup details" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pickup request details"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#111827" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tvPickupDetailsError"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="#B91C1C"
-            android:textSize="13sp" />
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Waste type"
-            android:textColor="#6B7280" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white">
 
-        <TextView
-            android:id="@+id/tvDetailsWasteType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Address"
-            android:textColor="#6B7280" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pickup request details"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_green_primary_variant" />
 
-        <TextView
-            android:id="@+id/tvDetailsAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/tvPickupDetailsError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="#B91C1C"
+                        android:textSize="13sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Status"
-            android:textColor="#6B7280" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Waste type" android:textColor="#6B7280"/>
+                    <TextView android:id="@+id/tvDetailsWasteType" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="18sp" android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvDetailsStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Address" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsAddress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Assigned collector"
-            android:textColor="#6B7280" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Status" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="16sp" android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvDetailsCollector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="16sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Assigned collector" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsCollector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Collector phone"
-            android:textColor="#6B7280" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Collector phone" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsCollectorPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/tvDetailsCollectorPhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="16sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Your review" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsReview" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No review yet" android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Your review"
-            android:textColor="#6B7280" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Your complaint" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsComplaint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No complaint yet" android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/tvDetailsReview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No review yet"
-            android:textSize="16sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Collector review" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsCollectorReview" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No collector review yet" android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Your complaint"
-            android:textColor="#6B7280" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Collector complaint" android:textColor="#6B7280" />
+                    <TextView android:id="@+id/tvDetailsCollectorComplaint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No collector complaint yet" android:textSize="16sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:id="@+id/tvDetailsComplaint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No complaint yet"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Collector review"
-            android:textColor="#6B7280" />
-
-        <TextView
-            android:id="@+id/tvDetailsCollectorReview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No collector review yet"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Collector complaint"
-            android:textColor="#6B7280" />
-
-        <TextView
-            android:id="@+id/tvDetailsCollectorComplaint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No collector complaint yet"
-            android:textSize="16sp" />
-
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
