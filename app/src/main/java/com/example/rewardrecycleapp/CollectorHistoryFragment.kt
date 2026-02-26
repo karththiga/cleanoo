@@ -166,11 +166,8 @@ class CollectorHistoryFragment : Fragment() {
 
     private fun buttonColor(status: String): Int {
         val color = when (status) {
-            "completed" -> "#0F172A"
-            "collector_completed" -> "#1E293B"
-            "picked" -> "#14532D"
-            "assigned", "approved" -> "#1D4ED8"
-            else -> "#334155"
+            "completed", "collector_completed", "picked", "assigned", "approved" -> "#1F8C3A"
+            else -> "#1F8C3A"
         }
         return Color.parseColor(color)
     }

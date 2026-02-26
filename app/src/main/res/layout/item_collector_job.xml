@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="14dp"
-            android:backgroundTint="#0F172A"
+            android:backgroundTint="#1F8C3A"
             android:text="View details"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
