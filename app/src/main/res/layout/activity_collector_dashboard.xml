@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarCollectorDashboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.Material3.Light"
+        app:title="RewardRecycle" />
 
     <FrameLayout
         android:id="@+id/collectorDashboardContainer"
@@ -18,10 +26,10 @@
         android:layout_height="65dp"
         android:background="#FFFFFF"
         app:itemHorizontalTranslationEnabled="false"
-        app:labelVisibilityMode="labeled"
         app:itemIconTint="@color/nav_selector"
-        app:itemTextColor="@color/nav_selector"
         app:itemTextAppearanceActive="@style/BottomNavTextAppearance"
         app:itemTextAppearanceInactive="@style/BottomNavTextAppearance"
+        app:itemTextColor="@color/nav_selector"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/collector_bottom_nav_menu" />
 </LinearLayout>
