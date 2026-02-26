@@ -84,23 +84,42 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   return earthRadiusKm * c;
 }
 
-async function findBestAvailableCollector(household) {
+
+function normalizeLocationText(value) {
+  return (value || "")
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function scoreAddressZoneMatch(pickupAddress, collectorZone) {
+  const normalizedAddress = normalizeLocationText(pickupAddress);
+  const normalizedZone = normalizeLocationText(collectorZone);
+  if (!normalizedAddress || !normalizedZone) return 0;
+
+  if (normalizedAddress.includes(normalizedZone) || normalizedZone.includes(normalizedAddress)) {
+    return 1;
+  }
+
+  const addressTokens = new Set(normalizedAddress.split(" ").filter(Boolean));
+  const zoneTokens = new Set(normalizedZone.split(" ").filter(Boolean));
+  if (!addressTokens.size || !zoneTokens.size) return 0;
+
+  let overlap = 0;
+  for (const token of zoneTokens) {
+    if (addressTokens.has(token)) overlap += 1;
+  }
+
+  return overlap / Math.max(zoneTokens.size, 1);
+}
+
+async function findBestAvailableCollector(household, pickupAddress = "") {
   if (!household) return null;
 
   const activeCollectorFilter = { status: { $ne: "blocked" } };
-  let collectors = [];
-
-  if (household.zone) {
-    collectors = await Collector.find({
-      ...activeCollectorFilter,
-      zone: household.zone
-    });
-  }
-
-  // Fallback: if no collector exists in the same zone, use all non-blocked collectors.
-  if (!collectors.length) {
-    collectors = await Collector.find(activeCollectorFilter);
-  }
+  const collectors = await Collector.find(activeCollectorFilter);
   if (!collectors.length) return null;
 
   const candidates = [];
@@ -125,14 +144,16 @@ async function findBestAvailableCollector(household) {
       );
     }
 
-    candidates.push({ collector: col, activeTasks, distanceKm });
+    const zoneMatchScore = scoreAddressZoneMatch(pickupAddress, col.zone);
+
+    candidates.push({ collector: col, activeTasks, distanceKm, zoneMatchScore });
   }
 
   if (!candidates.length) return null;
 
-  // Always return a collector when at least one non-blocked collector exists.
-  // Prefer free collectors first, otherwise assign the least-loaded nearest collector.
+  // Assign collector whose zone is nearest match to pickup address, then by load and distance.
   candidates.sort((a, b) => {
+    if (a.zoneMatchScore !== b.zoneMatchScore) return b.zoneMatchScore - a.zoneMatchScore;
     if (a.activeTasks !== b.activeTasks) return a.activeTasks - b.activeTasks;
     return a.distanceKm - b.distanceKm;
   });
@@ -212,7 +233,7 @@ exports.createRequest = async (req, res) => {
 
     try {
       const household = await Household.findById(data.household);
-      const bestCollector = await findBestAvailableCollector(household);
+      const bestCollector = await findBestAvailableCollector(household, data.address);
       if (bestCollector) {
         assignedCollector = bestCollector._id;
         status = "assigned";
@@ -272,7 +293,7 @@ exports.approvePickup = async (req, res) => {
     pickup.verifiedByAdmin = true;
     pickup.rejectionReason = "";
 
-    const collector = await findBestAvailableCollector(pickup.household);
+    const collector = await findBestAvailableCollector(pickup.household, pickup.address);
 
     if (collector) {
       pickup.assignedCollector = collector._id;
