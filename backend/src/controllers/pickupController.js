@@ -168,8 +168,9 @@ async function findBestAvailableCollector(household, pickupAddress = "") {
     return matchingCandidates[0].collector;
   }
 
-  // No place-name match found: keep request waiting for collector assignment.
-  return null;
+  // No place-name match found: assign a random available collector.
+  const randomIndex = Math.floor(Math.random() * candidates.length);
+  return candidates[randomIndex]?.collector || null;
 }
 
 /* ======================================================
