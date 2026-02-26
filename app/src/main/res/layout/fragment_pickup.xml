@@ -12,14 +12,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pickups"
-            android:textColor="#1F2A37"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
