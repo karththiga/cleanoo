@@ -17,10 +17,13 @@ class DashboardActivity : AppCompatActivity() {
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupToolbarBackButton()
+
         loadFragment(HomeFragment())
         fetchUserProfile()
 
         binding.bottomNav.setOnItemSelectedListener { item ->
+            supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
             when (item.itemId) {
                 R.id.nav_home -> loadFragment(HomeFragment())
                 R.id.nav_redeem -> loadFragment(RedeemPointsFragment())
@@ -28,7 +31,31 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.nav_notification -> loadFragment(NotificationFragment())
                 R.id.nav_profile -> loadFragment(ProfileFragment())
             }
+            updateBackButtonVisibility()
             true
+        }
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            updateBackButtonVisibility()
+        }
+    }
+
+    private fun setupToolbarBackButton() {
+        setSupportActionBar(binding.toolbarDashboard)
+        binding.toolbarDashboard.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        updateBackButtonVisibility()
+    }
+
+    private fun updateBackButtonVisibility() {
+        val hasBackStack = supportFragmentManager.backStackEntryCount > 0
+        supportActionBar?.setDisplayHomeAsUpEnabled(hasBackStack)
+        supportActionBar?.setHomeButtonEnabled(hasBackStack)
+        binding.toolbarDashboard.navigationIcon = if (hasBackStack) {
+            androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.abc_ic_ab_back_material)
+        } else {
+            null
         }
     }
 
