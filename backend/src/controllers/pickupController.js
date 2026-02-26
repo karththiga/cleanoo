@@ -357,6 +357,8 @@ exports.householdCancelPickup = async (req, res) => {
       return res.status(400).json({ success: false, message: "Only pending or assigned pickups can be cancelled" });
     }
 
+    const previouslyAssignedCollector = pickup.assignedCollector;
+
     pickup.status = "cancelled";
     pickup.cancelReason = reason;
     pickup.cancelledDate = new Date();
@@ -370,6 +372,26 @@ exports.householdCancelPickup = async (req, res) => {
       target: "admin",
       type: "admin_alert"
     });
+
+    await Notification.create({
+      title: "Pickup cancelled",
+      message: `Your pickup request has been cancelled. Reason: ${reason}`,
+      target: "single_household",
+      userId: pickup.household,
+      userType: "Household",
+      type: "alert"
+    });
+
+    if (previouslyAssignedCollector) {
+      await Notification.create({
+        title: "Pickup cancelled",
+        message: `A household cancelled an assigned pickup. Reason: ${reason}`,
+        target: "single_collector",
+        userId: previouslyAssignedCollector,
+        userType: "Collector",
+        type: "alert"
+      });
+    }
 
     res.json({ success: true, data: pickup, message: "Pickup cancelled" });
   } catch (err) {
