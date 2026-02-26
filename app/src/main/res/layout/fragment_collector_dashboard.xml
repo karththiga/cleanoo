@@ -49,12 +49,13 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#80000000" />
+                    android:background="#B3000000" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
+                    android:background="#66000000"
                     android:orientation="vertical"
                     android:padding="16dp">
 
