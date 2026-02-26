@@ -12,7 +12,11 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -30,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
@@ -46,7 +51,6 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private var hasCenteredMap = false
     private var hasShownEmulatorLocationHint = false
-    private var hasAutoFilledLocation = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
@@ -57,6 +61,27 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private var imageUri: Uri? = null
     private var selectedCategory = ""
     private lateinit var edtLocation: EditText
+    private var locationMarker: Marker? = null
+    private val geocodeHandler = Handler(Looper.getMainLooper())
+    private var suppressAddressLookup = false
+    private val addressTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (!::map.isInitialized || suppressAddressLookup) return
+            geocodeHandler.removeCallbacksAndMessages(null)
+
+            val typedAddress = s?.toString()?.trim().orEmpty()
+            if (typedAddress.isBlank()) return
+
+            geocodeHandler.postDelayed(
+                { markTypedAddressOnMap(typedAddress) },
+                ADDRESS_LOOKUP_DEBOUNCE_MS
+            )
+        }
+
+        override fun afterTextChanged(s: Editable?) = Unit
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,6 +120,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         imgUpload.setOnClickListener { pickImage() }
         edtDate.setOnClickListener { pickDate(edtDate) }
         edtTime.setOnClickListener { pickTime(edtTime) }
+        edtLocation.addTextChangedListener(addressTextWatcher)
 
         btnSubmit.setOnClickListener {
             submitPickupRequest(selectedCategory, edtLocation.text.toString())
@@ -104,6 +130,20 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = true
+        map.uiSettings.isZoomControlsEnabled = true
+        map.setOnMapClickListener { location ->
+            updateMapLocation(location, map.cameraPosition.zoom, updateAddressField = true, recenterCamera = false)
+        }
+
+        map.setOnMarkerDragListener(object : GoogleMap.OnMarkerDragListener {
+            override fun onMarkerDragStart(marker: Marker) = Unit
+
+            override fun onMarkerDrag(marker: Marker) = Unit
+
+            override fun onMarkerDragEnd(marker: Marker) {
+                updateMapLocation(marker.position, map.cameraPosition.zoom, updateAddressField = true, recenterCamera = false)
+            }
+        })
         map.setOnMyLocationButtonClickListener {
             hasCenteredMap = false
             fetchCurrentLocation()
@@ -195,18 +235,34 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             manufacturer.contains("genymotion")
     }
 
-    private fun updateMapLocation(target: LatLng, zoom: Float) {
-        map.clear()
-        map.addMarker(MarkerOptions().position(target).title("Current Location"))
-        fillAddressFromCoordinates(target)
-        if (!hasCenteredMap) {
+    private fun updateMapLocation(
+        target: LatLng,
+        zoom: Float,
+        updateAddressField: Boolean = true,
+        recenterCamera: Boolean = !hasCenteredMap
+    ) {
+        if (locationMarker == null) {
+            locationMarker = map.addMarker(
+                MarkerOptions()
+                    .position(target)
+                    .title("Pickup Location")
+                    .draggable(true)
+            )
+        } else {
+            locationMarker?.position = target
+        }
+
+        if (updateAddressField) {
+            fillAddressFromCoordinates(target)
+        }
+
+        if (recenterCamera) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
             hasCenteredMap = true
         }
     }
 
     private fun fillAddressFromCoordinates(target: LatLng) {
-        if (!edtLocation.text.isNullOrBlank() && hasAutoFilledLocation) return
         thread {
             val addressText = try {
                 val geocoder = Geocoder(this, Locale.getDefault())
@@ -231,17 +287,42 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             runOnUiThread {
-                if (!isFinishing && !isDestroyed && edtLocation.text.isNullOrBlank()) {
-                    if (!addressText.isNullOrBlank()) {
-                        edtLocation.setText(addressText)
-                        hasAutoFilledLocation = true
-                    } else if (target == DEFAULT_SRI_LANKA_LOCATION) {
-                        edtLocation.setText(DEFAULT_SRI_LANKA_ADDRESS)
-                        hasAutoFilledLocation = true
-                    }
+                if (isFinishing || isDestroyed) return@runOnUiThread
+
+                if (!addressText.isNullOrBlank()) {
+                    safelySetLocationText(addressText)
+                } else if (edtLocation.text.isNullOrBlank() && target == DEFAULT_SRI_LANKA_LOCATION) {
+                    safelySetLocationText(DEFAULT_SRI_LANKA_ADDRESS)
                 }
             }
         }
+    }
+
+    private fun markTypedAddressOnMap(address: String) {
+        thread {
+            val target = try {
+                val geocoder = Geocoder(this, Locale.getDefault())
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocationName(address, 1)?.firstOrNull()?.let {
+                    LatLng(it.latitude, it.longitude)
+                }
+            } catch (_: Exception) {
+                null
+            }
+
+            runOnUiThread {
+                if (target != null && !isFinishing && !isDestroyed) {
+                    updateMapLocation(target, 16f, updateAddressField = false, recenterCamera = true)
+                }
+            }
+        }
+    }
+
+    private fun safelySetLocationText(address: String) {
+        suppressAddressLookup = true
+        edtLocation.setText(address)
+        edtLocation.setSelection(address.length)
+        suppressAddressLookup = false
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -258,6 +339,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
+        geocodeHandler.removeCallbacksAndMessages(null)
         stopLocationUpdates()
     }
 
@@ -371,6 +453,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val LOCATION_UPDATE_INTERVAL = 2000L
         private const val LOCATION_UPDATE_MIN_INTERVAL = 1000L
         private const val LOCATION_UPDATE_MAX_DELAY = 2000L
+        private const val ADDRESS_LOOKUP_DEBOUNCE_MS = 600L
 
         private val DEFAULT_SRI_LANKA_LOCATION = LatLng(9.6652, 80.1630)
         private const val DEFAULT_SRI_LANKA_ADDRESS = "Aruguveli Thanankilappu, Chavakachcheri, Jaffna, Northern Province, Sri Lanka"
