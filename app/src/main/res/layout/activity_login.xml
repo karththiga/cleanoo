@@ -79,6 +79,7 @@
                     android:inputType="textEmailAddress|textNoSuggestions"
                     android:importantForAutofill="no"
                     android:imeOptions="flagNoPersonalizedLearning"
+                    android:autofillHints=""
                     android:textColor="#202124"
                     android:textColorHint="#9AA0A6"
                     android:background="@drawable/bg_input_blue"/>
@@ -94,6 +95,7 @@
                     android:inputType="textPassword"
                     android:importantForAutofill="no"
                     android:imeOptions="flagNoPersonalizedLearning"
+                    android:autofillHints=""
                     android:textColor="#202124"
                     android:textColorHint="#9AA0A6"
                     android:background="@drawable/bg_input_blue"/>
