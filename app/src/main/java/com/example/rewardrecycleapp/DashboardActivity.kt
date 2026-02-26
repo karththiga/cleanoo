@@ -53,7 +53,7 @@ class DashboardActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(hasBackStack)
         supportActionBar?.setHomeButtonEnabled(hasBackStack)
         binding.toolbarDashboard.navigationIcon = if (hasBackStack) {
-            androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.abc_ic_ab_back_material)
+            androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24)
         } else {
             null
         }
