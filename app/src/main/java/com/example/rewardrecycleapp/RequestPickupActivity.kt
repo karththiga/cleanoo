@@ -7,8 +7,10 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
@@ -16,7 +18,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import com.google.android.material.appbar.MaterialToolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationCallback
@@ -30,10 +31,13 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Calendar
+import java.util.Locale
+import kotlin.concurrent.thread
 
 class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -41,10 +45,12 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private var hasCenteredMap = false
+    private var hasShownEmulatorLocationHint = false
+    private var hasAutoFilledLocation = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
-            updateMapLocation(LatLng(location.latitude, location.longitude), 16f)
+            updateMapLocation(normalizeLocation(LatLng(location.latitude, location.longitude)), 16f)
         }
     }
 
@@ -129,7 +135,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
             .addOnSuccessListener { location ->
                 if (location != null) {
-                    updateMapLocation(LatLng(location.latitude, location.longitude), 16f)
+                    updateMapLocation(normalizeLocation(LatLng(location.latitude, location.longitude)), 16f)
                 }
             }
     }
@@ -152,20 +158,89 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
             if (lastLocation != null) {
-                updateMapLocation(LatLng(lastLocation.latitude, lastLocation.longitude), 15f)
+                updateMapLocation(normalizeLocation(LatLng(lastLocation.latitude, lastLocation.longitude)), 15f)
             }
         }
+    }
+
+    private fun normalizeLocation(target: LatLng): LatLng {
+        if (isProbablyEmulator() && !isLikelyInSriLanka(target)) {
+            if (!hasShownEmulatorLocationHint) {
+                hasShownEmulatorLocationHint = true
+                Toast.makeText(
+                    this,
+                    "Emulator is using a default mock location. Set emulator location to your city in Sri Lanka.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            return DEFAULT_SRI_LANKA_LOCATION
+        }
+        return target
+    }
+
+    private fun isLikelyInSriLanka(location: LatLng): Boolean {
+        val lat = location.latitude
+        val lng = location.longitude
+        return lat in 5.0..10.2 && lng in 79.5..82.1
+    }
+
+    private fun isProbablyEmulator(): Boolean {
+        val fingerprint = Build.FINGERPRINT.lowercase(Locale.ROOT)
+        val model = Build.MODEL.lowercase(Locale.ROOT)
+        val manufacturer = Build.MANUFACTURER.lowercase(Locale.ROOT)
+        return fingerprint.contains("generic") ||
+            fingerprint.contains("emulator") ||
+            model.contains("emulator") ||
+            model.contains("sdk") ||
+            manufacturer.contains("genymotion")
     }
 
     private fun updateMapLocation(target: LatLng, zoom: Float) {
         map.clear()
         map.addMarker(MarkerOptions().position(target).title("Current Location"))
-        if (edtLocation.text.isNullOrBlank()) {
-            edtLocation.setText("${"%.6f".format(target.latitude)}, ${"%.6f".format(target.longitude)}")
-        }
+        fillAddressFromCoordinates(target)
         if (!hasCenteredMap) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, zoom))
             hasCenteredMap = true
+        }
+    }
+
+    private fun fillAddressFromCoordinates(target: LatLng) {
+        if (!edtLocation.text.isNullOrBlank() && hasAutoFilledLocation) return
+        thread {
+            val addressText = try {
+                val geocoder = Geocoder(this, Locale.getDefault())
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocation(target.latitude, target.longitude, 1)
+                addresses?.firstOrNull()?.let { address ->
+                    listOfNotNull(
+                        address.featureName,
+                        address.subLocality,
+                        address.locality,
+                        address.subAdminArea,
+                        address.adminArea,
+                        address.countryName
+                    )
+                        .filter { it.isNotBlank() }
+                        .distinct()
+                        .joinToString(", ")
+                        .ifBlank { null }
+                }
+            } catch (_: Exception) {
+                null
+            }
+
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed && edtLocation.text.isNullOrBlank()) {
+                    if (!addressText.isNullOrBlank()) {
+                        edtLocation.setText(addressText)
+                        hasAutoFilledLocation = true
+                    } else if (target == DEFAULT_SRI_LANKA_LOCATION) {
+                        edtLocation.setText(DEFAULT_SRI_LANKA_ADDRESS)
+                        hasAutoFilledLocation = true
+                    }
+                }
+            }
         }
     }
 
@@ -296,5 +371,8 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val LOCATION_UPDATE_INTERVAL = 2000L
         private const val LOCATION_UPDATE_MIN_INTERVAL = 1000L
         private const val LOCATION_UPDATE_MAX_DELAY = 2000L
+
+        private val DEFAULT_SRI_LANKA_LOCATION = LatLng(9.6652, 80.1630)
+        private const val DEFAULT_SRI_LANKA_ADDRESS = "Aruguveli Thanankilappu, Chavakachcheri, Jaffna, Northern Province, Sri Lanka"
     }
 }
