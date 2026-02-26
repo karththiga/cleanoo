@@ -33,32 +33,11 @@
             android:textColor="#5F6368"
             android:layout_marginBottom="25dp"/>
 
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabRole"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="10dp"
-            app:tabMode="fixed"
-            app:tabGravity="fill">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Household" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Collector" />
-        </com.google.android.material.tabs.TabLayout>
-
         <!-- CardView Container -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="18dp"
             app:cardElevation="8dp"
@@ -69,6 +48,26 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="22dp">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabRole"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    app:tabBackground="@android:color/transparent"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Household" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Collector" />
+                </com.google.android.material.tabs.TabLayout>
 
                 <!-- Email Field -->
                 <EditText
