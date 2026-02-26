@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -65,6 +67,24 @@ class CollectorDashboardFragment : Fragment() {
         }
 
         loadIncomingJobs(view)
+        loadDashboardImages(view)
+    }
+
+    private fun loadDashboardImages(view: View) {
+        Glide.with(this)
+            .load("https://137pillarshotels.com/cms/resources/sustainability/recycle-waste-01-01.jpg")
+            .centerCrop()
+            .into(view.findViewById<ImageView>(R.id.ivCollectorHero))
+
+        Glide.with(this)
+            .load("https://files01.pna.gov.ph/source/2023/05/03/garbage-collection-05022023rn.jpg")
+            .centerCrop()
+            .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryOne))
+
+        Glide.with(this)
+            .load("https://www.rts.com/wp-content/uploads/2019/11/23405746_1953349674932539_6655836021756150616_o-1-1024x683.jpg")
+            .centerCrop()
+            .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryTwo))
     }
 
     private fun loadIncomingJobs(view: View) {

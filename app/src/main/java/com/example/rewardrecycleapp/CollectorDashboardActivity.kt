@@ -16,18 +16,45 @@ class CollectorDashboardActivity : AppCompatActivity() {
         binding = ActivityCollectorDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupToolbarBackButton()
+
         if (savedInstanceState == null) {
             loadFragment(CollectorDashboardFragment())
         }
 
         binding.collectorBottomNav.setOnItemSelectedListener { item ->
+            supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
             when (item.itemId) {
                 R.id.nav_home -> loadFragment(CollectorDashboardFragment())
                 R.id.nav_history -> loadFragment(CollectorHistoryFragment())
                 R.id.nav_notification -> loadFragment(NotificationFragment())
                 R.id.nav_profile -> loadFragment(ProfileFragment())
             }
+            updateBackButtonVisibility()
             true
+        }
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            updateBackButtonVisibility()
+        }
+    }
+
+    private fun setupToolbarBackButton() {
+        setSupportActionBar(binding.toolbarCollectorDashboard)
+        binding.toolbarCollectorDashboard.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        updateBackButtonVisibility()
+    }
+
+    private fun updateBackButtonVisibility() {
+        val hasBackStack = supportFragmentManager.backStackEntryCount > 0
+        supportActionBar?.setDisplayHomeAsUpEnabled(hasBackStack)
+        supportActionBar?.setHomeButtonEnabled(hasBackStack)
+        binding.toolbarCollectorDashboard.navigationIcon = if (hasBackStack) {
+            androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.abc_ic_ab_back_material)
+        } else {
+            null
         }
     }
 
