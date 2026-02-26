@@ -11,11 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        android:background="#E6EDF7"
+        android:background="#DDEFE3"
         android:theme="@style/ThemeOverlay.Material3.Light"
-        app:backgroundTint="#E6EDF7"
+        app:backgroundTint="#DDEFE3"
         app:navigationIconTint="#1F2A37"
         app:titleTextColor="#1F2A37"
+        app:elevation="6dp"
         app:title="Hi there 👋" />
 
     <FrameLayout
