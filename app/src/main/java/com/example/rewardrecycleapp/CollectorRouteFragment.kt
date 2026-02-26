@@ -36,8 +36,8 @@ class CollectorRouteFragment : Fragment() {
             startButton.isEnabled = false
             startButton.text = "Starting..."
 
-            val dummyLocation = "Collector is near Jaffna Town (dummy location)"
-            MobileBackendApi.startCollectorRoute(pickupId, dummyLocation) { success, data, message ->
+            val liveLocation = "Collector started route"
+            MobileBackendApi.startCollectorRoute(pickupId, liveLocation) { success, data, message ->
                 activity?.runOnUiThread {
                     if (!success || data == null) {
                         startButton.isEnabled = true

@@ -118,6 +118,9 @@ function scoreAddressZoneMatch(pickupAddress, collectorZone) {
 async function findBestAvailableCollector(household, pickupAddress = "") {
   if (!household) return null;
 
+  const sourceAddress = (pickupAddress || household.address || "").toString().trim();
+  if (!sourceAddress) return null;
+
   const activeCollectorFilter = { status: { $ne: "blocked" } };
   const collectors = await Collector.find(activeCollectorFilter);
   if (!collectors.length) return null;
@@ -144,21 +147,22 @@ async function findBestAvailableCollector(household, pickupAddress = "") {
       );
     }
 
-    const zoneMatchScore = scoreAddressZoneMatch(pickupAddress, col.zone);
+    const zoneMatchScore = scoreAddressZoneMatch(sourceAddress, col.zone);
 
     candidates.push({ collector: col, activeTasks, distanceKm, zoneMatchScore });
   }
 
-  if (!candidates.length) return null;
+  const matchingCandidates = candidates.filter((candidate) => candidate.zoneMatchScore > 0);
+  if (!matchingCandidates.length) return null;
 
-  // Assign collector whose zone is nearest match to pickup address, then by load and distance.
-  candidates.sort((a, b) => {
+  // Assign only when collector zone matches the household/pickup address.
+  matchingCandidates.sort((a, b) => {
     if (a.zoneMatchScore !== b.zoneMatchScore) return b.zoneMatchScore - a.zoneMatchScore;
     if (a.activeTasks !== b.activeTasks) return a.activeTasks - b.activeTasks;
     return a.distanceKm - b.distanceKm;
   });
 
-  return candidates[0].collector;
+  return matchingCandidates[0].collector;
 }
 
 /* ======================================================
@@ -357,7 +361,7 @@ exports.collectorStartRoute = async (req, res) => {
     const pickup = await Pickup.findById(req.params.id);
     if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
 
-    const liveLocation = req.body?.liveLocation || "Collector is near Jaffna Town (dummy location)";
+    const liveLocation = (req.body?.liveLocation || "").toString().trim();
     const latitude = typeof req.body?.latitude === "number" ? req.body.latitude : 9.6615;
     const longitude = typeof req.body?.longitude === "number" ? req.body.longitude : 80.0255;
 
