@@ -149,7 +149,7 @@ class HomeFragment : Fragment() {
             Announcement(
                 title = "Pickup Schedule Update",
                 description = "Saturday pickups move to 10 AM this week.",
-                imageUrl = "https://www.sundaytimes.lk/251109/uploads/9Y1A9867.jpg"
+                imageUrl = "https://asianmirror.lk/wp-content/uploads/2025/02/10.jpg"
             ),
             Announcement(
                 title = "Bonus Points Week",
