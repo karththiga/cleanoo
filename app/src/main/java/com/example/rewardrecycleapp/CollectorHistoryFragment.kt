@@ -1,5 +1,7 @@
 package com.example.rewardrecycleapp
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -59,16 +61,27 @@ class CollectorHistoryFragment : Fragment() {
         val recent = view.findViewById<LinearLayout>(R.id.layoutCollectorRecentJobs)
         val completed = view.findViewById<LinearLayout>(R.id.layoutCollectorCompletedJobs)
         val empty = view.findViewById<TextView>(R.id.tvCollectorJobsEmpty)
+        val activeSectionEmpty = view.findViewById<TextView>(R.id.tvActiveSectionEmpty)
+        val completedSectionEmpty = view.findViewById<TextView>(R.id.tvCompletedSectionEmpty)
+        val activeCount = view.findViewById<TextView>(R.id.tvActiveCount)
+        val completedCount = view.findViewById<TextView>(R.id.tvCompletedCount)
 
         recent.removeAllViews()
         completed.removeAllViews()
 
         if (jobs.length() == 0) {
             empty.visibility = View.VISIBLE
+            activeCount.text = "0"
+            completedCount.text = "0"
+            activeSectionEmpty.visibility = View.VISIBLE
+            completedSectionEmpty.visibility = View.VISIBLE
             return
         }
 
         empty.visibility = View.GONE
+
+        var activeTotal = 0
+        var completedTotal = 0
 
         for (i in 0 until jobs.length()) {
             val job = jobs.optJSONObject(i) ?: continue
@@ -79,29 +92,34 @@ class CollectorHistoryFragment : Fragment() {
                 job.optJSONObject("household")?.optString("name", "Household") ?: "Household"
             card.findViewById<TextView>(R.id.tvCollectorJobMeta).text =
                 "Pickup: ${job.optString("wasteType", "Waste")}"
-            card.findViewById<TextView>(R.id.tvCollectorJobStatus).text = statusLabel(status)
+
+            val statusTextView = card.findViewById<TextView>(R.id.tvCollectorJobStatus)
+            statusTextView.text = statusLabel(status)
+            styleStatusBadge(statusTextView, status)
+
+            val statusDot = card.findViewById<View>(R.id.viewCollectorStatusDot)
+            statusDot.backgroundTintList = ColorStateList.valueOf(statusDotColor(status))
 
             val btn = card.findViewById<Button>(R.id.btnCollectorJobPrimary)
             btn.text = "View details"
             btn.isEnabled = true
+            btn.backgroundTintList = ColorStateList.valueOf(buttonColor(status))
             btn.setOnClickListener { openJobDetails(job.optString("_id")) }
             card.setOnClickListener { openJobDetails(job.optString("_id")) }
 
             if (status == "completed") {
                 completed.addView(card)
+                completedTotal++
             } else {
                 recent.addView(card)
+                activeTotal++
             }
         }
-    }
 
-    private fun actionLabel(status: String): String {
-        return when (status) {
-            "assigned", "approved" -> "Start route"
-            "picked" -> "Job details"
-            "collector_completed" -> "Track confirmation"
-            else -> "Job details"
-        }
+        activeCount.text = activeTotal.toString()
+        completedCount.text = completedTotal.toString()
+        activeSectionEmpty.visibility = if (activeTotal == 0) View.VISIBLE else View.GONE
+        completedSectionEmpty.visibility = if (completedTotal == 0) View.VISIBLE else View.GONE
     }
 
     private fun openJobDetails(pickupId: String) {
@@ -114,11 +132,46 @@ class CollectorHistoryFragment : Fragment() {
 
     private fun statusLabel(status: String): String {
         return when (status) {
-            "assigned", "approved" -> "Ready to start route"
-            "picked" -> "Route started • Upload evidence"
-            "collector_completed" -> "Waiting for household confirmation"
+            "assigned", "approved" -> "Ready to start"
+            "picked" -> "Route started"
+            "collector_completed" -> "Waiting confirmation"
             "completed" -> "Completed"
             else -> status.replaceFirstChar { it.uppercase() }
         }
+    }
+
+    private fun styleStatusBadge(statusTextView: TextView, status: String) {
+        val (bg, text) = when (status) {
+            "assigned", "approved" -> "#DBEAFE" to "#1D4ED8"
+            "picked" -> "#DCFCE7" to "#166534"
+            "collector_completed" -> "#FEF3C7" to "#92400E"
+            "completed" -> "#EDE9FE" to "#5B21B6"
+            else -> "#E2E8F0" to "#334155"
+        }
+
+        statusTextView.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bg))
+        statusTextView.setTextColor(Color.parseColor(text))
+    }
+
+    private fun statusDotColor(status: String): Int {
+        val color = when (status) {
+            "assigned", "approved" -> "#2563EB"
+            "picked" -> "#16A34A"
+            "collector_completed" -> "#D97706"
+            "completed" -> "#7C3AED"
+            else -> "#64748B"
+        }
+        return Color.parseColor(color)
+    }
+
+    private fun buttonColor(status: String): Int {
+        val color = when (status) {
+            "completed" -> "#0F172A"
+            "collector_completed" -> "#1E293B"
+            "picked" -> "#14532D"
+            "assigned", "approved" -> "#1D4ED8"
+            else -> "#334155"
+        }
+        return Color.parseColor(color)
     }
 }

@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.Material3.Light"
-        app:title="RewardRecycle" />
+        app:title="Dashboard" />
 
     <FrameLayout
         android:id="@+id/collectorDashboardContainer"
