@@ -153,16 +153,21 @@ async function findBestAvailableCollector(household, pickupAddress = "") {
   }
 
   const matchingCandidates = candidates.filter((candidate) => candidate.zoneMatchScore > 0);
-  if (!matchingCandidates.length) return null;
 
-  // Assign only when collector zone matches the household/pickup address.
-  matchingCandidates.sort((a, b) => {
-    if (a.zoneMatchScore !== b.zoneMatchScore) return b.zoneMatchScore - a.zoneMatchScore;
-    if (a.activeTasks !== b.activeTasks) return a.activeTasks - b.activeTasks;
-    return a.distanceKm - b.distanceKm;
-  });
+  if (matchingCandidates.length) {
+    // If any household-address text matches collector zone, prefer the nearest matching collector.
+    matchingCandidates.sort((a, b) => {
+      if (a.distanceKm !== b.distanceKm) return a.distanceKm - b.distanceKm;
+      if (a.zoneMatchScore !== b.zoneMatchScore) return b.zoneMatchScore - a.zoneMatchScore;
+      return a.activeTasks - b.activeTasks;
+    });
 
-  return matchingCandidates[0].collector;
+    return matchingCandidates[0].collector;
+  }
+
+  // No place-name match found: assign a random active collector.
+  const randomIndex = Math.floor(Math.random() * candidates.length);
+  return candidates[randomIndex].collector;
 }
 
 /* ======================================================
