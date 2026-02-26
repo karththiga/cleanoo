@@ -109,7 +109,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = true
         map.uiSettings.isZoomControlsEnabled = true
-        map.setOnMapLongClickListener { location ->
+        map.setOnMapClickListener { location ->
             updateSelectedLocation(location, map.cameraPosition.zoom, recenterCamera = false)
         }
 
@@ -343,7 +343,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
-        if (locationMarker == null) {
+        if (!hasUserSelectedPin()) {
             Toast.makeText(this, "Drop a pin on the map to select pickup location", Toast.LENGTH_SHORT).show()
             return
         }
@@ -399,6 +399,10 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun hasUserSelectedPin(): Boolean {
+        return locationMarker != null
     }
 
     companion object {
