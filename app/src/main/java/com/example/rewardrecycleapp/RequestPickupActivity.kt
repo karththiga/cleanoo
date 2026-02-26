@@ -11,7 +11,11 @@ import android.location.Geocoder
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -94,6 +98,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         imgUpload.setOnClickListener { pickImage() }
         edtDate.setOnClickListener { pickDate(edtDate) }
         edtTime.setOnClickListener { pickTime(edtTime) }
+        edtLocation.addTextChangedListener(addressTextWatcher)
 
         btnSubmit.setOnClickListener {
             submitPickupRequest(selectedCategory, edtLocation.text.toString())
@@ -241,6 +246,33 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun markTypedAddressOnMap(address: String) {
+        thread {
+            val target = try {
+                val geocoder = Geocoder(this, Locale.getDefault())
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocationName(address, 1)?.firstOrNull()?.let {
+                    LatLng(it.latitude, it.longitude)
+                }
+            } catch (_: Exception) {
+                null
+            }
+
+            runOnUiThread {
+                if (target != null && !isFinishing && !isDestroyed) {
+                    updateMapLocation(target, 16f, updateAddressField = false, recenterCamera = true)
+                }
+            }
+        }
+    }
+
+    private fun safelySetLocationText(address: String) {
+        suppressAddressLookup = true
+        edtLocation.setText(address)
+        edtLocation.setSelection(address.length)
+        suppressAddressLookup = false
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -255,6 +287,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
+        geocodeHandler.removeCallbacksAndMessages(null)
         stopLocationUpdates()
     }
 
