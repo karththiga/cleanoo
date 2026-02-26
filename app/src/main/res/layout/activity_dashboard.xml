@@ -11,8 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
+        android:background="#E6EDF7"
         android:theme="@style/ThemeOverlay.Material3.Light"
-        app:title="RewardRecycle" />
+        app:backgroundTint="#E6EDF7"
+        app:navigationIconTint="#1F2A37"
+        app:titleTextColor="#1F2A37"
+        app:title="Hi there 👋" />
 
     <!-- Fragment Container -->
     <FrameLayout
