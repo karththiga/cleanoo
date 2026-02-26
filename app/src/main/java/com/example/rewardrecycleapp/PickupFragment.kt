@@ -5,9 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.app.AlertDialog
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import org.json.JSONArray
@@ -52,6 +56,13 @@ class PickupFragment : Fragment() {
                     loadPickupData(view)
                 }
             }
+        }
+
+
+        view.findViewById<Button>(R.id.btnCancelPickup)?.setOnClickListener {
+            val pickupId = latestPickup?.optString("_id")
+            if (pickupId.isNullOrBlank()) return@setOnClickListener
+            showCancelReasonDialog(view, pickupId)
         }
 
         view.findViewById<Button>(R.id.btnComplaintDelay)?.setOnClickListener {
@@ -111,7 +122,7 @@ class PickupFragment : Fragment() {
             view.findViewById<TextView>(R.id.tvActiveJobTitle).text = "${latest.optString("wasteType", "Waste")} Pickup"
             view.findViewById<TextView>(R.id.tvActiveJobMeta).text = latest.optString("address", "No address")
 
-            val collector = latest.optJSONObject("assignedCollector")?.optString("name") ?: "Awaiting assignment"
+            val collector = latest.optJSONObject("assignedCollector")?.optString("name") ?: "Waiting for collector assignment"
             val liveLocation = latest.optString("collectorLiveLocation", "")
             val collectorMeta = if (liveLocation.isBlank()) {
                 "Collector: $collector"
@@ -130,6 +141,9 @@ class PickupFragment : Fragment() {
 
             val delayButton = view.findViewById<Button>(R.id.btnComplaintDelay)
             delayButton.visibility = if (statusLower == "assigned" || statusLower == "approved") View.VISIBLE else View.GONE
+
+            val cancelButton = view.findViewById<Button>(R.id.btnCancelPickup)
+            cancelButton.visibility = if (statusLower == "pending" || statusLower == "assigned" || statusLower == "approved") View.VISIBLE else View.GONE
         }
 
         bindAllPickupCards(view, pickups)
@@ -152,7 +166,7 @@ class PickupFragment : Fragment() {
 
             item.findViewById<TextView>(R.id.tvItemWasteType).text = "${pickup.optString("wasteType", "Waste")} Pickup"
             item.findViewById<TextView>(R.id.tvItemAddress).text = pickup.optString("address", "No address")
-            val collectorText = pickup.optJSONObject("assignedCollector")?.optString("name") ?: "Awaiting assignment"
+            val collectorText = pickup.optJSONObject("assignedCollector")?.optString("name") ?: "Waiting for collector assignment"
             val liveLocationText = pickup.optString("collectorLiveLocation", "")
             item.findViewById<TextView>(R.id.tvItemCollector).text = "Collector: $collectorText"
             item.findViewById<TextView>(R.id.tvItemLiveLocation).text =
@@ -224,8 +238,46 @@ class PickupFragment : Fragment() {
             "collector_completed" -> "Collector completed • Please confirm"
             "picked" -> "Collector is on the way"
             "household_confirmed" -> "Confirmed by household"
+            "pending" -> "Waiting for collector assignment"
             else -> "Pending Pickup"
         }
+    }
+
+
+    private fun showCancelReasonDialog(view: View, pickupId: String) {
+        val reasons = listOf(
+            "No collector assigned",
+            "Pickup delayed too long",
+            "Address entered incorrectly",
+            "No waste available now",
+            "Other"
+        )
+
+        val spinner = Spinner(requireContext())
+        spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, reasons)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Cancel pickup request")
+            .setMessage("Select a reason")
+            .setView(spinner)
+            .setNegativeButton("Keep") { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton("Cancel pickup") { _, _ ->
+                val reason = spinner.selectedItem?.toString().orEmpty()
+                if (reason.isBlank()) return@setPositiveButton
+
+                MobileBackendApi.householdCancelPickup(pickupId, reason) { success, message ->
+                    activity?.runOnUiThread {
+                        if (!success) {
+                            Toast.makeText(requireContext(), message ?: "Cancellation failed", Toast.LENGTH_LONG).show()
+                            return@runOnUiThread
+                        }
+
+                        Toast.makeText(requireContext(), "Pickup cancelled", Toast.LENGTH_SHORT).show()
+                        loadPickupData(view)
+                    }
+                }
+            }
+            .show()
     }
 
     private fun openPickupDetails(pickupId: String?) {

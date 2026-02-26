@@ -165,9 +165,8 @@ async function findBestAvailableCollector(household, pickupAddress = "") {
     return matchingCandidates[0].collector;
   }
 
-  // No place-name match found: assign a random active collector.
-  const randomIndex = Math.floor(Math.random() * candidates.length);
-  return candidates[randomIndex].collector;
+  // No place-name match found: keep request waiting for collector assignment.
+  return null;
 }
 
 /* ======================================================
@@ -334,6 +333,44 @@ exports.rejectPickup = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Reject failed" });
+  }
+};
+
+/* ======================================================
+   HOUSEHOLD CANCEL PICKUP
+====================================================== */
+exports.householdCancelPickup = async (req, res) => {
+  try {
+    const pickup = await Pickup.findById(req.params.id);
+    if (!pickup) return res.status(404).json({ success: false, message: "Pickup not found" });
+
+    const reason = (req.body?.reason || "").toString().trim();
+    if (!reason) {
+      return res.status(400).json({ success: false, message: "Cancellation reason is required" });
+    }
+
+    if (!["pending", "approved", "assigned"].includes((pickup.status || "").toLowerCase())) {
+      return res.status(400).json({ success: false, message: "Only pending or assigned pickups can be cancelled" });
+    }
+
+    pickup.status = "cancelled";
+    pickup.cancelReason = reason;
+    pickup.cancelledDate = new Date();
+    pickup.assignedCollector = null;
+
+    await pickup.save();
+
+    await Notification.create({
+      title: "Pickup request cancelled",
+      message: `Household cancelled pickup request. Reason: ${reason}`,
+      target: "admin",
+      type: "admin_alert"
+    });
+
+    res.json({ success: true, data: pickup, message: "Pickup cancelled" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Cancel failed" });
   }
 };
 
