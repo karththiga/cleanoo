@@ -98,7 +98,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         imgUpload.setOnClickListener { pickImage() }
         edtDate.setOnClickListener { pickDate(edtDate) }
         edtTime.setOnClickListener { pickTime(edtTime) }
-        edtLocation.addTextChangedListener(addressTextWatcher)
+        //edtLocation.addTextChangedListener(addressTextWatcher)
 
         btnSubmit.setOnClickListener {
             submitPickupRequest(selectedCategory, edtLocation.text.toString())
@@ -246,32 +246,32 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun markTypedAddressOnMap(address: String) {
-        thread {
-            val target = try {
-                val geocoder = Geocoder(this, Locale.getDefault())
-                @Suppress("DEPRECATION")
-                geocoder.getFromLocationName(address, 1)?.firstOrNull()?.let {
-                    LatLng(it.latitude, it.longitude)
-                }
-            } catch (_: Exception) {
-                null
-            }
+//    private fun markTypedAddressOnMap(address: String) {
+//        thread {
+//            val target = try {
+//                val geocoder = Geocoder(this, Locale.getDefault())
+//                @Suppress("DEPRECATION")
+//                geocoder.getFromLocationName(address, 1)?.firstOrNull()?.let {
+//                    LatLng(it.latitude, it.longitude)
+//                }
+//            } catch (_: Exception) {
+//                null
+//            }
+//
+//            runOnUiThread {
+//                if (target != null && !isFinishing && !isDestroyed) {
+//                    updateMapLocation(target, 16f, updateAddressField = false, recenterCamera = true)
+//                }
+//            }
+//        }
+//    }
 
-            runOnUiThread {
-                if (target != null && !isFinishing && !isDestroyed) {
-                    updateMapLocation(target, 16f, updateAddressField = false, recenterCamera = true)
-                }
-            }
-        }
-    }
-
-    private fun safelySetLocationText(address: String) {
-        suppressAddressLookup = true
-        edtLocation.setText(address)
-        edtLocation.setSelection(address.length)
-        suppressAddressLookup = false
-    }
+//    private fun safelySetLocationText(address: String) {
+//        suppressAddressLookup = true
+//        edtLocation.setText(address)
+//        edtLocation.setSelection(address.length)
+//        suppressAddressLookup = false
+//    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -287,7 +287,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
-        geocodeHandler.removeCallbacksAndMessages(null)
+        //geocodeHandler.removeCallbacksAndMessages(null)
         stopLocationUpdates()
     }
 
