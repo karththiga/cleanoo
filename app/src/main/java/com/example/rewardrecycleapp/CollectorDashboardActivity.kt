@@ -29,13 +29,15 @@ class CollectorDashboardActivity : AppCompatActivity() {
                 R.id.nav_notification -> loadFragment(NotificationFragment())
                 R.id.nav_profile -> loadFragment(ProfileFragment())
             }
-            updateBackButtonVisibility()
+            updateToolbarUi()
             true
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
-            updateBackButtonVisibility()
+            updateToolbarUi()
         }
+
+        updateToolbarUi()
     }
 
     private fun setupToolbarBackButton() {
@@ -43,10 +45,10 @@ class CollectorDashboardActivity : AppCompatActivity() {
         binding.toolbarCollectorDashboard.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
-        updateBackButtonVisibility()
+        updateToolbarUi()
     }
 
-    private fun updateBackButtonVisibility() {
+    private fun updateToolbarUi() {
         val hasBackStack = supportFragmentManager.backStackEntryCount > 0
         supportActionBar?.setDisplayHomeAsUpEnabled(hasBackStack)
         supportActionBar?.setHomeButtonEnabled(hasBackStack)
@@ -55,11 +57,31 @@ class CollectorDashboardActivity : AppCompatActivity() {
         } else {
             null
         }
+
+        binding.toolbarCollectorDashboard.title = currentToolbarTitle()
+    }
+
+    private fun currentToolbarTitle(): String {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.collectorDashboardContainer)
+        return when (currentFragment) {
+            is CollectorDashboardFragment -> "Dashboard"
+            is CollectorHistoryFragment -> "Job History"
+            is NotificationFragment -> "Notifications"
+            is ProfileFragment -> "My Profile"
+            is CollectorJobDetailFragment -> "Job Details"
+            is CollectorEvidenceFragment -> "Upload Evidence"
+            is CollectorReviewFragment -> "Submit Review"
+            is CollectorComplaintFragment -> "Report Complaint"
+            else -> getString(R.string.app_name)
+        }
     }
 
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.collectorDashboardContainer, fragment)
             .commit()
+
+        supportFragmentManager.executePendingTransactions()
+        updateToolbarUi()
     }
 }
