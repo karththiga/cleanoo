@@ -73,6 +73,45 @@ const getMyHouseholdProfile = async (req, res) => {
 
 
 
+
+const redeemMyPoints = async (req, res) => {
+  try {
+    const firebaseUid = req.user?.uid;
+    if (!firebaseUid) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const household = await Household.findOne({ firebaseUid }).select("_id points");
+    if (!household) {
+      return res.status(404).json({ success: false, message: "Household profile not found for this account" });
+    }
+
+    const currentPoints = Number(household.points || 0);
+    if (currentPoints <= 0) {
+      return res.status(400).json({ success: false, message: "No points available to redeem" });
+    }
+
+    const pointsPerCurrencyUnit = 10;
+    const cashAmount = Number((currentPoints / pointsPerCurrencyUnit).toFixed(2));
+
+    household.points = 0;
+    await household.save();
+
+    return res.json({
+      success: true,
+      message: "Points added to your account",
+      data: {
+        redeemedPoints: currentPoints,
+        cashAmount,
+        remainingPoints: household.points
+      }
+    });
+  } catch (err) {
+    console.error("Redeem points error:", err);
+    return res.status(500).json({ success: false, message: "Failed to redeem points" });
+  }
+};
+
 const getMyRewardSummary = async (req, res) => {
   try {
     const firebaseUid = req.user?.uid;
@@ -325,6 +364,7 @@ module.exports = {
   createHouseholdProfile,
   getMyHouseholdProfile,
   getMyRewardSummary,
+  redeemMyPoints,
   updateMyHouseholdProfile,
   getHouseholds,
   deleteHousehold,
