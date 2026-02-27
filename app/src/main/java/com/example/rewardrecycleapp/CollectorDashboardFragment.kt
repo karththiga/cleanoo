@@ -87,15 +87,40 @@ class CollectorDashboardFragment : Fragment() {
     }
 
     private fun setupCollectorAnnouncements() {
-        val rootView = view ?: return
         val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-        val collectorId = prefs.getString("COLLECTOR_ID", null)
+        val savedCollectorId = prefs.getString("COLLECTOR_ID", null)
 
-        if (collectorId.isNullOrBlank()) {
+        if (!savedCollectorId.isNullOrBlank()) {
+            fetchCollectorAnnouncements(savedCollectorId)
+            return
+        }
+
+        val idToken = prefs.getString("ID_TOKEN", null)
+        if (idToken.isNullOrBlank()) {
             bindCollectorAnnouncements(emptyList())
             return
         }
 
+        MobileBackendApi.getMyCollectorProfile(idToken) { success, profile, _ ->
+            activity?.runOnUiThread {
+                if (!success || profile == null) {
+                    bindCollectorAnnouncements(emptyList())
+                    return@runOnUiThread
+                }
+
+                val collectorId = profile.optString("_id")
+                if (collectorId.isBlank()) {
+                    bindCollectorAnnouncements(emptyList())
+                    return@runOnUiThread
+                }
+
+                prefs.edit().putString("COLLECTOR_ID", collectorId).apply()
+                fetchCollectorAnnouncements(collectorId)
+            }
+        }
+    }
+
+    private fun fetchCollectorAnnouncements(collectorId: String) {
         MobileBackendApi.getMyNotifications(collectorId, "Collector") { success, data, _ ->
             activity?.runOnUiThread {
                 if (!success || data == null) {
