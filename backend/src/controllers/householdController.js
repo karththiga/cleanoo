@@ -2,6 +2,8 @@ const Household = require("../models/Household");
 const Pickup = require("../models/PickupRequest");
 const Reward = require("../models/Reward");
 
+const BLOCKED_LOGIN_MESSAGE = "admin blocked you.if you need further information contact municipal council";
+
 /* ==================================================
    MOBILE SIGNUP: CREATE HOUSEHOLD PROFILE
 ================================================== */
@@ -61,6 +63,13 @@ const getMyHouseholdProfile = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Household profile not found for this account"
+      });
+    }
+
+    if (household.status === "blocked") {
+      return res.status(403).json({
+        success: false,
+        message: BLOCKED_LOGIN_MESSAGE
       });
     }
 
