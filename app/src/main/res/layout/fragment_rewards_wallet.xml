@@ -69,6 +69,27 @@
                     android:textSize="12sp"
                     android:textColor="#10B981"
                     android:layout_marginTop="6dp" />
+
+                <TextView
+                    android:id="@+id/tvRedeemEstimate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Redeemable cash: Rs. 0.00"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:layout_marginTop="14dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRedeemPoints"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Redeem Points"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="@color/md_green_primary"
+                    app:cornerRadius="12dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
