@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:text="Collector Home"
             android:textColor="#0F172A"
-            android:textSize="30sp"
+            android:textSize="@dimen/collector_dashboard_title_text_size"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -26,7 +26,7 @@
             android:layout_marginTop="6dp"
             android:text="Manage jobs, route updates, evidence, and completion smoothly"
             android:textColor="#64748B"
-            android:textSize="14sp" />
+            android:textSize="@dimen/collector_dashboard_body_text_size" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -55,7 +55,7 @@
             android:layout_marginBottom="10dp"
             android:text="Announcements"
             android:textColor="#0F172A"
-            android:textSize="22sp"
+            android:textSize="@dimen/collector_dashboard_highlight_text_size"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -84,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:text="Active Jobs"
                     android:textColor="#0F172A"
-                    android:textSize="17sp"
+                    android:textSize="@dimen/collector_dashboard_card_title_text_size"
                     android:textStyle="bold" />
 
                 <TextView
@@ -94,7 +94,7 @@
                     android:layout_marginTop="8dp"
                     android:text="0 pending"
                     android:textColor="#2563EB"
-                    android:textSize="24sp"
+                    android:textSize="@dimen/collector_dashboard_metric_text_size"
                     android:textStyle="bold" />
 
                 <TextView
@@ -104,7 +104,7 @@
                     android:layout_marginTop="8dp"
                     android:text="No active jobs right now"
                     android:textColor="#64748B"
-                    android:textSize="14sp" />
+                    android:textSize="@dimen/collector_dashboard_body_text_size" />
 
                 <TextView
                     android:id="@+id/tvActiveJobTitle"
@@ -113,7 +113,7 @@
                     android:layout_marginTop="14dp"
                     android:text="No active pickup"
                     android:textColor="#111827"
-                    android:textSize="22sp"
+                    android:textSize="@dimen/collector_dashboard_highlight_text_size"
                     android:textStyle="bold" />
 
                 <TextView
@@ -123,7 +123,7 @@
                     android:layout_marginTop="6dp"
                     android:text="New assigned jobs will appear here"
                     android:textColor="#64748B"
-                    android:textSize="16sp" />
+                    android:textSize="@dimen/collector_dashboard_meta_text_size" />
 
                 <Button
                     android:id="@+id/btnPrimaryAction"
@@ -134,7 +134,7 @@
                     android:text="Start route"
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/collector_dashboard_button_primary_text_size"
                     android:textStyle="bold"
                     android:visibility="gone" />
 
@@ -147,7 +147,7 @@
                     android:text="View job details"
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/collector_dashboard_button_secondary_text_size"
                     android:textStyle="bold"
                     android:visibility="gone" />
 
@@ -194,7 +194,7 @@
             android:layout_marginBottom="10dp"
             android:text="Announcements"
             android:textColor="#0F172A"
-            android:textSize="20sp"
+            android:textSize="@dimen/collector_dashboard_section_title_text_size"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
