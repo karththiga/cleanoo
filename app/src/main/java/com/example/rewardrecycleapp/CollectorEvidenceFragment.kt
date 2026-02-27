@@ -50,6 +50,8 @@ class CollectorEvidenceFragment : Fragment() {
             val weightValue = weightInput.text.toString().trim()
             val statusView = view.findViewById<TextView>(R.id.tvEvidenceStatus)
 
+            weightInput.error = null
+
             if (imageUri == null) {
                 statusView.text = "Please upload a pickup photo"
                 Toast.makeText(requireContext(), "Please upload a pickup photo", Toast.LENGTH_LONG).show()
@@ -88,7 +90,9 @@ class CollectorEvidenceFragment : Fragment() {
                     saveButton.text = "Save evidence"
 
                     if (!success) {
-                        view.findViewById<TextView>(R.id.tvEvidenceStatus).text = message ?: "Evidence upload failed"
+                        val errorMessage = message ?: "Evidence upload failed"
+                        view.findViewById<TextView>(R.id.tvEvidenceStatus).text = errorMessage
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
                         return@runOnUiThread
                     }
 

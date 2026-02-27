@@ -681,8 +681,14 @@ exports.collectorPickup = async (req, res) => {
       return res.status(400).json({ message: "Start route before uploading proof" });
     }
 
-    if (!req.body.weight || Number(req.body.weight) <= 0) {
-      return res.status(400).json({ message: "Weight is required to complete pickup" });
+    const weightRaw = (req.body?.weight ?? "").toString().trim();
+    if (!weightRaw) {
+      return res.status(400).json({ message: "Please enter weight" });
+    }
+
+    const parsedWeight = Number(weightRaw);
+    if (!Number.isFinite(parsedWeight) || parsedWeight <= 0) {
+      return res.status(400).json({ message: "Please enter a valid pickup weight" });
     }
 
     pickup.collectorImage = req.file.filename;
@@ -690,7 +696,7 @@ exports.collectorPickup = async (req, res) => {
     pickup.status = "collector_completed";
     pickup.pickedDate = new Date(); // They picked it up
     pickup.completedDate = new Date();
-    pickup.weight = Number(req.body.weight);
+    pickup.weight = parsedWeight;
 
     await pickup.save();
 
