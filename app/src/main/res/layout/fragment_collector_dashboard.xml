@@ -171,6 +171,41 @@
 
 
         <TextView
+            android:id="@+id/tvCollectorRecentJobsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="10dp"
+            android:text="Recent Jobs"
+            android:textColor="#1D2939"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/progressCollectorRecentJobs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvCollectorRecentJobsEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="No recent jobs"
+            android:textColor="#6B7280"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layoutCollectorRecentJobs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="vertical" />
+
+
+        <TextView
             android:id="@+id/tvCollectorAnnouncementsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
