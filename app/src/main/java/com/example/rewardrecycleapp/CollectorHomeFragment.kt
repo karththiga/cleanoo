@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import org.json.JSONArray
+import org.json.JSONObject
 
 class CollectorHomeFragment : Fragment() {
 
@@ -73,10 +74,31 @@ class CollectorHomeFragment : Fragment() {
                     return@runOnUiThread
                 }
 
-                bindRecentJobs(root, data)
-                bindShiftSummary(root, data)
+                val sortedJobs = sortJobsByRecency(data)
+                bindRecentJobs(root, sortedJobs)
+                bindShiftSummary(root, sortedJobs)
             }
         }
+    }
+
+
+    private fun sortJobsByRecency(data: JSONArray): JSONArray {
+        val jobs = mutableListOf<JSONObject>()
+        for (i in 0 until data.length()) {
+            data.optJSONObject(i)?.let { jobs += it }
+        }
+
+        fun timestamp(job: JSONObject): String {
+            return job.optString("updatedAt")
+                .ifBlank { job.optString("createdAt") }
+                .ifBlank { "" }
+        }
+
+        jobs.sortByDescending { timestamp(it) }
+
+        val sorted = JSONArray()
+        jobs.forEach { sorted.put(it) }
+        return sorted
     }
 
     private fun bindRecentJobs(root: View, data: JSONArray) {
