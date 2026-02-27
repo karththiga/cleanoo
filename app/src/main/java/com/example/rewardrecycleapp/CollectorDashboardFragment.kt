@@ -78,18 +78,24 @@ class CollectorDashboardFragment : Fragment() {
     }
 
     private fun loadDashboardImages(view: View) {
+        val announcementStyleImages = listOf(
+            "https://asianmirror.lk/wp-content/uploads/2025/02/10.jpg",
+            "https://www.redcross.lk/wp-content/uploads/2016/06/IMG_0564.jpg",
+            "https://www.navy.lk/assets/img/cleanSL/36.webp"
+        )
+
         Glide.with(this)
-            .load("https://www.elanka.com.au/wp-content/uploads/2025/01/Clean-minds-essential-for-a-Clean-Sri-Lanka.-The-system-change-must-begin-with-mind-set-change.-By-Aubrey-Joachim.png")
+            .load(announcementStyleImages[0])
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorHero))
 
         Glide.with(this)
-            .load("https://www.navy.lk/assets/img/cleanSL/36.webp")
+            .load(announcementStyleImages[1])
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryOne))
 
         Glide.with(this)
-            .load("https://cleanupsrilanka.lk/wp-content/uploads/2024/07/cleanup-sri-lanka-1-1.webp")
+            .load(announcementStyleImages[2])
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryTwo))
     }
