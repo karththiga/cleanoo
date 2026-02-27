@@ -4,6 +4,7 @@ const Household = require("../models/Household");
 const Reward = require("../models/Reward");
 const Setting = require("../models/Setting");
 const Notification = require("../models/Notification");
+const Complaint = require("../models/Complaint");
 
 const ACTIVE_ASSIGNMENT_STATUSES = ["assigned", "approved", "picked", "collector_completed"];
 
@@ -568,6 +569,12 @@ exports.householdSubmitComplaint = async (req, res) => {
     pickup.householdComplaintDetail = detail;
     await pickup.save();
 
+    await Complaint.create({
+      user: pickup.household,
+      userType: "household",
+      message: `${category}: ${detail}`
+    });
+
     if (pickup.assignedCollector) {
       await Notification.create({
         title: "Household raised complaint",
@@ -633,6 +640,14 @@ exports.collectorSubmitComplaint = async (req, res) => {
     pickup.collectorComplaintCategory = category;
     pickup.collectorComplaintDetail = detail;
     await pickup.save();
+
+    if (pickup.assignedCollector) {
+      await Complaint.create({
+        user: pickup.assignedCollector,
+        userType: "collector",
+        message: `${category}: ${detail}`
+      });
+    }
 
     await Notification.create({
       title: "Collector raised complaint",
