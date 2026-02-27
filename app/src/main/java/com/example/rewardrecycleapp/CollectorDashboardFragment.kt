@@ -1,5 +1,7 @@
 package com.example.rewardrecycleapp
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.app.AlertDialog
 import android.content.Context
@@ -31,7 +33,7 @@ class CollectorDashboardFragment : Fragment() {
         super.onResume()
         view?.let {
             loadIncomingJobs(it)
-            setupAnnouncements(it)
+            setupCollectorAnnouncements()
         }
     }
 
@@ -73,31 +75,86 @@ class CollectorDashboardFragment : Fragment() {
         }
 
         loadIncomingJobs(view)
-        loadDashboardImages(view)
-        setupAnnouncements(view)
+        loadDashboardHeroImage(view)
+        setupCollectorAnnouncements()
     }
 
-    private fun loadDashboardImages(view: View) {
-        val announcementStyleImages = listOf(
-            "https://asianmirror.lk/wp-content/uploads/2025/02/10.jpg",
-            "https://www.redcross.lk/wp-content/uploads/2016/06/IMG_0564.jpg",
-            "https://www.navy.lk/assets/img/cleanSL/36.webp"
-        )
-
+    private fun loadDashboardHeroImage(view: View) {
         Glide.with(this)
-            .load(announcementStyleImages[0])
+            .load("https://asianmirror.lk/wp-content/uploads/2025/02/10.jpg")
             .centerCrop()
             .into(view.findViewById<ImageView>(R.id.ivCollectorHero))
+    }
 
-        Glide.with(this)
-            .load(announcementStyleImages[1])
-            .centerCrop()
-            .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryOne))
+    private fun setupCollectorAnnouncements() {
+        val rootView = view ?: return
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val collectorId = prefs.getString("COLLECTOR_ID", null)
 
-        Glide.with(this)
-            .load(announcementStyleImages[2])
-            .centerCrop()
-            .into(view.findViewById<ImageView>(R.id.ivCollectorGalleryTwo))
+        if (collectorId.isNullOrBlank()) {
+            bindCollectorAnnouncements(emptyList())
+            return
+        }
+
+        MobileBackendApi.getMyNotifications(collectorId, "Collector") { success, data, _ ->
+            activity?.runOnUiThread {
+                if (!success || data == null) {
+                    bindCollectorAnnouncements(emptyList())
+                    return@runOnUiThread
+                }
+
+                val announcements = mutableListOf<Announcement>()
+                for (i in 0 until data.length()) {
+                    val notification = data.optJSONObject(i) ?: continue
+                    if (!isCollectorAdminAnnouncement(notification)) continue
+
+                    announcements += Announcement(
+                        title = notification.optString("title", "Announcement"),
+                        description = notification.optString("message", ""),
+                        imageUrl = ""
+                    )
+                }
+
+                bindCollectorAnnouncements(announcements)
+            }
+        }
+    }
+
+    private fun isCollectorAdminAnnouncement(notification: JSONObject): Boolean {
+        val target = notification.optString("target", "")
+        val targetValue = notification.optString("targetValue", "")
+
+        return when (target) {
+            "all", "all_collectors" -> true
+            "single_collector" -> targetValue.isNotBlank()
+            else -> false
+        }
+    }
+
+    private fun bindCollectorAnnouncements(announcements: List<Announcement>) {
+        val recycler = view?.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerCollectorAnnouncements)
+            ?: return
+
+        val items = if (announcements.isEmpty()) {
+            listOf(
+                Announcement(
+                    title = "No announcements yet",
+                    description = "Admin broadcast announcements will appear here.",
+                    imageUrl = ""
+                )
+            )
+        } else {
+            announcements
+        }
+
+        recycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recycler.adapter = AnnouncementsAdapter(items) { announcement ->
+            AlertDialog.Builder(requireContext())
+                .setTitle(announcement.title)
+                .setMessage(announcement.description.ifBlank { "No details available" })
+                .setPositiveButton("Close", null)
+                .show()
+        }
     }
 
     private fun loadIncomingJobs(view: View) {
@@ -120,7 +177,6 @@ class CollectorDashboardFragment : Fragment() {
                 if (data.length() > 0) {
                     bindActiveJob(view, data.optJSONObject(0))
                 } else {
-                    // If there are no pending jobs, show latest completed job to allow review/complaint actions.
                     loadLatestCompletedJob(view)
                 }
             }
