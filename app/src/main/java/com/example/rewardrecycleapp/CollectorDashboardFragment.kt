@@ -147,14 +147,13 @@ class CollectorDashboardFragment : Fragment() {
     }
 
     private fun isCollectorAdminAnnouncement(notification: JSONObject): Boolean {
-        val target = notification.optString("target", "")
-        val targetValue = notification.optString("targetValue", "")
+        val target = notification.optString("target", "").lowercase()
+        val type = notification.optString("type", "").lowercase()
 
-        return when (target) {
-            "all", "all_collectors" -> true
-            "single_collector" -> targetValue.isNotBlank()
-            else -> false
-        }
+        val isBroadcast = target == "all" || target == "all_collectors"
+        val isAdminAnnouncementType = type == "info" || type == "admin_alert"
+
+        return isBroadcast && isAdminAnnouncementType
     }
 
     private fun bindCollectorAnnouncements(announcements: List<Announcement>) {
@@ -243,10 +242,13 @@ class CollectorDashboardFragment : Fragment() {
     }
 
     private fun isBroadcastAnnouncement(notification: JSONObject): Boolean {
-        return when (notification.optString("target")) {
-            "all", "all_collectors" -> true
-            else -> false
-        }
+        val target = notification.optString("target", "").lowercase()
+        val type = notification.optString("type", "").lowercase()
+
+        val isBroadcast = target == "all" || target == "all_collectors"
+        val isAdminAnnouncementType = type == "info" || type == "admin_alert"
+
+        return isBroadcast && isAdminAnnouncementType
     }
 
     private fun bindAnnouncements(view: View, announcements: List<Announcement>) {
