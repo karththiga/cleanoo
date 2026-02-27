@@ -70,28 +70,32 @@
                     android:textColor="#10B981"
                     android:layout_marginTop="6dp" />
 
-                <TextView
-                    android:id="@+id/tvRedeemEstimate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Redeemable cash: Rs. 0.00"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="#111827"
-                    android:layout_marginTop="14dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRedeemPoints"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Redeem Points"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    app:backgroundTint="@color/md_green_primary"
-                    app:cornerRadius="12dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tvRedeemEstimate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Redeemable cash: Rs. 0.00"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="10dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRedeemPoints"
+            style="@style/AppPrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="20dp"
+            android:text="Redeem Points"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:backgroundTint="@color/md_green_primary"
+            app:cornerRadius="14dp" />
 
         <TextView
             android:layout_width="wrap_content"
