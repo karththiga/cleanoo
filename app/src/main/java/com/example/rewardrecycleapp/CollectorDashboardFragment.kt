@@ -1,6 +1,8 @@
 package com.example.rewardrecycleapp
 
 import android.os.Bundle
+import android.app.AlertDialog
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import org.json.JSONArray
 import org.json.JSONObject
@@ -26,7 +29,10 @@ class CollectorDashboardFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        view?.let { loadIncomingJobs(it) }
+        view?.let {
+            loadIncomingJobs(it)
+            setupAnnouncements(it)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,6 +74,7 @@ class CollectorDashboardFragment : Fragment() {
 
         loadIncomingJobs(view)
         loadDashboardImages(view)
+        setupAnnouncements(view)
     }
 
     private fun loadDashboardImages(view: View) {
@@ -111,6 +118,70 @@ class CollectorDashboardFragment : Fragment() {
                     loadLatestCompletedJob(view)
                 }
             }
+        }
+    }
+
+    private fun setupAnnouncements(view: View) {
+        val collectorId = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            .getString("COLLECTOR_ID", null)
+
+        if (collectorId.isNullOrBlank()) {
+            bindAnnouncements(view, emptyList())
+            return
+        }
+
+        MobileBackendApi.getMyNotifications(collectorId, "Collector") { success, data, _ ->
+            activity?.runOnUiThread {
+                if (!success || data == null) {
+                    bindAnnouncements(view, emptyList())
+                    return@runOnUiThread
+                }
+
+                val announcements = mutableListOf<Announcement>()
+                for (i in 0 until data.length()) {
+                    val notification = data.optJSONObject(i) ?: continue
+                    if (!isBroadcastAnnouncement(notification)) continue
+
+                    announcements += Announcement(
+                        title = notification.optString("title", "Announcement"),
+                        description = notification.optString("message", ""),
+                        imageUrl = ""
+                    )
+                }
+
+                bindAnnouncements(view, announcements)
+            }
+        }
+    }
+
+    private fun isBroadcastAnnouncement(notification: JSONObject): Boolean {
+        return when (notification.optString("target")) {
+            "all", "all_collectors" -> true
+            else -> false
+        }
+    }
+
+    private fun bindAnnouncements(view: View, announcements: List<Announcement>) {
+        val items = if (announcements.isEmpty()) {
+            listOf(
+                Announcement(
+                    title = "No announcements yet",
+                    description = "Admin broadcast announcements will appear here.",
+                    imageUrl = ""
+                )
+            )
+        } else {
+            announcements
+        }
+
+        val recycler = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerCollectorAnnouncements)
+        recycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recycler.adapter = AnnouncementsAdapter(items) { announcement ->
+            AlertDialog.Builder(requireContext())
+                .setTitle(announcement.title)
+                .setMessage(announcement.description.ifBlank { "No details available" })
+                .setPositiveButton("Close", null)
+                .show()
         }
     }
 
@@ -189,10 +260,6 @@ class CollectorDashboardFragment : Fragment() {
             "picked" -> {
                 primary.text = "Add evidence"
                 primary.isEnabled = true
-            }
-            "collector_completed" -> {
-                primary.text = "Collector completed"
-                primary.isEnabled = false
             }
             "collector_completed", "completed" -> {
                 primary.visibility = View.GONE

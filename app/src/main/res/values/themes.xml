@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.RewardRecycleApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.RewardRecycleApp" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/md_green_primary</item>
         <item name="colorPrimaryContainer">@color/md_green_secondary</item>
         <item name="colorSecondary">@color/md_green_secondary</item>
