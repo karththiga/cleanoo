@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import java.io.File
@@ -45,18 +46,34 @@ class CollectorEvidenceFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.btnSaveEvidence).setOnClickListener {
-            val weightValue = view.findViewById<EditText>(R.id.edtEvidenceWeight).text.toString().trim()
+            val weightInput = view.findViewById<EditText>(R.id.edtEvidenceWeight)
+            val weightValue = weightInput.text.toString().trim()
+            val statusView = view.findViewById<TextView>(R.id.tvEvidenceStatus)
+
             if (imageUri == null) {
-                view.findViewById<TextView>(R.id.tvEvidenceStatus).text = "Please upload a pickup photo"
+                statusView.text = "Please upload a pickup photo"
+                Toast.makeText(requireContext(), "Please upload a pickup photo", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
+
             if (weightValue.isBlank()) {
-                view.findViewById<TextView>(R.id.tvEvidenceStatus).text = "Please enter pickup weight"
+                weightInput.error = "Please enter weight"
+                statusView.text = "Please enter pickup weight"
+                Toast.makeText(requireContext(), "Please enter weight", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            val weightNumber = weightValue.toDoubleOrNull()
+            if (weightNumber == null || weightNumber <= 0.0) {
+                weightInput.error = "Weight must be greater than 0"
+                statusView.text = "Please enter a valid pickup weight"
+                Toast.makeText(requireContext(), "Please enter a valid pickup weight", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
             val imageFile = createTempImageFile(imageUri!!) ?: run {
-                view.findViewById<TextView>(R.id.tvEvidenceStatus).text = "Failed to process image"
+                statusView.text = "Failed to process image"
+                Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 

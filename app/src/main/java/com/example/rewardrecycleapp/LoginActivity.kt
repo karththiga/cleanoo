@@ -12,6 +12,8 @@ import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
+    private val blockedMessage = "admin blocked you.if you need further information contact municipal council"
+
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private var selectedRole: UserRole = UserRole.HOUSEHOLD
@@ -118,7 +120,14 @@ class LoginActivity : AppCompatActivity() {
         MobileBackendApi.getMyHouseholdProfile(idToken) { success, profile, message ->
             runOnUiThread {
                 if (!success || profile == null) {
+                    if (handleBlockedLoginIfNeeded(message, null)) {
+                        return@runOnUiThread
+                    }
                     Toast.makeText(this, message ?: "Household profile not found", Toast.LENGTH_LONG).show()
+                    return@runOnUiThread
+                }
+
+                if (handleBlockedLoginIfNeeded(null, profile.optString("status"))) {
                     return@runOnUiThread
                 }
 
@@ -151,7 +160,14 @@ class LoginActivity : AppCompatActivity() {
         MobileBackendApi.getMyCollectorProfile(idToken) { success, profile, message ->
             runOnUiThread {
                 if (!success || profile == null) {
+                    if (handleBlockedLoginIfNeeded(message, null)) {
+                        return@runOnUiThread
+                    }
                     Toast.makeText(this, message ?: "Collector profile not found", Toast.LENGTH_LONG).show()
+                    return@runOnUiThread
+                }
+
+                if (handleBlockedLoginIfNeeded(null, profile.optString("status"))) {
                     return@runOnUiThread
                 }
 
@@ -178,6 +194,21 @@ class LoginActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+
+    private fun handleBlockedLoginIfNeeded(message: String?, profileStatus: String?): Boolean {
+        val isBlockedMessage = message?.trim()?.equals(blockedMessage, ignoreCase = true) == true
+        val isBlockedStatus = profileStatus?.trim()?.equals("blocked", ignoreCase = true) == true
+
+        if (!isBlockedMessage && !isBlockedStatus) {
+            return false
+        }
+
+        auth.signOut()
+        getSharedPreferences("auth_prefs", MODE_PRIVATE).edit().clear().apply()
+        Toast.makeText(this, blockedMessage, Toast.LENGTH_LONG).show()
+        return true
     }
 
     enum class UserRole(val value: String) {
