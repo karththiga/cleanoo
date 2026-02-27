@@ -550,6 +550,33 @@ object MobileBackendApi {
     }
 
 
+
+    fun redeemMyPoints(
+        idToken: String,
+        onResult: (Boolean, JSONObject?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("$HOUSEHOLD_BASE_URL/me/redeem")
+            .addHeader("Authorization", "Bearer $idToken")
+            .put("".toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) = onResult(false, null, e.message)
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    val body = it.body?.string()
+                    if (it.isSuccessful) {
+                        val root = JSONObject(body ?: "{}")
+                        onResult(true, root.optJSONObject("data"), root.optString("message", "Points added to your account"))
+                    } else {
+                        onResult(false, null, extractMessage(body, "Redeem failed"))
+                    }
+                }
+            }
+        })
+    }
+
     fun getMyRewardsSummary(
         idToken: String,
         onResult: (Boolean, JSONObject?, String?) -> Unit
