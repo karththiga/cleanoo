@@ -1,3 +1,14 @@
 <resources>
-      <dimen name="fab_margin">16dp</dimen>
-   </resources>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Collector dashboard typography (aligned with household screen scale) -->
+    <dimen name="collector_dashboard_title_text_size">22sp</dimen>
+    <dimen name="collector_dashboard_body_text_size">14sp</dimen>
+    <dimen name="collector_dashboard_section_title_text_size">20sp</dimen>
+    <dimen name="collector_dashboard_card_title_text_size">17sp</dimen>
+    <dimen name="collector_dashboard_metric_text_size">24sp</dimen>
+    <dimen name="collector_dashboard_highlight_text_size">22sp</dimen>
+    <dimen name="collector_dashboard_meta_text_size">16sp</dimen>
+    <dimen name="collector_dashboard_button_primary_text_size">16sp</dimen>
+    <dimen name="collector_dashboard_button_secondary_text_size">16sp</dimen>
+</resources>
