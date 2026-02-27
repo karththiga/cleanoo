@@ -3,6 +3,8 @@ const PickupRequest = require("../models/PickupRequest");
 const bcrypt = require("bcryptjs");
 const admin = require("../config/firebase"); // Import Firebase Admin
 
+const BLOCKED_LOGIN_MESSAGE = "admin blocked you.if you need further information contact municipal council";
+
 // GET ALL COLLECTORS
 const getCollectors = async (req, res) => {
   try {
@@ -198,6 +200,10 @@ const getMyCollectorProfile = async (req, res) => {
     const collector = await Collector.findOne({ uid }).select("-password");
     if (!collector) {
       return res.status(404).json({ success: false, message: "Collector profile not found for this account" });
+    }
+
+    if (collector.status === "blocked") {
+      return res.status(403).json({ success: false, message: BLOCKED_LOGIN_MESSAGE });
     }
 
     return res.json({ success: true, data: collector });

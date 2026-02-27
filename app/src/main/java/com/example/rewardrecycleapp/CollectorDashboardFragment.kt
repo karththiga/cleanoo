@@ -3,13 +3,12 @@ package com.example.rewardrecycleapp
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import android.app.AlertDialog
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -33,6 +32,7 @@ class CollectorDashboardFragment : Fragment() {
         super.onResume()
         view?.let {
             loadIncomingJobs(it)
+            loadRecentJobs(it)
             setupCollectorAnnouncements()
         }
     }
@@ -75,6 +75,7 @@ class CollectorDashboardFragment : Fragment() {
         }
 
         loadIncomingJobs(view)
+        loadRecentJobs(view)
         loadDashboardHeroImage(view)
         setupCollectorAnnouncements()
     }
@@ -146,14 +147,13 @@ class CollectorDashboardFragment : Fragment() {
     }
 
     private fun isCollectorAdminAnnouncement(notification: JSONObject): Boolean {
-        val target = notification.optString("target", "")
-        val targetValue = notification.optString("targetValue", "")
+        val target = notification.optString("target", "").lowercase()
+        val type = notification.optString("type", "").lowercase()
 
-        return when (target) {
-            "all", "all_collectors" -> true
-            "single_collector" -> targetValue.isNotBlank()
-            else -> false
-        }
+        val isBroadcast = target == "all" || target == "all_collectors"
+        val isAdminAnnouncementType = type == "info" || type == "admin_alert"
+
+        return isBroadcast && isAdminAnnouncementType
     }
 
     private fun bindCollectorAnnouncements(announcements: List<Announcement>) {
@@ -242,10 +242,13 @@ class CollectorDashboardFragment : Fragment() {
     }
 
     private fun isBroadcastAnnouncement(notification: JSONObject): Boolean {
-        return when (notification.optString("target")) {
-            "all", "all_collectors" -> true
-            else -> false
-        }
+        val target = notification.optString("target", "").lowercase()
+        val type = notification.optString("type", "").lowercase()
+
+        val isBroadcast = target == "all" || target == "all_collectors"
+        val isAdminAnnouncementType = type == "info" || type == "admin_alert"
+
+        return isBroadcast && isAdminAnnouncementType
     }
 
     private fun bindAnnouncements(view: View, announcements: List<Announcement>) {
@@ -357,6 +360,115 @@ class CollectorDashboardFragment : Fragment() {
                 primary.text = "Open details"
                 primary.isEnabled = true
             }
+        }
+    }
+
+    private fun loadRecentJobs(view: View) {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val cachedCollectorId = prefs.getString("COLLECTOR_ID", null)
+
+        if (!cachedCollectorId.isNullOrBlank()) {
+            fetchAndBindRecentJobs(view, cachedCollectorId)
+            return
+        }
+
+        val idToken = prefs.getString("ID_TOKEN", null)
+        if (idToken.isNullOrBlank()) {
+            showRecentJobsMessage(view, "Collector session not found")
+            return
+        }
+
+        MobileBackendApi.getMyCollectorProfile(idToken) { success, profile, _ ->
+            activity?.runOnUiThread {
+                if (!success || profile == null) {
+                    showRecentJobsMessage(view, "Unable to load recent jobs")
+                    return@runOnUiThread
+                }
+
+                val collectorId = profile.optString("_id")
+                if (collectorId.isBlank()) {
+                    showRecentJobsMessage(view, "Collector session not found")
+                    return@runOnUiThread
+                }
+
+                prefs.edit().putString("COLLECTOR_ID", collectorId).apply()
+                fetchAndBindRecentJobs(view, collectorId)
+            }
+        }
+    }
+
+    private fun fetchAndBindRecentJobs(view: View, collectorId: String) {
+        val progress = view.findViewById<View>(R.id.progressCollectorRecentJobs)
+        progress.visibility = View.VISIBLE
+
+        MobileBackendApi.getCollectorJobHistory(collectorId) { success, data, message ->
+            activity?.runOnUiThread {
+                progress.visibility = View.GONE
+                if (!success || data == null) {
+                    showRecentJobsMessage(view, message ?: "Unable to load recent jobs")
+                    return@runOnUiThread
+                }
+
+                bindRecentJobs(view, sortJobsByRecency(data))
+            }
+        }
+    }
+
+    private fun sortJobsByRecency(data: JSONArray): List<JSONObject> {
+        val jobs = mutableListOf<JSONObject>()
+        for (i in 0 until data.length()) {
+            data.optJSONObject(i)?.let { jobs += it }
+        }
+
+        jobs.sortByDescending {
+            it.optString("updatedAt").ifBlank { it.optString("createdAt") }
+        }
+        return jobs
+    }
+
+    private fun bindRecentJobs(view: View, jobs: List<JSONObject>) {
+        val container = view.findViewById<LinearLayout>(R.id.layoutCollectorRecentJobs)
+        val empty = view.findViewById<TextView>(R.id.tvCollectorRecentJobsEmpty)
+        container.removeAllViews()
+
+        val limit = minOf(3, jobs.size)
+        if (limit == 0) {
+            empty.visibility = View.VISIBLE
+            empty.text = "No recent jobs"
+            return
+        }
+
+        empty.visibility = View.GONE
+        for (i in 0 until limit) {
+            val job = jobs[i]
+            val item = layoutInflater.inflate(R.layout.item_recent_request_home, container, false)
+
+            val household = job.optJSONObject("household")?.optString("name")
+                ?.takeIf { it.isNotBlank() }
+                ?: "Household"
+
+            item.findViewById<TextView>(R.id.tvRecentWasteType).text =
+                "$household • ${job.optString("wasteType", "Waste")}"
+            item.findViewById<TextView>(R.id.tvRecentAddress).text =
+                job.optString("address", "No address")
+            item.findViewById<TextView>(R.id.tvRecentStatus).text =
+                when (job.optString("status", "").lowercase()) {
+                    "completed" -> "Completed"
+                    "picked" -> "On The Way"
+                    "household_confirmed" -> "Awaiting Evidence"
+                    "approved", "assigned" -> "Assigned"
+                    else -> "Pending"
+                }
+
+            container.addView(item)
+        }
+    }
+
+    private fun showRecentJobsMessage(view: View, message: String) {
+        view.findViewById<LinearLayout>(R.id.layoutCollectorRecentJobs).removeAllViews()
+        view.findViewById<TextView>(R.id.tvCollectorRecentJobsEmpty).apply {
+            visibility = View.VISIBLE
+            text = message
         }
     }
 
