@@ -161,6 +161,7 @@ object MobileBackendApi {
         householdId: String,
         wasteType: String,
         address: String,
+        weight: Double,
         imageFile: File,
         onResult: (Boolean, String?) -> Unit
     ) {
@@ -168,6 +169,7 @@ object MobileBackendApi {
             put("household", householdId)
             put("wasteType", wasteType)
             put("address", address)
+            put("weight", weight)
         }
 
         val formBody = MultipartBody.Builder()
