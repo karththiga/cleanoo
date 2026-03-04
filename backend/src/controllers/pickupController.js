@@ -235,18 +235,39 @@ exports.getPickupById = async (req, res) => {
 exports.createRequest = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: "Image required" });
+      return res.status(400).json({ success: false, message: "Please upload image" });
     }
 
-    const data = JSON.parse(req.body.data);
+    const data = JSON.parse(req.body.data || "{}");
+    const householdId = (data.household || "").toString().trim();
+    const wasteType = (data.wasteType || "").toString().trim();
+    const address = (data.address || "").toString().trim();
+    const rawWeight = data.weight;
+    const parsedWeight = Number(rawWeight);
+
+    if (!householdId) {
+      return res.status(400).json({ success: false, message: "Please select household" });
+    }
+
+    if (!wasteType) {
+      return res.status(400).json({ success: false, message: "Please enter item/category" });
+    }
+
+    if (!address) {
+      return res.status(400).json({ success: false, message: "Please enter location" });
+    }
+
+    if (!Number.isFinite(parsedWeight) || parsedWeight <= 0) {
+      return res.status(400).json({ success: false, message: "Please enter weight" });
+    }
 
     // AUTO-ASSIGN LOGIC (nearest available collector in zone)
     let status = "pending";
     let assignedCollector = null;
 
     try {
-      const household = await Household.findById(data.household);
-      const bestCollector = await findBestAvailableCollector(household, data.address);
+      const household = await Household.findById(householdId);
+      const bestCollector = await findBestAvailableCollector(household, address);
       if (bestCollector) {
         assignedCollector = bestCollector._id;
         status = "assigned";
@@ -256,11 +277,14 @@ exports.createRequest = async (req, res) => {
     }
 
     // 🛡️ SECURITY: Remove sensitive fields households shouldn't set
-    const { weight, points, ...safeData } = data;
+    const { points, ...safeData } = data;
 
     const created = await Pickup.create({
       ...safeData,
-      weight: 0, // Ensure weight starts at 0 (set by Collector/Admin later)
+      household: householdId,
+      wasteType,
+      address,
+      weight: parsedWeight,
       householdImage: req.file.filename,
       status: status,
       assignedCollector: assignedCollector,
@@ -271,7 +295,7 @@ exports.createRequest = async (req, res) => {
     // 🔔 NOTIFY ADMIN
     await Notification.create({
       title: "New Pickup Request",
-      message: `New request from household for ${data.wasteType} waste.`,
+      message: `New request from household for ${wasteType} waste.`,
       target: "admin",
       type: "admin_alert"
     });
@@ -279,7 +303,7 @@ exports.createRequest = async (req, res) => {
     if (assignedCollector) {
       await Notification.create({
         title: "New Pickup Assigned",
-        message: `A new ${data.wasteType} pickup has been assigned to you.`,
+        message: `A new ${wasteType} pickup has been assigned to you.`,
         target: "single_collector",
         userId: assignedCollector,
         userType: "Collector",

@@ -78,6 +78,7 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         edtLocation = findViewById(R.id.edtLocation)
         val edtDate = findViewById<EditText>(R.id.edtDate)
         val edtTime = findViewById<EditText>(R.id.edtTime)
+        val edtWeight = findViewById<EditText>(R.id.edtWeight)
         val btnSubmit = findViewById<Button>(R.id.btnSubmitPickup)
 
         val categories = mapOf(
@@ -101,7 +102,11 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         //edtLocation.addTextChangedListener(addressTextWatcher)
 
         btnSubmit.setOnClickListener {
-            submitPickupRequest(selectedCategory, edtLocation.text.toString())
+            submitPickupRequest(
+                category = selectedCategory,
+                location = edtLocation.text.toString(),
+                weightText = edtWeight.text.toString()
+            )
         }
     }
 
@@ -331,9 +336,9 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         TimePickerDialog(this, { _, h, m -> editText.setText("$h:$m") }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), true).show()
     }
 
-    private fun submitPickupRequest(category: String, location: String) {
+    private fun submitPickupRequest(category: String, location: String, weightText: String) {
         if (category.isBlank()) {
-            Toast.makeText(this, "Select category", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please select item/category", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -349,7 +354,13 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val selectedImage = imageUri
         if (selectedImage == null) {
-            Toast.makeText(this, "Upload waste image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please upload waste image", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val parsedWeight = weightText.trim().toDoubleOrNull()
+        if (parsedWeight == null || parsedWeight <= 0.0) {
+            Toast.makeText(this, "Please enter weight", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -370,7 +381,13 @@ class RequestPickupActivity : AppCompatActivity(), OnMapReadyCallback {
         submitButton.isEnabled = false
         submitButton.text = "Submitting..."
 
-        MobileBackendApi.submitPickupRequest(householdId, category, location, imageFile) { success, message ->
+        MobileBackendApi.submitPickupRequest(
+            householdId = householdId,
+            wasteType = category,
+            address = location,
+            weight = parsedWeight,
+            imageFile = imageFile
+        ) { success, message ->
             runOnUiThread {
                 imageFile.delete()
                 submitButton.isEnabled = true
